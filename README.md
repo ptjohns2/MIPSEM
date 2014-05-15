@@ -1,7 +1,12 @@
-MIPSEM
+MIPSEM (C++)  
 
-MIPS32 assembler, disassembler, and emulator written in C++. A work in progress, intended to be a useful tool for students learning MIPS32 assembly to use as a light weight command line alternative to the more popular MIPS32 emulation environments such as MARS and SPIM.
+Assembler, disassembler, and emulator for MIPS32 assembly.  Enables the encoding and decoding of all MIPS32 instructions.  Planned for emulation of a virtual MIPS32 CPU.  
+  
+Implements numerous data structures for optimization such as:  
+	-Hash table based instruction encoding  
+	-Binary search tree based instruction decoding  
+	-Cache for the most commonly decoded instruction types  
 
-Progress: Instruction encoding Instruction decoding
+A work in progress.  
 
-TODO: Macro support .asm file cleanup Emulation of instructions
+
