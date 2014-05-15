@@ -17,7 +17,6 @@ class mnemonics{
 		static string getFPRegName(ufield num);
 		static int getFPRegField(string name);
 
-		static pair<bitRange, bitRange> getArgumentFieldBitRanges(string fieldName);
 		static bitRange getBitRangeFromField(string fieldName);
 
 

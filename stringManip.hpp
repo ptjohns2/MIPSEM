@@ -14,7 +14,8 @@ class stringManip{
 		static string trimEnd(string);
 		static string trim(string);
 		static int contains(string, string);
-		static string replace(string str, char before, char after);
+		static string replaceChar(string str, char before, char after);
+
 		static string sanitizeInstruction(string);
 		static vector<string> tokenizeInstruction(string);
 		

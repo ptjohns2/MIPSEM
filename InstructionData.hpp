@@ -12,18 +12,6 @@ using namespace std;
 class InstructionData{
 	public:
 		InstructionData();
-		InstructionData
-			(
-				int id,
-				string name, 
-				string format, 
-				string opcode,
-				string fields,
-				string pos1,
-				string pos2, 
-				string pos3,
-				string pos4
-			);
 		InstructionData(string);
 		~InstructionData();
 
@@ -34,12 +22,8 @@ class InstructionData{
 
 		string getOpcode();
 		string getFields();
-		
-		string getPos1();
-		string getPos2();
-		string getPos3();
-		string getPos4();
 
+		vector<string> getArguments();
 		
 		string getFull();
 		string getHashableName();
@@ -47,9 +31,7 @@ class InstructionData{
 		bool bitIsMatch(string);
 		bool stringIsMatch(string);
 
-		static string generateHashableName(string name, string pos1, string pos2, string pos3, string pos4);
-		vector<string> tokenizeString(string str);
-		string toString();
+		static string generateHashableName(string name, vector<string> arguments);
 
 	private:
 		int id;
@@ -60,25 +42,20 @@ class InstructionData{
 		string opcode;	//	31,26
 		string fields;	//	25,0
 		
-		string pos1;
-		string pos2;
-		string pos3;
-		string pos4;
+		vector<string> arguments;
+		bool abnormalEncoding;
 	/*	//	Position syntax: (msb = 31, lsb = 0)
 		//	$ptr	.val
 		$[%msb%,%lsb%]			//
 		$%register_mnemonic%	//
 		.[%msb%,%lsb%]			//
 		.imm					//
-		offset(base)			//	.offset, $base
-		%1% %2%					//	space seperated tokens shows that the value in that argument goes to BOTH %1% and %2%
+		offset (base)			//	left paired with (right) always
 		_						//	'_' means no argument		*/
 		//non-config info
+
 		string full;
 		string hashableName;
-
-
-
 };
 
 

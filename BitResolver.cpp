@@ -1,22 +1,18 @@
 #include "BitResolver.hpp"
 #include <cassert>
 #include <bitset>
-#include "decode.hpp"
 #include "stringManip.hpp"
 
 //class OpcodeResolver
 //	Constructors
-BitResolver::BitResolver()
-{
+BitResolver::BitResolver(){
 	clearCache();
-	num = 0;
 }
 BitResolver::BitResolver(InstructionDataBank* bank){
 	clearCache();
 	addInstructionDataBank(bank);
 }
-BitResolver::~BitResolver()
-{
+BitResolver::~BitResolver(){
 	for(int i=0; i<INSTRUCTION_NUMBER_TABLE_SIZE; i++){
 		deleteBinarySearchTree(table[i]);
 	}
@@ -31,8 +27,6 @@ void BitResolver::addInstructionData(InstructionData* id){
 	node->right = NULL;
 	node->val = id;
 	addInstructionToBinarySearchTree(table[opcode], node);
-	
-	num++;
 }
 
 void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
@@ -97,26 +91,7 @@ InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructi
 }
 
 
-string BitResolver::toString(){
-	//TODO: 
-	return "TODO: BitResolver::toString()";
-}
-
-
-
 //	private Methods
-
-string BitResolver::branchToString(BRInstructionDataNode* head){
-	ostringstream oss;
-
-	if(head != NULL){
-		oss << branchToString(head->left);
-		oss << head->val->toString() << '\n';
-		oss << branchToString(head->right);
-	}
-
-	return oss.str();
-}
 
 bool BitResolver::lessThan(string lhs, string rhs){
 	return compareInstructionData(lhs, rhs) < 0;
@@ -133,11 +108,6 @@ bool BitResolver::greaterThan(string lhs, string rhs){
 int BitResolver::compareInstructionData(string lhs, string rhs){
 	assert(lhs.size() == rhs.size());
 
-	//Test opcode first since it's most likely to be non-matching
-	for(int i=0; i<6; i++){
-		int chk = compareBits(lhs[i], rhs[i]);
-		if(chk != 0){return chk;}
-	}
 	//Test funct next
 	for(int i=26; i<32; i++){
 		int chk = compareBits(lhs[i], rhs[i]);
@@ -145,6 +115,11 @@ int BitResolver::compareInstructionData(string lhs, string rhs){
 	}
 	//Now test the rest left to right
 	for(int i=6; i<26; i++){
+		int chk = compareBits(lhs[i], rhs[i]);
+		if(chk != 0){return chk;}
+	}
+	//Test opcode LAST since bins are indexed by opcode
+	for(int i=0; i<6; i++){
 		int chk = compareBits(lhs[i], rhs[i]);
 		if(chk != 0){return chk;}
 	}
@@ -174,7 +149,9 @@ int BitResolver::compareBits(char lhs, char rhs){
 }
 
 void BitResolver::deleteBinarySearchTree(BRInstructionDataNode* head){
-	if(head == NULL){return;}
+	if(head == NULL){
+		return;
+	}
 
 	deleteBinarySearchTree(head->left);
 	deleteBinarySearchTree(head->right);
@@ -188,3 +165,5 @@ void BitResolver::clearCache(){
 		cache[i] = NULL;
 	}
 }
+
+

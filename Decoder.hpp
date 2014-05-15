@@ -7,16 +7,20 @@
 #include "StringResolver.hpp"
 #include "mnemonics.hpp"
 
-class Disassembler{
+class Decoder{
 	public:
-		Disassembler();
-		Disassembler(InstructionDataBank* bank);
-		~Disassembler();
+		Decoder();
+		Decoder(InstructionDataBank* bank);
+		~Decoder();
 
-		Instruction* disassemble(instr i);
+		Instruction* decode(instr i);
+		
+		static string extractBitrange(string value, bitRange range);
+		static string extractBitrange(string value, unsigned int start, unsigned int end);
 
 
 	private:
+		
 		BitResolver resolver;
 		string decodeArgument(string binStr, string parameter);
 

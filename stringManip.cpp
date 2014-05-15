@@ -49,7 +49,7 @@ int stringManip::contains(string str, string chars){
 	return -1;
 }
 
-string stringManip::replace(string str, char before, char after){
+string stringManip::replaceChar(string str, char before, char after){
 	for(int i=0; i<str.length(); i++){
 		if(str[i] == before){
 			str[i] = after;
@@ -62,36 +62,47 @@ string stringManip::sanitizeInstruction(string str){
 	int i = 0;
 	int len = str.length();
 	while(i<len && str[i] != '#'){
-		if(str[i] == '\t'){
-			str[i] = ' ';
-		}
+		if(str[i] == '\t'){str[i] = ' ';}
 		i++;
 	}
-	//if(i==len){i--;}
-
 	return str.substr(0, i);
 }
-
 
 vector<string> stringManip::tokenizeInstruction(string str){
 	// NAME A1,A2,A3,A4#xxxx
 	str = sanitizeInstruction(str);
 	str = trim(str);
-	vector<string> tokens;
+
+	string beforeParen;
+	string afterParen;
+
 	stringstream ss(str);
+	getline(ss, beforeParen, '(');
+	getline(ss, afterParen);
+	if(afterParen.length() != 0){
+		afterParen = "(" + afterParen;
+	}
+
+	vector<string> tokens;
+
+	//get arguments from beforeParen
+	stringstream ssBeforeParen(beforeParen);
 	string tmpStr;
-	getline(ss, tmpStr, ' ');	//get instruction name
+	getline(ssBeforeParen, tmpStr, ' ');	//get instruction name
 	tokens.push_back(trim(tmpStr));
 
-	//get arguments
-	while(getline(ss, tmpStr, ',')){
+	while(getline(ssBeforeParen, tmpStr, ',')){
 		tokens.push_back(trim(tmpStr));
+	}
+	//get arguments from afterParen
+	stringstream ssAfterParen(afterParen);
+	if(afterParen.length() != 0){
+		while(getline(ssAfterParen, tmpStr, ',')){
+			tokens.push_back(trim(tmpStr));
+		}
 	}
 	return tokens;
 }
-
-
-
 
 int stringManip::binStrToSignedDecInt(string binStr){
 	bool isNeg = (binStr[0] == '1');
@@ -107,13 +118,11 @@ int stringManip::binStrToSignedDecInt(string binStr){
 	return retVal;
 }
 
-
 instr stringManip::binStrToDecInt(string binStr){
 	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(binStr);
 	instr retVal = (instr)(tmpBitset.to_ulong());
 	return retVal;
 }
-
 
 string stringManip::decIntToBinStr(int val){
 	bool isNeg = (val < 0);
@@ -127,7 +136,6 @@ string stringManip::decIntToBinStr(int val){
 	}
 	return binStr;
 }
-
 
 char stringManip::flipBit(char i){
 	if(i == '0'){

@@ -1,28 +1,20 @@
 
-#include "encode.hpp"
-#include "decode.hpp"
 #include "InstructionDataBank.hpp"
-#include "BitResolver.hpp"
-#include "StringResolver.hpp"
-#include "stringManip.hpp"
-#include "mnemonics.hpp"
-#include "Assembler.hpp"
-#include "Disassembler.hpp"
-
-
+#include "Decoder.hpp"
+#include "Encoder.hpp"
 
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <bitset>
-#include <limits.h>
-#include <ctime>
+#include <time.h>
 
 using namespace std;
 
 int main(){
 	assert(sizeof(float) == 4);
 	assert(sizeof(int) == 4);
+
+	srand(time(NULL));
 
 	InstructionDataBank bank = InstructionDataBank();
 	
@@ -39,40 +31,42 @@ int main(){
 		bank.add(tmpStr);
 	}
 
-	Assembler a = Assembler(&bank);
-	Disassembler d = Disassembler(&bank);
+	Encoder a = Encoder(&bank);
+	Decoder d = Decoder(&bank);
+	BitResolver br = BitResolver(&bank);
+	StringResolver sr = StringResolver(&bank);
 
-	Instruction* ptr = a.assemble("jr $t0");
-	Instruction* ptr1 = a.assemble("addi $t0, $t1, 1");
-	Instruction* ptr2 = a.assemble("add $t0, $t0, $t1 #234324 test");
-	Instruction* ptr3 = a.assemble("sub $t0, $t1, $t3");
-	Instruction* ptr4 = a.assemble("cfc1 $t0, $f2");
+	
 
+	Instruction* ptr = a.encode("lw $t0, 4($t1)");
+	Instruction* ptr1 = a.encode("jr $t0");
+	Instruction* ptr2 = a.encode("addi $t0, $t0, 16 #234324 test");
+	Instruction* ptr3 = a.encode("sub $t0, $t1, $t3");
+	Instruction* ptr4 = a.encode("cfc1 $t0, $f2");
 
-	Instruction* ptr5 = d.disassemble(0x00000000);
-	Instruction* ptr6 = d.disassemble(0x46000005);
-	Instruction* ptr7 = d.disassemble(0x00000020);
-	Instruction* ptr8 = d.disassemble(0x20000005);
+	
+	Instruction* ptr5 = d.decode(0x00000000);
+	Instruction* ptr6 = d.decode(0x46000005);
+	Instruction* ptr7 = d.decode(0x00000020);
+	Instruction* ptr8 = d.decode(0x20000005);
 	
 	
 
-	Instruction* ptrB = d.disassemble(0x00114143);
+	Instruction* ptrB = d.decode(0x00114143);
 
-	Instruction* ptrC = a.assemble("sra	$t0, $s1, 5");
-	Instruction* ptrF = a.assemble("sra	$t0, $s1, 6");
+	Instruction* ptrC = a.encode("sra	$t0, $s1, 5");
+	Instruction* ptrF = a.encode("sra	$t0, $s1, 6");
 
-	Instruction* ptrD = a.assemble("mul $t0, $t7, $s3");
-	Instruction* ptrE = a.assemble("addi $t0, $t0, -1");
-	Instruction* ptrE2 = d.disassemble(554237951);
-	Instruction* ptrG = a.assemble("trunc.w.s $f0, $f2");
-	Instruction* ptrH = a.assemble("sb $t0, 5($t2)");
+	Instruction* ptrD = a.encode("mul $t0, $t7, $s3");
+	Instruction* ptrE = a.encode("addi $t0, $t0, -1");
+	Instruction* ptrE2 = d.decode(554237951);
+	Instruction* ptrG = a.encode("trunc.w.s $f0, $f2");
+	Instruction* ptrH = a.encode("sb $t0, 5($t2)");
 
 
-	Instruction* ptrZ1 = d.disassemble(0x1509FFEF);
+	Instruction* ptrZ1 = d.decode(0x1509FFEF);
 
-	
-	getchar();
-
+	int isdaf = 2;
 
 	delete ptrB, ptrC, ptrD, ptrE, ptrE2, ptrF, ptrG, ptrH;
 	delete ptrZ1;
@@ -84,14 +78,14 @@ int main(){
 
 	vector<string> invalidinstructions;
 	vector<string> validinstructions;
-	for(unsigned int i=0; i<1000; i++){
-		int instr = rand() * ((rand() % 2 == 0)? 1 : -1);
+	for(unsigned int i=0; i<1000000; i++){
+		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
 
-		Instruction* nextPtr = NULL, *loopPtr = d.disassemble(instr);
+		Instruction* nextPtr = NULL, *loopPtr = d.decode(instr);
 		if(loopPtr != NULL){
 			//cout << instr << '\t' << loopPtr->asmString << '\t';
 
-			Instruction* nextPtr = a.assemble(loopPtr->asmString);
+			Instruction* nextPtr = a.encode(loopPtr->asmString);
 			if(nextPtr != NULL){
 				//cout << nextPtr->bin;
 			}
@@ -130,7 +124,7 @@ int main(){
 	}
 
 
-	getchar();
+
 
 	return 0;
 }

@@ -1,6 +1,5 @@
 #include "StringResolver.hpp"
 #include "stringManip.hpp"
-#include "decode.hpp"
 
 #include <cassert>
 
@@ -42,6 +41,7 @@ InstructionData* StringResolver::getInstructionData(string instructionString){
 			return table[bin][i];
 		}
 	}
+	return NULL;
 }
 
 int StringResolver::hash(string key){
@@ -52,17 +52,12 @@ int StringResolver::hash(string key){
 
 string StringResolver::instructionStringToHashableString(string instructionString){
 	vector<string> tokens = stringManip::tokenizeInstruction(instructionString);
-	string name = tokens[0];
-	string pos[4];
-	int numArgs = 0;
-	for(int i=1; i<tokens.size(); i++){
-		pos[i-1] = tokens[i];
-		numArgs++;
+	string instructionName = tokens[0];
+	tokens.erase(tokens.begin());
+	for(int i=tokens.size(); i<4; i++){
+		tokens.push_back("_");
 	}
-	for(int i = numArgs; i<4; i++){
-		pos[i] = "_";
-	}
-	string hashableString = InstructionData::generateHashableName(name, pos[0], pos[1], pos[2], pos[3]);
+	string hashableString = InstructionData::generateHashableName(instructionName, tokens);
 	return hashableString;
 }
 

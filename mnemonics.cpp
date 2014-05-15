@@ -30,36 +30,6 @@ int mnemonics::getFPRegField(string name){
 	assert(!"registers::getFPRegField name DNE");
 }
 
-
-pair<bitRange, bitRange> mnemonics::getArgumentFieldBitRanges(string fieldName){
-	pair<bitRange, bitRange> retBitRange;
-	if (fieldName.find("(") == string::npos) {
-		//.. "(" not found found.
-		retBitRange.second.first = -1;
-		retBitRange.second.second = -1;
-		
-		retBitRange.first = getBitRangeFromField(fieldName);
-
-		return retBitRange;
-	}else{
-		//yes (
-		//parse and return two seperate ranges from in and out of parenthsies
-		stringstream ss;
-		ss << fieldName;
-
-		string tmpFieldName1;
-		getline(ss, tmpFieldName1, '(');
-		string tmpFieldName2;
-		getline(ss, tmpFieldName2, ')');
-
-		retBitRange.first = getBitRangeFromField(tmpFieldName1);
-		retBitRange.second = getBitRangeFromField(tmpFieldName2);
-
-		return retBitRange;
-	}
-}
-
-
 bitRange mnemonics::getBitRangeFromField(string fieldName){
 	bitRange retBitRange;
 	if(fieldName[1] != '['){
