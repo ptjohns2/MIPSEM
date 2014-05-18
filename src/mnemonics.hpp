@@ -1,8 +1,9 @@
 #ifndef __MNEMONICS_HPP__
 #define __MNEMONICS_HPP__
 
-#include <string>
 #include "types.hpp"
+
+#include <string>
 
 using namespace std;
 
@@ -12,14 +13,14 @@ class mnemonics{
 		
 		//Methods
 		static string getGPRegName(ufield num);
-		static int getGPRegField(string name);
+		static int getGPRegIndex(string name);
 
 		static string getFPRegName(ufield num);
-		static int getFPRegField(string name);
+		static int getFPRegIndex(string name);
 
-		static bitRange getBitRangeFromField(string fieldName);
+		static bitRange getBitRangeFromParameter(string fieldName);
 
-
+		
 		//Members
 		static string const GPRegisterNames[];
 		static string const FPRegisterNames[];

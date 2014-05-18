@@ -1,13 +1,12 @@
 #include "BitResolver.hpp"
-#include <cassert>
-#include <bitset>
-#include "stringManip.hpp"
 
-//class OpcodeResolver
+#include "parse.hpp"
+
+#include <bitset>
+#include <cassert>
+#include <iostream>
+
 //	Constructors
-BitResolver::BitResolver(){
-	clearCache();
-}
 BitResolver::BitResolver(InstructionDataBank* bank){
 	clearCache();
 	addInstructionDataBank(bank);
@@ -18,9 +17,10 @@ BitResolver::~BitResolver(){
 	}
 }
 
+
 //	public Methods
 void BitResolver::addInstructionData(InstructionData* id){
-	int opcode = stringManip::binStrToDecInt(id->getOpcode());
+	int opcode = parse::binStrToUnsignedDecInt(id->getOpcode());
 	BRInstructionDataNode* node = new BRInstructionDataNode();
 
 	node->left = NULL;
@@ -30,8 +30,49 @@ void BitResolver::addInstructionData(InstructionData* id){
 }
 
 void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
-	for(int i=0; i<bank->size; i++){
+	for(int i=0; i<bank->size(); i++){
 		addInstructionData(bank->bank[i]);
+	}
+}
+
+InstructionData* BitResolver::getInstructionData(string i){
+	string opcodeStr = i.substr(0,6);
+	instr opcode = parse::binStrToUnsignedDecInt(opcodeStr);
+
+	//check if in cache
+	if(cache[opcode] != NULL){
+		if(bitIsMatch(cache[opcode], i)){
+			return cache[opcode];
+		}
+	}
+
+	//if not in cache...
+	BRInstructionDataNode* binPtr = table[opcode];
+	InstructionData* retPtr = getInstructionDataFromBinarySearchTree(binPtr, i);
+	cache[opcode] = retPtr;	//cache the result
+	return retPtr;
+}
+
+InstructionData* BitResolver::getInstructionData(instr i){
+	string bitfield = parse::decIntToBinStr(i);
+	return getInstructionData(bitfield);
+}
+
+
+//	private Methods
+InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, string i){
+	if(head != NULL){
+		if(bitIsMatch(head->val, i)){
+			return head->val;
+		}else{
+			if(greaterThan(head->val->getFull(), i)){
+				return getInstructionDataFromBinarySearchTree(head->left, i);
+			}else{
+				return getInstructionDataFromBinarySearchTree(head->right, i);
+			}
+		}
+	}else{
+		return NULL;
 	}
 }
 
@@ -52,46 +93,6 @@ void BitResolver::addInstructionToBinarySearchTree(BRInstructionDataNode* &head,
 	}
 }
 
-InstructionData* BitResolver::getInstructionData(string i){
-	string opcodeStr = i.substr(0,6);
-	instr opcode = stringManip::binStrToDecInt(opcodeStr.c_str());
-
-	if(cache[opcode] != NULL){
-		if(cache[opcode]->bitIsMatch(i)){
-			return cache[opcode];
-		}
-	}
-
-	BRInstructionDataNode* binPtr = table[opcode];
-	InstructionData* retPtr = getInstructionDataFromBinarySearchTree(binPtr, i);
-	cache[opcode] = retPtr;	//cache the result
-	return retPtr;
-}
-
-InstructionData* BitResolver::getInstructionData(instr i){
-	string bitfield = bitset<INSTRUCTIONSIZE>(i).to_string();
-	InstructionData* retPtr = getInstructionData(bitfield);
-	return retPtr;
-}
-
-InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, string i){
-	if(head != NULL){
-		if(head->val->bitIsMatch(i)){
-			return head->val;
-		}else{
-			if(greaterThan(head->val->getFull(), i)){
-				return getInstructionDataFromBinarySearchTree(head->left, i);
-			}else{
-				return getInstructionDataFromBinarySearchTree(head->right, i);
-			}
-		}
-	}else{
-		return NULL;
-	}
-}
-
-
-//	private Methods
 
 bool BitResolver::lessThan(string lhs, string rhs){
 	return compareInstructionData(lhs, rhs) < 0;
@@ -103,6 +104,37 @@ bool BitResolver::greaterThan(string lhs, string rhs){
 	return compareInstructionData(lhs, rhs) > 0;
 }
 
+
+bool BitResolver::bitIsMatch(InstructionData* id, string bitStr){
+	string full = id->getFull();
+	//Test funct first
+	for(int i=26; i<32; i++){
+		if(full[i] != 'x'){
+			if(full[i] != bitStr[i]){
+				return false;
+			}
+		}
+	}
+	//Now test the rest left to right
+	for(int i=6; i<26; i++){
+		if(full[i] != 'x'){
+			if(full[i] != bitStr[i]){
+				return false;
+			}
+		}
+	}
+	//Test opcode  last since binary search trees binned by opcode
+	for(int i=0; i<6; i++){
+		//If opcode char here is a don't care 'x', skip this test
+		if(full[i] != 'x'){
+			if(full[i] != bitStr[i]){
+				return false;
+			}
+		}
+	}
+	//If none of these conditions failed, return true for a match
+	return true;
+}
 
 
 int BitResolver::compareInstructionData(string lhs, string rhs){
@@ -148,14 +180,11 @@ int BitResolver::compareBits(char lhs, char rhs){
 	return 0;
 }
 
-void BitResolver::deleteBinarySearchTree(BRInstructionDataNode* head){
-	if(head == NULL){
-		return;
-	}
 
+void BitResolver::deleteBinarySearchTree(BRInstructionDataNode* head){
+	if(head == NULL){return;}
 	deleteBinarySearchTree(head->left);
 	deleteBinarySearchTree(head->right);
-
 	delete head;
 }
 

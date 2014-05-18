@@ -1,36 +1,37 @@
 #include "mnemonics.hpp"
+
 #include <cassert>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 
 string mnemonics::getGPRegName(ufield num){
 	assert(num >= 0 && num < 32);
 	return GPRegisterNames[num];
 }
-int mnemonics::getGPRegField(string name){
+int mnemonics::getGPRegIndex(string name){
 	for(int i=0; i<32; i++){
 		if(GPRegisterNames[i] == name){
 			return i;
 		}
 	}
-	assert(!"registers::getGPRegField name DNE");
+	assert(!"registers::getGPRegIndex name DNE");
 }
 
 string mnemonics::getFPRegName(ufield num){
 	assert(num >= 0 && num < 32);
 	return FPRegisterNames[num];
 }
-int mnemonics::getFPRegField(string name){
+int mnemonics::getFPRegIndex(string name){
 	for(int i=0; i<32; i++){
 		if(FPRegisterNames[i] == name){
 			return i;
 		}
 	}
-	assert(!"registers::getFPRegField name DNE");
+	assert(!"registers::getFPRegIndex name DNE");
 }
 
-bitRange mnemonics::getBitRangeFromField(string fieldName){
+bitRange mnemonics::getBitRangeFromParameter(string fieldName){
 	bitRange retBitRange;
 	if(fieldName[1] != '['){
 		//standard mnemonic not specific range	{$/.}%mnemonic%
@@ -63,12 +64,12 @@ bitRange mnemonics::getBitRangeFromField(string fieldName){
 			assert(!"invalid field mnemonic - check instructions.txt");
 		}
 	}else{
-		//specific range	{$/.}[%val1%,%val2%]
+		//specific range	ex. $[20,1]
 		string inBrackets = fieldName.substr(2, fieldName.length()-3);
-		string num1, num2;
 		stringstream ss;
 		ss << inBrackets;
 	
+		string num1, num2;
 		getline(ss, num1, ',');
 		getline(ss, num2);
 		

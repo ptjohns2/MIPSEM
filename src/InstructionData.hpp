@@ -2,16 +2,12 @@
 #define __INSTRUCTION_DATA_HPP__
 
 #include <string>
-#include "types.hpp"
 #include <vector>
-#include <sstream>
-#include <iostream>
 
 using namespace std;
 
 class InstructionData{
 	public:
-		InstructionData();
 		InstructionData(string);
 		~InstructionData();
 
@@ -24,15 +20,14 @@ class InstructionData{
 		string getFields();
 
 		vector<string> getArguments();
+
+		bool isEncodedNormally();
+		bool isDecodedNormally();
 		
 		string getFull();
-		string getHashableName();
 
-		bool bitIsMatch(string);
-		bool stringIsMatch(string);
 
-		static string generateHashableName(string name, vector<string> arguments);
-
+		
 	private:
 		int id;
 
@@ -43,7 +38,9 @@ class InstructionData{
 		string fields;	//	25,0
 		
 		vector<string> arguments;
-		bool abnormalEncoding;
+
+		bool normalEncoding;
+		bool normalDecoding;
 	/*	//	Position syntax: (msb = 31, lsb = 0)
 		//	$ptr	.val
 		$[%msb%,%lsb%]			//
@@ -55,7 +52,6 @@ class InstructionData{
 		//non-config info
 
 		string full;
-		string hashableName;
 };
 
 

@@ -1,39 +1,37 @@
 #ifndef __STRINGRESOLVER_HPP__
 #define __STRINGRESOLVER_HPP__
 
+#include "InstructionData.hpp"
 #include "types.hpp"
+#include "InstructionDataBank.hpp"
+
 #include <string>
 #include <vector>
-#include "InstructionData.hpp"
-#include "InstructionDataBank.hpp"
 
 
 class StringResolver{
 	public:
-		//Methods
-		StringResolver();
+		//Constructors
 		StringResolver(InstructionDataBank* bank);
 		~StringResolver();
 
-		void addInstructionData(InstructionData* id);
+		//Methods
 		void addInstructionDataBank(InstructionDataBank* bank);
 		InstructionData* getInstructionData(string instructionString);
-		static string instructionStringToHashableString(string instructionString);
-
-
-		//Members
-
 
 	private:
 		//Methods
+		void addInstructionData(InstructionData* id);
+		bool stringIsMatch(InstructionData* id, string rightInstrStr);
+
 		int hash(string);	
+		static string instructionStringToHashableString(string instructionString);
+		static string generateHashableName(string name, vector<string> arguments);
+
 
 		//Members
-		std::hash<std::string> hasher;
+		std::hash<string> hasher;
 		vector<InstructionData*> table[INSTRUCTION_DATA_HASH_TABLE_SIZE];
-		int num;
-
-
 };
 
 

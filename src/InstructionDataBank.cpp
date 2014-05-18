@@ -1,11 +1,15 @@
 #include "InstructionDataBank.hpp"
 
+#include <iostream>
+#include <fstream>
+
+
 
 //class InstructionDataBank
 //	Constructors
 InstructionDataBank::InstructionDataBank()
 {
-	size = 0;
+
 }
 
 InstructionDataBank::~InstructionDataBank()
@@ -19,9 +23,28 @@ InstructionDataBank::~InstructionDataBank()
 void InstructionDataBank::add(string info){
 	InstructionData* newInstr = new InstructionData(info);
 	bank.push_back(newInstr);
-	size++;
 }
+
+int InstructionDataBank::size(){
+	return bank.size();
+}
+
+void InstructionDataBank::loadFile(string filename){
+	ifstream instructionFile;
+	instructionFile.open(filename);
+	if (!instructionFile.is_open()){
+		cout << "int main()::ERROR: cannot open file";
+		getchar();
+	}
+	string tmpStr;
+
+	while(getline(instructionFile, tmpStr, '\n')){
+		add(tmpStr);
+	}
+}
+
 
 InstructionData* InstructionDataBank::operator[](const int index){
 	return bank[index];
 }
+

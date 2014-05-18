@@ -13,12 +13,13 @@ class InstructionDataBank{
 		InstructionDataBank();
 		~InstructionDataBank();
 		void add(string);
+		int size();
+		void loadFile(string);
 
 		InstructionData* operator[](const int index);
 
 		//Members
 		vector<InstructionData*> bank;
-		int size;
 
 
 	private:

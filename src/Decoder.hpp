@@ -1,18 +1,17 @@
 #ifndef __DISASSEMBLER_HPP__
 #define __DISASSEMBLER_HPP__
 
+#include "BitResolver.hpp"
 #include "Instruction.hpp"
 #include "InstructionDataBank.hpp"
-#include "BitResolver.hpp"
-#include "StringResolver.hpp"
-#include "mnemonics.hpp"
 
 class Decoder{
 	public:
-		Decoder();
+		//Constructors
 		Decoder(InstructionDataBank* bank);
 		~Decoder();
-
+		
+		//Methods
 		Instruction* decode(instr i);
 		
 		static string extractBitrange(string value, bitRange range);
@@ -20,10 +19,11 @@ class Decoder{
 
 
 	private:
-		
-		BitResolver resolver;
+		//Methods
 		string decodeArgument(string binStr, string parameter);
-
+		
+		//Members
+		BitResolver resolver;
 
 
 };

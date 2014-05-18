@@ -2,7 +2,6 @@
 #define __TYPES_HPP__
 
 #include <stdint.h>
-#include <string>
 #include <utility>
 
 #define INSTRUCTION_DATA_HASH_TABLE_SIZE	(1009)
