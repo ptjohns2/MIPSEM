@@ -41,7 +41,7 @@ InstructionData* BitResolver::getInstructionData(string i){
 
 	//check if in cache
 	if(cache[opcode] != NULL){
-		if(bitIsMatch(cache[opcode], i)){
+		if(binStrIsMatch(cache[opcode], i)){
 			return cache[opcode];
 		}
 	}
@@ -62,7 +62,7 @@ InstructionData* BitResolver::getInstructionData(instr i){
 //	private Methods
 InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, string i){
 	if(head != NULL){
-		if(bitIsMatch(head->val, i)){
+		if(binStrIsMatch(head->val, i)){
 			return head->val;
 		}else{
 			if(greaterThan(head->val->getFull(), i)){
@@ -105,7 +105,7 @@ bool BitResolver::greaterThan(string lhs, string rhs){
 }
 
 
-bool BitResolver::bitIsMatch(InstructionData* id, string bitStr){
+bool BitResolver::binStrIsMatch(InstructionData* id, string bitStr){
 	string full = id->getFull();
 	//Test funct first
 	for(int i=26; i<32; i++){

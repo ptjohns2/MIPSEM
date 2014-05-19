@@ -12,16 +12,18 @@ class Decoder{
 		~Decoder();
 		
 		//Methods
-		Instruction* decode(instr i);
+		Instruction buildInstruction(instr i);
+		Instruction buildInstruction(string binStr);
 		
-		static string extractBitrange(string value, bitRange range);
+		static string extractBitrange(string value, bitrange range);
 		static string extractBitrange(string value, unsigned int start, unsigned int end);
-
 
 	private:
 		//Methods
 		string decodeArgument(string binStr, string parameter);
-		
+		string decodeInstruction(string binStr, string instruction);
+		string decodeAbnormalInstruction(string binStr, string instruction);
+
 		//Members
 		BitResolver resolver;
 

@@ -25,10 +25,10 @@ void StringResolver::addInstructionDataBank(InstructionDataBank* bank){
 }
 
 InstructionData* StringResolver::getInstructionData(string instructionString){
-	string hashedInstructionString = instructionStringToHashableString(instructionString);
+	string hashedInstructionString = hashInstructionString(instructionString);
 	int bin = hash(hashedInstructionString);
 	for(int i=0; i<table[bin].size(); i++){
-		if(stringIsMatch(table[bin][i], instructionString)){
+		if(instructionStrIsMatch(table[bin][i], instructionString)){
 			return table[bin][i];
 		}
 	}
@@ -38,13 +38,13 @@ InstructionData* StringResolver::getInstructionData(string instructionString){
 
 //	private Methods
 void StringResolver::addInstructionData(InstructionData* id){
-	int bin = hash(generateHashableName(id->getName(), id->getArguments()));
+	int bin = hash(hashInstructionTokens(id->getName(), id->getArguments()));
 	table[bin].push_back(id);
 }
 
-bool StringResolver::stringIsMatch(InstructionData* id, string rightInstrStr){
-	string hashRHS = StringResolver::instructionStringToHashableString(rightInstrStr);
-	string hashID = StringResolver::generateHashableName(id->getName(), id->getArguments());
+bool StringResolver::instructionStrIsMatch(InstructionData* id, string rightInstrStr){
+	string hashRHS = StringResolver::hashInstructionString(rightInstrStr);
+	string hashID = StringResolver::hashInstructionTokens(id->getName(), id->getArguments());
 	return (hashRHS == hashID);
 }
 
@@ -55,18 +55,18 @@ int StringResolver::hash(string key){
 	return retHash;
 }
 
-string StringResolver::instructionStringToHashableString(string instructionString){
+string StringResolver::hashInstructionString(string instructionString){
 	vector<string> tokens = parse::tokenizeInstruction(instructionString);
 	string instructionName = tokens[0];
 	tokens.erase(tokens.begin());
 	for(int i=tokens.size(); i<4; i++){
 		tokens.push_back("_");
 	}
-	string hashableString = generateHashableName(instructionName, tokens);
+	string hashableString = hashInstructionTokens(instructionName, tokens);
 	return hashableString;
 }
 
-string StringResolver::generateHashableName(string name, vector<string> arguments){
+string StringResolver::hashInstructionTokens(string name, vector<string> arguments){
 	ostringstream oss;
 	oss << "@" << name << ":";
 

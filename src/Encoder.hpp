@@ -12,16 +12,16 @@ class Encoder{
 		~Encoder();
 
 		//Methods
-		Instruction* encode(string asmString);
+		Instruction buildInstruction(string asmString);
 		
-		static string setBitrange(string instruction, string value, bitRange range);
+		static string setBitrange(string instruction, string value, bitrange range);
 		static string setBitrange(string instruction, string value, unsigned int start, unsigned int end);
 
 	private:
 		//Methods
-		int getArgumentValue(string argument);
-		string encodeValueAtBitrange(string instruction, bitRange parameter, int argument);
-		string encodeArgument(string instruction, string parameter, string argument);
+		string encodeArgument(string binStr, string parameter, string argument);
+		string encodeInstruction(string binStr, string parameter, string argument);
+		string encodeAbnormalInstruction(string binStr, string parameter, string argument);
 		
 		//Members
 		StringResolver resolver;

@@ -35,7 +35,7 @@ class BitResolver{
 		bool equalTo(string lhs, string rhs);
 		bool greaterThan(string lhs, string rhs);
 
-		bool bitIsMatch(InstructionData* id, string bitStr);
+		bool binStrIsMatch(InstructionData* id, string bitStr);
 
 		int compareInstructionData(string lhs, string rhs);
 		int compareBits(char lhs, char rhs);

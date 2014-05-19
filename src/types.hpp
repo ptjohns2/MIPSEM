@@ -21,7 +21,7 @@ typedef float FPreg;
 
 
 
-typedef std::pair<int,int> bitRange;
+typedef std::pair<int,int> bitrange;
 
 
 

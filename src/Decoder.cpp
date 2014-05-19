@@ -13,20 +13,20 @@ Decoder::Decoder(InstructionDataBank* bank)	: resolver(bank){}
 Decoder::~Decoder(){}
 
 //	public Methods
-Instruction* Decoder::decode(instr i){
+Instruction Decoder::decode(instr i){
 	//
 	//FIX WEIRD INSTRUTIONS WHERE YOU ADD VALUES TO FIELD
 	//
-	Instruction* retInstruction = new Instruction();
-	retInstruction->id = resolver.getInstructionData(i);
-	if(retInstruction->id == NULL){delete retInstruction; return NULL;}
+	Instruction retInstruction = Instruction();
+	retInstruction.id = resolver.getInstructionData(i);
+	if(retInstruction.id == NULL){return retInstruction;}
 
-	retInstruction->bin = i;
+	retInstruction.bin = i;
 
 	string binStr = parse::decIntToBinStr(i);
-	retInstruction->binString = binStr;
+	retInstruction.binString = binStr;
 
-	vector<string> instrArgs = retInstruction->id->getArguments();
+	vector<string> instrArgs = retInstruction.id->getArguments();
 	int numArgs = 0;
 	for(int i=0; i<instrArgs.size(); i++){
 		if(instrArgs[i] != "_"){
@@ -34,9 +34,9 @@ Instruction* Decoder::decode(instr i){
 		}
 	}
 	stringstream asmString;
-	asmString << retInstruction->id->getName() << ((numArgs > 0)? "\t" : "");
+	asmString << retInstruction.id->getName() << ((numArgs > 0)? "\t" : "");
 
-	if(retInstruction->id->isDecodedNormally()){
+	if(retInstruction.id->isDecodedNormally()){
 		for(int i=0; i<instrArgs.size(); i++){
 			if(instrArgs[i] == "_"){break;}
 			string tmpArg = decodeArgument(binStr, instrArgs[i]);
@@ -47,7 +47,7 @@ Instruction* Decoder::decode(instr i){
 		//
 		//ABNORMAL DECODING!!
 		//
-		int instructionID = retInstruction->id->getId();
+		int instructionID = retInstruction.id->getId();
 		switch(instructionID){
 
 			case 179:
@@ -55,13 +55,12 @@ Instruction* Decoder::decode(instr i){
 				//EXT rt, rs, pos, size
 				string case179_rt = decodeArgument(binStr, instrArgs[0]);
 				string case179_rs = decodeArgument(binStr, instrArgs[1]);
+				string case179_pos = decodeArgument(binStr, instrArgs[2]);
 
-				string case179_msbd = decodeArgument(binStr, instrArgs[2]);
+				string case179_msbd = decodeArgument(binStr, instrArgs[3]);
 				int case179_msbd_int = atoi(case179_msbd.c_str());
-				int case179_size_int = (case179_msbd_int == 32)? (0) : (case179_msbd_int + 1);
+				int case179_size_int = (case179_msbd_int == 31)? (0) : (case179_msbd_int + 1);
 				string case179_size = std::to_string(case179_size_int);
-
-				string case179_pos = decodeArgument(binStr, instrArgs[3]);
 
 				asmString << case179_rt << ", " << case179_rs << ", " << case179_pos << ", " << case179_size;
 				}
@@ -120,12 +119,16 @@ Instruction* Decoder::decode(instr i){
 
 	}
 
-	retInstruction->asmString = asmString.str();
+	retInstruction.asmString = asmString.str();
 
 	return retInstruction;
 }
 
-string Decoder::extractBitrange(string value, bitRange range){
+Instruction Decoder::decode(string binStr){
+	return decode(parse::binStrToUnsignedDecInt(binStr));
+}
+
+string Decoder::extractBitrange(string value, bitrange range){
 	return extractBitrange(value, range.first, range.second);
 }
 
@@ -143,7 +146,7 @@ string Decoder::decodeArgument(string binStr, string parameter){
 		parameter = parameter.substr(1, parameter.length() - 1 - 1);
 	}
 
-	bitRange argBitrange = mnemonics::getBitRangeFromParameter(parameter);
+	bitrange argBitrange = mnemonics::getBitRangeFromParameter(parameter);
 	string argstr;
 	int argval;
 	argstr = extractBitrange(binStr, argBitrange);

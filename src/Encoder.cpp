@@ -14,21 +14,21 @@ Encoder::Encoder(InstructionDataBank* bank) : resolver(bank) {}
 Encoder::~Encoder(){}
 
 //	public Methods
-Instruction* Encoder::encode(string asmString){
-	Instruction* retInstruction = new Instruction();
-	retInstruction->id = resolver.getInstructionData(asmString);
-	if(retInstruction->id == NULL){delete retInstruction; return NULL;}
+Instruction Encoder::buildInstruction(string asmString){
+	Instruction retInstruction = Instruction();
+	retInstruction.id = resolver.getInstructionData(asmString);
+	if(retInstruction.id == NULL){return retInstruction;}
 	
-	retInstruction->asmString = asmString;
+	retInstruction.asmString = asmString;
 	
-	string tmpBinString = retInstruction->id->getFull();
+	string tmpBinString = retInstruction.id->getFull();
 	
 	vector<string> asmTokens = parse::tokenizeInstruction(asmString);
 	asmTokens.erase(asmTokens.begin());	//remove instruction mnemonic from tokenized vector so it's just args
 	
-	vector<string> args = retInstruction->id->getArguments();
+	vector<string> args = retInstruction.id->getArguments();
 
-	if(retInstruction->id->isEncodedNormally()){
+	if(retInstruction.id->isEncodedNormally()){
 		for(int i=0; i<asmTokens.size(); i++){
 			if(args[i][0] == '('){
 				args[i] = args[i].substr(1, args[i].length() - 2);
@@ -39,14 +39,14 @@ Instruction* Encoder::encode(string asmString){
 		//
 		//ABNORMAL ENCODING!!
 		//
-		int instructionID = retInstruction->id->getId();
+		int instructionID = retInstruction.id->getId();
 		switch(instructionID){
 
 			case 152:
 				{
 				//CLO rd, rs
 				tmpBinString = encodeArgument(tmpBinString, args[0], asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, args[0], "$rt");
+				tmpBinString = encodeArgument(tmpBinString, "$rt", asmTokens[0]);
 				tmpBinString = encodeArgument(tmpBinString, args[1], asmTokens[1]);
 				}
 				break;
@@ -54,7 +54,7 @@ Instruction* Encoder::encode(string asmString){
 				{
 				//CLZ rd, rs
 				tmpBinString = encodeArgument(tmpBinString, args[0], asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, args[0], "$rt");
+				tmpBinString = encodeArgument(tmpBinString, "$rt", asmTokens[0]);
 				tmpBinString = encodeArgument(tmpBinString, args[1], asmTokens[1]);
 				}
 				break;
@@ -66,7 +66,7 @@ Instruction* Encoder::encode(string asmString){
 				tmpBinString = encodeArgument(tmpBinString, args[2], asmTokens[2]);
 
 				int case179_size = getArgumentValue(asmTokens[3]);
-				int case179_msbd = (case179_size == 0)? (32) : (case179_size-1);
+				int case179_msbd = case179_size - 1;
 				tmpBinString = encodeArgument(tmpBinString, args[3], std::to_string(case179_msbd));
 				}
 				break;
@@ -79,7 +79,6 @@ Instruction* Encoder::encode(string asmString){
 				int case184_pos = getArgumentValue(asmTokens[2]);
 				int case184_size = getArgumentValue(asmTokens[3]);
 				int case184_msb = case184_pos + case184_size - 1;
-				if(case184_msb + 1 > 32){case184_msb -= 32;}
 				tmpBinString = encodeArgument(tmpBinString, args[2], std::to_string(case184_msb));
 				
 				tmpBinString = encodeArgument(tmpBinString, args[3], asmTokens[3]);
@@ -122,13 +121,13 @@ Instruction* Encoder::encode(string asmString){
 
 	tmpBinString = parse::replaceChar(tmpBinString, 'x', DONTCAREREPLACEMENT);
 
-	retInstruction->binString = tmpBinString;
-	retInstruction->bin = parse::binStrToSignedDecInt(tmpBinString);
+	retInstruction.binString = tmpBinString;
+	retInstruction.bin = parse::binStrToSignedDecInt(tmpBinString);
 
 	return retInstruction;
 }
 
-string Encoder::setBitrange(string instruction, string value, bitRange range){
+string Encoder::setBitrange(string instruction, string value, bitrange range){
 	return setBitrange(instruction, value, range.first, range.second);
 }
 
@@ -150,30 +149,15 @@ string Encoder::setBitrange(string instruction, string value, unsigned int start
 
 
 //	private Methods
-int Encoder::getArgumentValue(string argument){
-	if(argument[0] == '$'){
-		if(argument[1] == 'f'){
-			if(argument[2] == 'p'){
-				return 30;
-			}else{
-				return mnemonics::getFPRegIndex(argument);
-			}
-		}else{
-			return mnemonics::getGPRegIndex(argument);
-		}
-	}else{
-		return atoi(argument.c_str());
-	}
-}
 
 
-string Encoder::encodeValueAtBitrange(string instruction, bitRange parameter, int argument){
+string Encoder::encodeValueAtBitrange(string instruction, bitrange parameter, int argument){
 	instruction = setBitrange(instruction, parse::decIntToBinStr(argument), parameter.first, parameter.second);
 	return instruction;
 }
 
 string Encoder::encodeArgument(string instruction, string parameter, string argument){
-	bitRange parameterBitRange = mnemonics::getBitRangeFromParameter(parameter);
+	bitrange parameterBitRange = mnemonics::getBitRangeFromParameter(parameter);
 	int argumentValue = getArgumentValue(argument);
 	instruction = encodeValueAtBitrange(instruction, parameterBitRange, argumentValue);
 

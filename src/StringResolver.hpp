@@ -22,11 +22,11 @@ class StringResolver{
 	private:
 		//Methods
 		void addInstructionData(InstructionData* id);
-		bool stringIsMatch(InstructionData* id, string rightInstrStr);
+		bool instructionStrIsMatch(InstructionData* id, string rightInstrStr);
 
 		int hash(string);	
-		static string instructionStringToHashableString(string instructionString);
-		static string generateHashableName(string name, vector<string> arguments);
+		static string hashInstructionString(string instructionString);
+		static string hashInstructionTokens(string name, vector<string> arguments);
 
 
 		//Members

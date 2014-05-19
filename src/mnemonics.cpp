@@ -4,68 +4,36 @@
 #include <iostream>
 #include <sstream>
 
-
-string mnemonics::getGPRegName(ufield num){
-	assert(num >= 0 && num < 32);
-	return GPRegisterNames[num];
-}
-int mnemonics::getGPRegIndex(string name){
-	for(int i=0; i<32; i++){
-		if(GPRegisterNames[i] == name){
-			return i;
-		}
-	}
-	assert(!"registers::getGPRegIndex name DNE");
-}
-
-string mnemonics::getFPRegName(ufield num){
-	assert(num >= 0 && num < 32);
-	return FPRegisterNames[num];
-}
-int mnemonics::getFPRegIndex(string name){
-	for(int i=0; i<32; i++){
-		if(FPRegisterNames[i] == name){
-			return i;
-		}
-	}
-	assert(!"registers::getFPRegIndex name DNE");
-}
-
-bitRange mnemonics::getBitRangeFromParameter(string fieldName){
-	bitRange retBitRange;
-	if(fieldName[1] != '['){
+//	public Methods
+bitrange mnemonics::getParameterBitrange(string parameter){
+	bitrange retBitrange;
+	if(parameter[1] != '['){
 		//standard mnemonic not specific range	{$/.}%mnemonic%
-		if(fieldName == "$rs" || fieldName == "$fmt"){
-			retBitRange.first = 25;
-			retBitRange.second = 21;
-			return retBitRange;
-		}else if(fieldName == "$rt" || fieldName == "$ft"){
-			retBitRange.first = 20;
-			retBitRange.second = 16;
-			return retBitRange;
-		}else if(fieldName == "$rd" || fieldName == "$fs"){
-			retBitRange.first = 15;
-			retBitRange.second = 11;
-			return retBitRange;
-		}else if(fieldName == ".shamt" || fieldName == "$fd"){
-			retBitRange.first = 10;
-			retBitRange.second = 6;
-			return retBitRange;			
-		}else if(fieldName == ".imm"){
-			retBitRange.first = 15;
-			retBitRange.second = 0;
-			return retBitRange;
-		}else if(fieldName == ".addr"){
-			retBitRange.first = 25;
-			retBitRange.second = 0;
-			return retBitRange;
+		if(parameter == "$rs" || parameter == "$fmt"){
+			retBitrange.first = 25;
+			retBitrange.second = 21;
+		}else if(parameter == "$rt" || parameter == "$ft"){
+			retBitrange.first = 20;
+			retBitrange.second = 16;
+		}else if(parameter == "$rd" || parameter == "$fs"){
+			retBitrange.first = 15;
+			retBitrange.second = 11;
+		}else if(parameter == ".shamt" || parameter == "$fd"){
+			retBitrange.first = 10;
+			retBitrange.second = 6;	
+		}else if(parameter == ".imm"){
+			retBitrange.first = 15;
+			retBitrange.second = 0;
+		}else if(parameter == ".addr"){
+			retBitrange.first = 25;
+			retBitrange.second = 0;
 		}else{
-			cout << "\n\n\n" << fieldName;
+			cout << "\n\n\n" << parameter;
 			assert(!"invalid field mnemonic - check instructions.txt");
 		}
 	}else{
 		//specific range	ex. $[20,1]
-		string inBrackets = fieldName.substr(2, fieldName.length()-3);
+		string inBrackets = parameter.substr(2, parameter.length()-3);
 		stringstream ss;
 		ss << inBrackets;
 	
@@ -73,14 +41,85 @@ bitRange mnemonics::getBitRangeFromParameter(string fieldName){
 		getline(ss, num1, ',');
 		getline(ss, num2);
 		
-		retBitRange.first = atoi(num1.c_str());
-		retBitRange.second = atoi(num2.c_str());
-		return retBitRange;
+		retBitrange.first = atoi(num1.c_str());
+		retBitrange.second = atoi(num2.c_str());
+	}
+	return retBitrange;
+}
+
+bool mnemonics::parameterIsRegister(string parameter){
+	???
+}
+
+bool mnemonics::parameterIsGPRegister(string parameter){
+	???
+}
+
+string mnemonics::getGPRegisterName(int index){
+	assert(index >= 0 && index < 32);
+	return GPRegisterNames[index];
+}
+
+int mnemonics::getGPRegisterIndex(string parameter){
+	for(int i=0; i<32; i++){
+		if(GPRegisterNames[i] == parameter){
+			return i;
+		}
+	}
+	assert(!"registers::getGPRegIndex name DNE");
+}
+
+bool mnemonics::parameterIsFPRegister(string parameter){
+	???
+}
+
+string mnemonics::getFPRegisterName(int index){
+	assert(index >= 0 && index < 32);
+	return FPRegisterNames[index];
+}
+int mnemonics::getFPRegisterIndex(string parameter){
+	for(int i=0; i<32; i++){
+		if(FPRegisterNames[i] == parameter){
+			return i;
+		}
+	}
+	assert(!"registers::getFPRegIndex name DNE");
+}
+
+bool mnemonics::parameterIsImmediate(string parameter){
+	???
+}
+
+bool mnemonics::parameterIsSignedImmediate(string parameter){
+	???
+}
+
+bool mnemonics::parameterIsUnsignedImmediate(string parameter){
+	???
+}
+
+
+int mnemonics::getArgumentValue(string argument){
+	if(argument[0] == '$'){
+		if(argument[1] == 'f'){
+			if(argument[2] == 'p'){
+				return 30;
+			}else{
+				return mnemonics::getFPRegisterIndex(argument);
+			}
+		}else{
+			return mnemonics::getGPRegisterIndex(argument);
+		}
+	}else{
+		return atoi(argument.c_str());
 	}
 }
 
 
 
+
+
+//	Members
 std::string const mnemonics::GPRegisterNames[] = {
 	"$zero",
 	"$at",
