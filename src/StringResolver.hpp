@@ -25,8 +25,9 @@ class StringResolver{
 		bool instructionStrIsMatch(InstructionData* id, string rightInstrStr);
 
 		int hash(string);	
-		static string hashInstructionString(string instructionString);
-		static string hashInstructionTokens(string name, vector<string> arguments);
+		string getHashableStringFromInstructionString(string instructionString);
+		string getHashableStringFromInstructionTokens(string name, vector<string> arguments);
+		string getHashableStringFromParameterTokens(string name, vector<string> parameters);
 
 
 		//Members

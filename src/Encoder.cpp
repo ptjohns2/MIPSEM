@@ -1,6 +1,5 @@
 #include "Encoder.hpp"
 
-#include "mnemonics.hpp"
 #include "parse.hpp"
 
 #include <bitset>
@@ -15,122 +14,23 @@ Encoder::~Encoder(){}
 
 //	public Methods
 Instruction Encoder::buildInstruction(string asmString){
-	Instruction retInstruction = Instruction();
-	retInstruction.id = resolver.getInstructionData(asmString);
-	if(retInstruction.id == NULL){return retInstruction;}
-	
-	retInstruction.asmString = asmString;
-	
-	string tmpBinString = retInstruction.id->getFull();
-	
-	vector<string> asmTokens = parse::tokenizeInstruction(asmString);
-	asmTokens.erase(asmTokens.begin());	//remove instruction mnemonic from tokenized vector so it's just args
-	
-	vector<string> args = retInstruction.id->getArguments();
+	Instruction ret = Instruction();
+	InstructionData* id = resolver.getInstructionData(asmString);
+	ret.id = id;
 
-	if(retInstruction.id->isEncodedNormally()){
-		for(int i=0; i<asmTokens.size(); i++){
-			if(args[i][0] == '('){
-				args[i] = args[i].substr(1, args[i].length() - 2);
-			}
-			tmpBinString = encodeArgument(tmpBinString, args[i], asmTokens[i]);
-		}
-	}else{
-		//
-		//ABNORMAL ENCODING!!
-		//
-		int instructionID = retInstruction.id->getId();
-		switch(instructionID){
+	string tmpIDbinStr = id->getFull();
+	vector<string> tmpInstructionTokens = parse::tokenizeInstruction(asmString);
+	tmpInstructionTokens.erase(tmpInstructionTokens.begin());
+	vector<string> tmpIDparameters = id->getParameters();
+	ret.binString = encodeInstruction(tmpIDbinStr, tmpIDparameters, tmpInstructionTokens);
 
-			case 152:
-				{
-				//CLO rd, rs
-				tmpBinString = encodeArgument(tmpBinString, args[0], asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, "$rt", asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, args[1], asmTokens[1]);
-				}
-				break;
-			case 153:
-				{
-				//CLZ rd, rs
-				tmpBinString = encodeArgument(tmpBinString, args[0], asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, "$rt", asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, args[1], asmTokens[1]);
-				}
-				break;
-			case 179:
-				{
-				//EXT rt, rs, pos, size
-				tmpBinString = encodeArgument(tmpBinString, args[0], asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, args[1], asmTokens[1]);
-				tmpBinString = encodeArgument(tmpBinString, args[2], asmTokens[2]);
-
-				int case179_size = getArgumentValue(asmTokens[3]);
-				int case179_msbd = case179_size - 1;
-				tmpBinString = encodeArgument(tmpBinString, args[3], std::to_string(case179_msbd));
-				}
-				break;
-			case 184:
-				{
-				//INS rt, rs, pos, size
-				tmpBinString = encodeArgument(tmpBinString, args[0], asmTokens[0]);
-				tmpBinString = encodeArgument(tmpBinString, args[1], asmTokens[1]);
-
-				int case184_pos = getArgumentValue(asmTokens[2]);
-				int case184_size = getArgumentValue(asmTokens[3]);
-				int case184_msb = case184_pos + case184_size - 1;
-				tmpBinString = encodeArgument(tmpBinString, args[2], std::to_string(case184_msb));
-				
-				tmpBinString = encodeArgument(tmpBinString, args[3], asmTokens[3]);
-				}
-				break;
-			case 227:
-				{
-				//MFC2, rt, Impl, sel
-				cout << "Error[Instruction* Encoder::encode(string asmString)]: unrecognized instruction \"MFC2, rt, Impl, sel\" - how to handle \"sel\" field?";
-				getchar();
-				}
-				break;
-			case 230: 
-				{
-				//MFHC2, rt, Impl, sel
-				cout << "Error[Instruction* Encoder::encode(string asmString)]: unrecognized instruction \"MFHC2, rt, Impl, sel\" - how to handle \"sel\" field?";
-				getchar();
-				}
-				break;
-			case 261:
-				{
-				//MTC2, rt, Impl, sel
-				cout << "Error[Instruction* Encoder::encode(string asmString)]: unrecognized instruction \"MTC2, rt, Impl, sel\" - how to handle \"sel\" field?";
-				getchar();
-				}
-				break;
-			case 264:
-				{
-				//MTHC2, rt, Impl, sel
-				cout << "Error[Instruction* Encoder::encode(string asmString)]: unrecognized instruction \"MTHC2, rt, Impl, sel\" - how to handle \"sel\" field?";
-				getchar();
-				}
-				break;
-			default:
-				cout << "Error[Instruction* Encoder::encode(string asmString)]: unrecognized \"abnormal\" instruction";
-				getchar();
-				break;
-		}
-	}
-
-	tmpBinString = parse::replaceChar(tmpBinString, 'x', DONTCAREREPLACEMENT);
-
-	retInstruction.binString = tmpBinString;
-	retInstruction.bin = parse::binStrToSignedDecInt(tmpBinString);
-
-	return retInstruction;
+	ret.bin = parse::binStrToUnsignedDecInt(ret.binString);
+	return ret;
 }
 
 string Encoder::setBitrange(string instruction, string value, bitrange range){
 	return setBitrange(instruction, value, range.first, range.second);
 }
-
 string Encoder::setBitrange(string instruction, string value, unsigned int start, unsigned int end){
 	assert(instruction.length() == INSTRUCTIONSIZE);
 	
@@ -149,19 +49,22 @@ string Encoder::setBitrange(string instruction, string value, unsigned int start
 
 
 //	private Methods
-
-
-string Encoder::encodeValueAtBitrange(string instruction, bitrange parameter, int argument){
-	instruction = setBitrange(instruction, parse::decIntToBinStr(argument), parameter.first, parameter.second);
-	return instruction;
+string Encoder::encodeArgument(string binStr, string parameter, string argument){
+	bitrange br = parse::getParameterBitrange(parameter);
+	int parameterValue = parse::getArgumentValue(argument);
+	string parameterBinStr = parse::decIntToBinStr(parameterValue);
+	binStr = setBitrange(binStr, parameterBinStr, br);
+	return binStr;
 }
 
-string Encoder::encodeArgument(string instruction, string parameter, string argument){
-	bitrange parameterBitRange = mnemonics::getBitRangeFromParameter(parameter);
-	int argumentValue = getArgumentValue(argument);
-	instruction = encodeValueAtBitrange(instruction, parameterBitRange, argumentValue);
-
-	return instruction;
+string Encoder::encodeInstruction(string binStr, vector<string> parameters, vector<string> arguments){
+	for(int i=0; i<arguments.size(); i++){
+		binStr = encodeArgument(binStr, parameters[i], arguments[i]);
+	}
+	return binStr;
 }
 
-
+string Encoder::encodeAbnormalInstruction(string binStr, vector<string> parameters, vector<string> arguments){
+	//???
+	return "";
+}

@@ -16,7 +16,7 @@ int main(){
 	srand(time(NULL));
 	InstructionDataBank bank = InstructionDataBank();
 	bank.loadFile("instructions.txt");
-	Encoder a = Encoder(&bank);
+	Encoder e = Encoder(&bank);
 	Decoder d = Decoder(&bank);
 	BitResolver br = BitResolver(&bank);
 	StringResolver sr = StringResolver(&bank);
@@ -31,11 +31,16 @@ int main(){
 
 
 	//////////
-	Instruction pt1r;
-	pt1r = a.encode("EXT $zero, $zero, 31, 31");
-	pt1r = d.decode("01111100000000001111011111000000");
-	pt1r = a.encode("INS $t0, $zero, 5, 2");
-	pt1r = d.decode("01111100000010000001000110000100");
+	Instruction p;
+	p = e.buildInstruction("lw $zero, -1($zero)");
+	p = e.buildInstruction("sub $t0, $t0, $t1");
+	p = d.buildInstruction("00000000000000000000000000000000");
+
+
+	p = e.buildInstruction("EXT $zero, $zero, 31, 31");
+	p = d.buildInstruction("01111100000000001111011111000000");
+	p = e.buildInstruction("INS $t0, $zero, 5, 2");
+	p = d.buildInstruction("01111100000010000001000110000100");
 	//^^^^^ decodedes to wrong order size/pos@@@@@
 
 	vector<string> invalidinstructions;
@@ -43,10 +48,10 @@ int main(){
 	for(unsigned int i=0; i<1000; i++){
 		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
 
-		Instruction nextPtr, loopPtr = d.decode(instr);
+		Instruction nextPtr, loopPtr = d.buildInstruction(instr);
 		if(loopPtr.id != NULL){
 
-			Instruction nextPtr = a.encode(loopPtr.asmString);
+			Instruction nextPtr = e.buildInstruction(loopPtr.asmString);
 			if(nextPtr.id != NULL){
 			}
 			if(loopPtr.bin != nextPtr.bin){

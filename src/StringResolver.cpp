@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <sstream>
 
 //	Constructors
@@ -25,7 +26,7 @@ void StringResolver::addInstructionDataBank(InstructionDataBank* bank){
 }
 
 InstructionData* StringResolver::getInstructionData(string instructionString){
-	string hashedInstructionString = hashInstructionString(instructionString);
+	string hashedInstructionString = getHashableStringFromInstructionString(instructionString);
 	int bin = hash(hashedInstructionString);
 	for(int i=0; i<table[bin].size(); i++){
 		if(instructionStrIsMatch(table[bin][i], instructionString)){
@@ -38,13 +39,13 @@ InstructionData* StringResolver::getInstructionData(string instructionString){
 
 //	private Methods
 void StringResolver::addInstructionData(InstructionData* id){
-	int bin = hash(hashInstructionTokens(id->getName(), id->getArguments()));
+	int bin = hash(getHashableStringFromParameterTokens(id->getName(), id->getParameters()));
 	table[bin].push_back(id);
 }
 
 bool StringResolver::instructionStrIsMatch(InstructionData* id, string rightInstrStr){
-	string hashRHS = StringResolver::hashInstructionString(rightInstrStr);
-	string hashID = StringResolver::hashInstructionTokens(id->getName(), id->getArguments());
+	string hashRHS = StringResolver::getHashableStringFromInstructionString(rightInstrStr);
+	string hashID = StringResolver::getHashableStringFromParameterTokens(id->getName(), id->getParameters());
 	return (hashRHS == hashID);
 }
 
@@ -55,37 +56,79 @@ int StringResolver::hash(string key){
 	return retHash;
 }
 
-string StringResolver::hashInstructionString(string instructionString){
+string StringResolver::getHashableStringFromInstructionString(string instructionString){
 	vector<string> tokens = parse::tokenizeInstruction(instructionString);
 	string instructionName = tokens[0];
 	tokens.erase(tokens.begin());
-	for(int i=tokens.size(); i<4; i++){
-		tokens.push_back("_");
-	}
-	string hashableString = hashInstructionTokens(instructionName, tokens);
-	return hashableString;
+	string retStr = getHashableStringFromInstructionTokens(instructionName, tokens);
+	return retStr;
 }
 
-string StringResolver::hashInstructionTokens(string name, vector<string> arguments){
-	ostringstream oss;
-	oss << "@" << name << ":";
+string StringResolver::getHashableStringFromInstructionTokens(string name, vector<string> arguments){
+	stringstream ss;
+	ss << name << ":";
 
 	for(int i=0; i<arguments.size(); i++){
 		string tmpArg = arguments[i];
-		if(tmpArg != "_"){
-			int argStart = (tmpArg[0] == '(')? 1 : 0;
-
-			if(argStart == 1){oss << "(";}
-			oss << ((tmpArg[argStart] == '$')? '$' : '.');
-			if(argStart == 1){oss << ")";}
+		string tmpTokStr;
+		bool hasParentheses = parse::hasParentheses(tmpArg);
+		if(hasParentheses){
+			tmpArg = parse::removeParentheses(tmpArg);
 		}
+		if(parse::argumentIsGPRegister(tmpArg)){
+			tmpTokStr = "g$";
+		}else if(parse::argumentIsFPRegister(tmpArg)){
+			tmpTokStr = "f$";
+		}else if(parse::tokenIsLiteral(tmpArg)){
+			tmpTokStr = ".";
+		}else{
+			cout << "invalid token " << tmpArg;
+			getchar();
+		}
+		if(hasParentheses){
+			tmpTokStr = "(" + tmpTokStr + ")";
+		}
+		ss << tmpTokStr;
 	}
 
-	string tmpHashable = oss.str();
+	string tmpHashable = ss.str();
 	std::transform(tmpHashable.begin(), tmpHashable.end(), tmpHashable.begin(), ::tolower);
 	return tmpHashable;
 }
 
+string StringResolver::getHashableStringFromParameterTokens(string name, vector<string> arguments){
+	stringstream ss;
+	ss << name << ":";
+
+	for(int i=0; i<arguments.size(); i++){
+		string tmpArg = arguments[i];
+		if(tmpArg != "_"){
+			string tmpTokStr;
+			bool hasParentheses = parse::hasParentheses(tmpArg);
+			if(hasParentheses){
+				tmpArg = parse::removeParentheses(tmpArg);
+			}
+			if(parse::parameterIsGPRegister(tmpArg)){
+				tmpTokStr = "g$";
+			}else if(parse::parameterIsFPRegister(tmpArg)){
+				tmpTokStr = "f$";
+			}else if(parse::parameterIsLiteral(tmpArg)){
+				tmpTokStr = ".";
+			}else{
+				cout << "invalid token " << tmpArg;
+				getchar();
+			}
+			if(hasParentheses){
+				tmpTokStr = "(" + tmpTokStr + ")";
+			}
+			ss << tmpTokStr;
+		}
+	}
+
+	string tmpHashable = ss.str();
+	std::transform(tmpHashable.begin(), tmpHashable.end(), tmpHashable.begin(), ::tolower);
+	return tmpHashable;
+}
 
 
 

@@ -19,7 +19,7 @@ class InstructionData{
 		string getOpcode();
 		string getFields();
 
-		vector<string> getArguments();
+		vector<string> getParameters();
 
 		bool isEncodedNormally();
 		bool isDecodedNormally();
@@ -37,7 +37,7 @@ class InstructionData{
 		string opcode;	//	31,26
 		string fields;	//	25,0
 		
-		vector<string> arguments;
+		vector<string> parameters;
 
 		bool normalEncoding;
 		bool normalDecoding;

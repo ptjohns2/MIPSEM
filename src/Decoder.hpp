@@ -21,7 +21,7 @@ class Decoder{
 	private:
 		//Methods
 		string decodeArgument(string binStr, string parameter);
-		string decodeInstruction(string binStr, string instruction);
+		string decodeInstruction(string binStr, string name, vector<string> parameters);
 		string decodeAbnormalInstruction(string binStr, string instruction);
 
 		//Members

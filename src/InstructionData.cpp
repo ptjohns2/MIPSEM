@@ -28,10 +28,10 @@ InstructionData::InstructionData(string info){
 	getline(ss, pos2, '\t');
 	getline(ss, pos3, '\t');
 	getline(ss, pos4, '\t');
-	this->arguments.push_back(pos1);
-	this->arguments.push_back(pos2);
-	this->arguments.push_back(pos3);
-	this->arguments.push_back(pos4);
+	this->parameters.push_back(pos1);
+	this->parameters.push_back(pos2);
+	this->parameters.push_back(pos3);
+	this->parameters.push_back(pos4);
 
 	string tmpNormalEncoding;
 	getline(ss, tmpNormalEncoding, '\t');
@@ -57,7 +57,7 @@ string InstructionData::getName(){return name;}
 string InstructionData::getFormat(){return format;}
 string InstructionData::getOpcode(){return opcode;}
 string InstructionData::getFields(){return fields;}
-vector<string> InstructionData::getArguments(){return arguments;}
+vector<string> InstructionData::getParameters(){return parameters;}
 bool InstructionData::isEncodedNormally(){return normalEncoding;}
 bool InstructionData::isDecodedNormally(){return normalDecoding;}
 string InstructionData::getFull(){return full;}

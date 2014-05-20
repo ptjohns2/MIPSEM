@@ -20,8 +20,8 @@ class Encoder{
 	private:
 		//Methods
 		string encodeArgument(string binStr, string parameter, string argument);
-		string encodeInstruction(string binStr, string parameter, string argument);
-		string encodeAbnormalInstruction(string binStr, string parameter, string argument);
+		string encodeInstruction(string binStr, vector<string> parameters, vector<string> arguments);
+		string encodeAbnormalInstruction(string binStr, vector<string> parameter, vector<string> argument);
 		
 		//Members
 		StringResolver resolver;

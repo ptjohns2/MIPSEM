@@ -8,8 +8,11 @@
 
 using namespace std;
 
+
 class parse{
 	public:
+		
+		//Methods
 		static string trimFront(string);
 		static string trimEnd(string);
 		static string trim(string);
@@ -26,14 +29,69 @@ class parse{
 		static string incBitStrByOne(string binStr);
 		static string onesComplement(string binStr);
 		static string twosComplement(string binStr);
+
+
+		static bool parameterIsRegister(string parameter);
+		static bool parameterIsGPRegister(string parameter);
+		static bool parameterIsFPRegister(string parameter);
+
+		static bool argumentIsRegister(string argument);
+		static bool argumentIsGPRegister(string argument);
+		static bool argumentIsFPRegister(string argument);
+
+
+		static string getGPRegisterName(int index);
+		static string getFPRegisterName(int index);
+
+		static int getRegisterIndex(string parameter);
+		static int getGPRegisterIndex(string parameter);
+		static int getFPRegisterIndex(string parameter);
+
+
+		static bool parameterIsLiteral(string parameter);
+		static bool parameterIsSignedLiteral(string parameter);
+		static bool parameterIsUnsignedLiteral(string parameter);
+
+		static bool tokenIsLiteral(string argument);
+		static bool tokenIsDecimalLiteral(string argument);
+		static bool tokenIsHexLiteral(string argument);
+		static bool tokenIsBinaryLiteral(string argument);
+
+		static int getLiteralValue(string argument);
+		static int getDecimalLiteralValue(string argument);
+		static int getHexLiteralValue(string argument);
+		static int getBinaryLiteralValue(string argument);
+
+		static int getArgumentValue(string argument);
+		static bitrange getParameterBitrange(string parameter);
+
+
+		static bool isDecimalDigit(char);
+		static bool isHexDigit(char);
+		static bool isBinaryDigit(char);
+		
+		static int decimalCharToDigit(char);
+		static int hexCharToDigit(char);
+		static int binaryCharToDigit(char);
+
+		static bool hasParentheses(string);
+		static string removeParentheses(string);
+
+
+		//Members
+		static string const GPRegisterNames[];
+		static string const FPRegisterNames[];
+
+
+
 	private:
 
 
+
+
+
+
 };
-
-
-
-
 
 
 
