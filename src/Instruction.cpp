@@ -6,14 +6,23 @@ Instruction::Instruction(){
 	binString = "";
 	bin = 0x0;
 }
+Instruction::Instruction(InstructionData* id, string asmString, string binString, instr bin, vector<int64_t> arguments)
+	:id(id), asmString(asmString), binString(binString), bin(bin), arguments(arguments)
+{
+
+}
 
 Instruction::~Instruction(){
 	
 }
 
-void Instruction::execute(){
-	//TODO
-}
+//	Methods
+InstructionData* Instruction::getId(){return id;}
+string Instruction::getAsmString(){return asmString;}
+string Instruction::getBinString(){return binString;}
+instr Instruction::getBin(){return bin;}
+vector<int64_t> Instruction::getArguments(){return arguments;}
+
 
 
 

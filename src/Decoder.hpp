@@ -20,9 +20,10 @@ class Decoder{
 
 	private:
 		//Methods
-		string decodeArgument(string binStr, string parameter);
+		string decodeArgumentToMnemonic(string binStr, string parameter);
+		int64_t decodeArgumentToValue(string binStr, string parameter);
 		string decodeInstruction(string binStr, string name, vector<string> parameters);
-		string decodeAbnormalInstruction(string binStr, string instruction);
+		string decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int64_t> &argumentValues);
 
 		//Members
 		BitResolver resolver;

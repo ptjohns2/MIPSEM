@@ -29,58 +29,91 @@ int main(){
 	////////FIX DECODING WITH UNSIGNED/SIGNED VALUES ETC!@@ -config file toggle for each args?
 
 
-
+	
 	//////////
 	Instruction p;
-	p = e.buildInstruction("lw $zero, -1($zero)");
+	p = e.buildInstruction("lw $t1, -1($zero)");
+	p = d.buildInstruction("10001100000010011111111111111111");
 	p = e.buildInstruction("sub $t0, $t0, $t1");
-	p = d.buildInstruction("00000000000000000000000000000000");
+	p = d.buildInstruction("00000001000010010100000000100010");
 
 
-	p = e.buildInstruction("EXT $zero, $zero, 31, 31");
-	p = d.buildInstruction("01111100000000001111011111000000");
-	p = e.buildInstruction("INS $t0, $zero, 5, 2");
-	p = d.buildInstruction("01111100000010000001000110000100");
+	p = e.buildInstruction("EXT $t0, $t0, 0, 0");
+	p = d.buildInstruction("01111101000010001111100000000000");
+	p = e.buildInstruction("INS $t0, $t0, 5, 9");
+	p = d.buildInstruction("01111101000010000110100101000100");
 	//^^^^^ decodedes to wrong order size/pos@@@@@
 
+
+	
+	int numTests = 1000000;
 	vector<string> invalidinstructions;
 	vector<string> validinstructions;
-	for(unsigned int i=0; i<1000; i++){
+	time_t start;
+	time(&start);
+	for(unsigned int i=0; i<numTests; i++){
 		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
 
 		Instruction nextPtr, loopPtr = d.buildInstruction(instr);
-		if(loopPtr.id != NULL){
+		if(loopPtr.getId() != NULL){
 
-			Instruction nextPtr = e.buildInstruction(loopPtr.asmString);
-			if(nextPtr.id != NULL){
+			Instruction nextPtr = e.buildInstruction(loopPtr.getAsmString());
+			if(nextPtr.getId() != NULL){
 			}
-			if(loopPtr.bin != nextPtr.bin){
+			if(loopPtr.getBin() != nextPtr.getBin()){
 				bool chk = true;
 				for(int n=0; n<invalidinstructions.size(); n++){
-					if(nextPtr.id->getName() == invalidinstructions[n]){
+					if(nextPtr.getId()->getName() == invalidinstructions[n]){
 						chk = false;
 						break;
 					}
 				}
 				if(chk){
-					invalidinstructions.push_back(nextPtr.id->getName());
+					invalidinstructions.push_back(nextPtr.getId()->getName());
 				}
 			}else{
 				bool chk = true;
 				for(int n=0; n<validinstructions.size(); n++){
-					if(nextPtr.id->getName() == validinstructions[n]){
+					if(nextPtr.getId()->getName() == validinstructions[n]){
 						chk = false;
 						break;
 					}
 				}
 				if(chk){
-					validinstructions.push_back(nextPtr.id->getName());
+					validinstructions.push_back(nextPtr.getId()->getName());
 				}
 			}
 		}
 	}
+	time_t end;
+	time(&end);
+	time_t time = end - start;
+	cout << "Time: " << time << '\n';
+	cout << "numTests: " << numTests << '\n';
+	cout << "Time per: " << (float)(time) / (float)(numTests);
+	
 
 
+	/*
+	int numTests = 1000000;
+	vector<string> invalidinstructions;
+	vector<string> validinstructions;
+	time_t start;
+	time(&start);
+
+	
+	for(unsigned int i=0; i<numTests; i++){
+		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
+		Instruction instruction = d.buildInstruction(instr);
+	}
+
+	time_t end;
+	time(&end);
+	time_t time = end - start;
+	cout << "Time: " << time << '\n';
+	cout << "numTests: " << numTests << '\n';
+	cout << "Time per: " << (float)(time) / (float)(numTests);
+	*/
 
 
 	return 0;

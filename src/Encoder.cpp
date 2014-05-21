@@ -14,18 +14,39 @@ Encoder::~Encoder(){}
 
 //	public Methods
 Instruction Encoder::buildInstruction(string asmString){
-	Instruction ret = Instruction();
 	InstructionData* id = resolver.getInstructionData(asmString);
-	ret.id = id;
+	if(id == NULL){
+		Instruction jnk;
+		return jnk;
+	}
 
-	string tmpIDbinStr = id->getFull();
-	vector<string> tmpInstructionTokens = parse::tokenizeInstruction(asmString);
-	tmpInstructionTokens.erase(tmpInstructionTokens.begin());
-	vector<string> tmpIDparameters = id->getParameters();
-	ret.binString = encodeInstruction(tmpIDbinStr, tmpIDparameters, tmpInstructionTokens);
+	string binString = id->getFull();
 
-	ret.bin = parse::binStrToUnsignedDecInt(ret.binString);
-	return ret;
+	vector<int64_t> argumentValues;
+
+	vector<string> parameters = id->getParameters();
+	vector<string> arguments = parse::tokenizeInstruction(asmString);
+	arguments.erase(arguments.begin());
+
+	for(int i=0; i<arguments.size(); i++){
+		argumentValues.push_back(parse::getArgumentValue(arguments[i]));
+	}
+
+	if(id->isEncodedNormally()){
+		binString = encodeInstruction(binString, parameters, arguments);
+	}else{
+		binString = encodeAbnormalInstruction(binString, parameters, arguments, id->getId());
+	}
+
+	for(int i=0; i<binString.length(); i++){
+		if(!parse::isBinaryDigit(binString[i])){
+			binString[i] = DONTCAREREPLACEMENT;
+		}
+	}
+
+	instr bin = parse::binStrToUnsignedDecInt(binString);
+	Instruction instruction = Instruction(id, asmString, binString, bin, argumentValues);
+	return instruction;
 }
 
 string Encoder::setBitrange(string instruction, string value, bitrange range){
@@ -64,7 +85,65 @@ string Encoder::encodeInstruction(string binStr, vector<string> parameters, vect
 	return binStr;
 }
 
-string Encoder::encodeAbnormalInstruction(string binStr, vector<string> parameters, vector<string> arguments){
-	//???
-	return "";
+string Encoder::encodeAbnormalInstruction(string binStr, vector<string> parameters, vector<string> arguments, int id){
+	switch(id){
+		case 152:
+			{
+			//CLO rd, rs
+			binStr = encodeArgument(binStr, parameters[0], arguments[0]);
+			binStr = encodeArgument(binStr, parameters[0], "$rt");
+			binStr = encodeArgument(binStr, parameters[1], arguments[1]);
+			}
+			break;
+		case 153:
+			{
+			//CLZ rd, rs
+			binStr = encodeArgument(binStr, parameters[0], arguments[0]);
+			binStr = encodeArgument(binStr, parameters[0], "$rt");
+			binStr = encodeArgument(binStr, parameters[1], arguments[1]);
+			}
+			break;
+		case 179:
+			{
+			//EXT rt, rs, pos, size
+			binStr = encodeArgument(binStr, parameters[0], arguments[0]);
+			binStr = encodeArgument(binStr, parameters[1], arguments[1]);
+			binStr = encodeArgument(binStr, parameters[2], arguments[2]);
+
+			int size = parse::getLiteralValue(arguments[3]);
+			//negatives will be handled since only 5 lsb of binstr
+			int msbd = size - 1;
+			binStr = encodeArgument(binStr, parameters[3], std::to_string(msbd));
+			}
+			break;
+		case 184:
+			{
+			//INS rt, rs, pos, size
+			binStr = encodeArgument(binStr, parameters[0], arguments[0]);
+			binStr = encodeArgument(binStr, parameters[1], arguments[1]);
+
+			int pos = parse::getLiteralValue(arguments[2]);
+			int size = parse::getLiteralValue(arguments[3]);
+			//negatives will be handled since only 5 lsb of binstr
+			int msb = pos + size - 1;
+		
+			binStr = encodeArgument(binStr, parameters[2], arguments[2]);
+			binStr = encodeArgument(binStr, parameters[3], std::to_string(msb));
+			}
+			break;
+		default:
+			{
+
+			}
+	}
+	return binStr;
 }
+
+
+
+
+
+
+
+
+

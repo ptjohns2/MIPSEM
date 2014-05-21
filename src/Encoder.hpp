@@ -21,7 +21,7 @@ class Encoder{
 		//Methods
 		string encodeArgument(string binStr, string parameter, string argument);
 		string encodeInstruction(string binStr, vector<string> parameters, vector<string> arguments);
-		string encodeAbnormalInstruction(string binStr, vector<string> parameter, vector<string> argument);
+		string encodeAbnormalInstruction(string binStr, vector<string> parameters, vector<string> arguments, int id);
 		
 		//Members
 		StringResolver resolver;
