@@ -42,7 +42,7 @@ string parse::trim(string str){
 }
 
 string parse::replaceChar(string str, char before, char after){
-	for(int i=0; i<str.length(); i++){
+	for(unsigned int i=0; i<str.length(); i++){
 		if(str[i] == before){
 			str[i] = after;
 		}
@@ -79,7 +79,7 @@ vector<string> parse::tokenizeInstruction(string str){
 	}
 	ss.clear();
 	//split tokens by parenthises
-	for(int i=0; i<tokensBeforeParenSplit.size(); i++){
+	for(unsigned int i=0; i<tokensBeforeParenSplit.size(); i++){
 		stringstream ss(tokensBeforeParenSplit[i]);
 		string beforeParen, afterParen;
 		getline(ss, beforeParen, '(');
@@ -151,7 +151,7 @@ string parse::incBitStrByOne(string binStr){
 }
 
 string parse::onesComplement(string binStr){
-	for(int i=0; i<binStr.length(); i++){
+	for(unsigned int i=0; i<binStr.length(); i++){
 		binStr[i] = flipBit(binStr[i]);
 	}
 	return binStr;
@@ -219,6 +219,9 @@ int parse::getRegisterIndex(string argument){
 	}else if(argumentIsFPRegister(argument)){
 		return getFPRegisterIndex(argument);
 	}
+	cout << "error parse::getRegisterIndex - invalid argument";
+	getchar();
+	return 0;
 }
 
 //TODO: memoize the get*RegisterIndex functions
@@ -226,7 +229,7 @@ int parse::getGPRegisterIndex(string argument){
 	if(argument[0] != '$'){return -1;}
 	if(argument.length() > 5){return -1;}
 	bool isNumericRegister = true;
-	for(int i=1; i<argument.length()-1; i++){
+	for(unsigned int i=1; i<argument.length()-1; i++){
 		isNumericRegister &= isDecimalDigit(argument[i]);
 	}
 	if(isNumericRegister){
@@ -249,7 +252,7 @@ int parse::getGPRegisterIndex(string argument){
 int parse::getFPRegisterIndex(string argument){
 	if(argument[0] != '$'){return -1;}
 	if(argument.length() > 4){return -1;} 
-	for(int i=2; i<argument.length()-1; i++){
+	for(unsigned int i=2; i<argument.length()-1; i++){
 		if(!isDecimalDigit(argument[i])){return -1;}
 	}
 	int regNum = atoi(argument.substr(1).c_str());
@@ -279,7 +282,7 @@ bool parse::tokenIsLiteral(string argument){
 bool parse::tokenIsDecimalLiteral(string argument){
 	int start = 0;
 	if(argument[0] == '-'){start++;}
-	for(int i=start; i<argument.length(); i++){
+	for(unsigned int i=start; i<argument.length(); i++){
 		if(!isDecimalDigit(argument[i])){return false;}
 	}
 	return true;
@@ -287,7 +290,8 @@ bool parse::tokenIsDecimalLiteral(string argument){
 bool parse::tokenIsHexLiteral(string argument){
 	if(argument[0] != '0'){return false;}
 	if(argument[1] != 'x'){return false;}
-	for(int i=2; i<argument.length(); i++){
+	if(argument.length() > 10){return false;}
+	for(unsigned int i=2; i<argument.length(); i++){
 		if(!isHexDigit(argument[i])){return false;}
 	}
 	return true;
@@ -295,7 +299,8 @@ bool parse::tokenIsHexLiteral(string argument){
 bool parse::tokenIsBinaryLiteral(string argument){
 	if(argument[0] != '0'){return false;}
 	if(argument[1] != 'b'){return false;}
-	for(int i=2; i<argument.length(); i++){
+	if(argument.length() > 34){return false;}
+	for(unsigned int i=2; i<argument.length(); i++){
 		if(!isBinaryDigit(argument[i])){return false;}
 	}
 	return true;
@@ -311,13 +316,14 @@ int parse::getLiteralValue(string argument){
 		return getBinaryLiteralValue(argument);
 	}
 	cout << "error[int getLiteralValue(string argument)]: " << argument << " is not a valid literal value\n";
+	getchar();
+	return 0;
 }
 int parse::getDecimalLiteralValue(string argument){
 	bool isNeg = argument[0] == '-';
 	int start = isNeg? 1 : 0;
-	int len = argument.length();
 	int retVal = 0;
-	for(int i=start; i<argument.length(); i++){
+	for(unsigned int i=start; i<argument.length(); i++){
 		retVal *= 10;
 		retVal += decimalCharToDigit(argument[i]);
 	}
@@ -325,9 +331,8 @@ int parse::getDecimalLiteralValue(string argument){
 	return retVal;
 }
 int parse::getHexLiteralValue(string argument){
-	int len = argument.length();
 	int retVal = 0;
-	for(int i=2; i<argument.length(); i++){
+	for(unsigned int i=2; i<argument.length(); i++){
 		retVal <<= 4;
 		retVal |= hexCharToDigit(argument[i]);
 	}
@@ -336,13 +341,7 @@ int parse::getHexLiteralValue(string argument){
 int parse::getBinaryLiteralValue(string argument){
 	//this instead of binStrToSigned/UnsignedDecInt(string binStr)
 	//	so it's counted as leading 0s
-	int end = 2;
-	int len = argument.length();
-	int retVal = 0;
-	for(int i=len-1; i>end; i--){
-		retVal <<= 1;
-		retVal |= binaryCharToDigit(argument[i]);
-	}
+	int retVal = binStrToUnsignedDecInt(argument.substr(2));
 	return retVal;
 }
 
@@ -354,10 +353,10 @@ int parse::getArgumentValue(string argument){
 		return getRegisterIndex(argument);
 	}else if(tokenIsLiteral(argument)){
 		return getLiteralValue(argument);
-	}else{
-		cout << "Error invalid token " << argument << '\n';
-		getchar();
 	}
+	cout << "Error invalid token " << argument << '\n';
+	getchar();
+	return 0;
 }
 
 
@@ -427,8 +426,10 @@ int parse::decimalCharToDigit(char c){
 }
 int parse::hexCharToDigit(char c){
 	if(c >= '0' && c <= '9'){return c - '0';}
-	else if(c >= 'a' && c <= 'f'){return c - 'a';}
-	else if(c >= 'A' && c <= 'F'){return c - 'A';}
+	else if(c >= 'a' && c <= 'f'){return c - 'a' + 10;}
+	else if(c >= 'A' && c <= 'F'){return c - 'A' + 10;}
+	//error, not real hex char
+	return 0;
 }
 int parse::binaryCharToDigit(char c){
 	return (c == '0')? 0 : 1;

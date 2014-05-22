@@ -14,14 +14,14 @@ class Instruction{
 	public:
 		//Methods
 		Instruction();
-		Instruction(InstructionData*, string, string, instr, vector<int64_t>);
+		Instruction(InstructionData*, string, string, instr, vector<int>);
 		~Instruction();
 
 		InstructionData* getId();
 		string getAsmString();
 		string getBinString();
 		instr getBin();
-		vector<int64_t> getArguments();
+		vector<int> getArguments();
 
 	private:
 		//Members
@@ -29,8 +29,8 @@ class Instruction{
 		string asmString;
 		string binString;
 		instr bin;
-		vector<int64_t> arguments;
-
+		vector<int> arguments;
+		
 
 	private:
 

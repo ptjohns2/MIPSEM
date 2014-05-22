@@ -18,12 +18,13 @@ class Decoder{
 		static string extractBitrange(string value, bitrange range);
 		static string extractBitrange(string value, unsigned int start, unsigned int end);
 
+		static int decodeArgumentToValue(string binStr, string parameter);
+		static string decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int> &argumentValues);
+
 	private:
 		//Methods
-		string decodeArgumentToMnemonic(string binStr, string parameter);
-		int64_t decodeArgumentToValue(string binStr, string parameter);
-		string decodeInstruction(string binStr, string name, vector<string> parameters);
-		string decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int64_t> &argumentValues);
+		static string decodeArgumentToMnemonic(string binStr, string parameter);
+		static string decodeInstruction(string binStr, string name, vector<string> parameters);
 
 		//Members
 		BitResolver resolver;

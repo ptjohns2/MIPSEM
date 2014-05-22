@@ -1,5 +1,6 @@
 #include "Encoder.hpp"
 
+#include "Decoder.hpp"
 #include "parse.hpp"
 
 #include <bitset>
@@ -22,15 +23,11 @@ Instruction Encoder::buildInstruction(string asmString){
 
 	string binString = id->getFull();
 
-	vector<int64_t> argumentValues;
+	vector<int> argumentValues;
 
 	vector<string> parameters = id->getParameters();
 	vector<string> arguments = parse::tokenizeInstruction(asmString);
 	arguments.erase(arguments.begin());
-
-	for(int i=0; i<arguments.size(); i++){
-		argumentValues.push_back(parse::getArgumentValue(arguments[i]));
-	}
 
 	if(id->isEncodedNormally()){
 		binString = encodeInstruction(binString, parameters, arguments);
@@ -43,6 +40,25 @@ Instruction Encoder::buildInstruction(string asmString){
 			binString[i] = DONTCAREREPLACEMENT;
 		}
 	}
+	
+	//get argument values
+	for(int i=0; i<arguments.size(); i++){
+		int argVal;
+		if(parse::parameterIsLiteral(parameters[i])){
+			if(id->isDecodedNormally()){
+				argVal = Decoder::decodeArgumentToValue(binString, parameters[i]);
+			}else{
+				//abnormally decoded instruction
+				vector<int> tmpArgumentValues;
+				asmString = Decoder::decodeAbnormalInstruction(binString, id->getName(), parameters, id->getId(), tmpArgumentValues);
+				argVal = tmpArgumentValues[i];
+			}
+		}else{
+			argVal = parse::getArgumentValue(arguments[i]);
+		}
+		argumentValues.push_back(argVal);
+	}
+	
 
 	instr bin = parse::binStrToUnsignedDecInt(binString);
 	Instruction instruction = Instruction(id, asmString, binString, bin, argumentValues);

@@ -28,7 +28,7 @@ void StringResolver::addInstructionDataBank(InstructionDataBank* bank){
 InstructionData* StringResolver::getInstructionData(string instructionString){
 	string hashedInstructionString = getHashableStringFromInstructionString(instructionString);
 	int bin = hash(hashedInstructionString);
-	for(int i=0; i<table[bin].size(); i++){
+	for(unsigned int i=0; i<table[bin].size(); i++){
 		if(instructionStrIsMatch(table[bin][i], instructionString)){
 			return table[bin][i];
 		}
@@ -68,7 +68,7 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 	stringstream ss;
 	ss << name << ":";
 
-	for(int i=0; i<arguments.size(); i++){
+	for(unsigned int i=0; i<arguments.size(); i++){
 		string tmpArg = arguments[i];
 		string tmpTokStr;
 		bool hasParentheses = parse::hasParentheses(tmpArg);
@@ -100,7 +100,7 @@ string StringResolver::getHashableStringFromParameterTokens(string name, vector<
 	stringstream ss;
 	ss << name << ":";
 
-	for(int i=0; i<arguments.size(); i++){
+	for(unsigned int i=0; i<arguments.size(); i++){
 		string tmpArg = arguments[i];
 		if(tmpArg != "_"){
 			string tmpTokStr;

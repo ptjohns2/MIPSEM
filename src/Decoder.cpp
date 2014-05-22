@@ -29,23 +29,22 @@ Instruction Decoder::buildInstruction(string binStr){
 	
 	int numArgs = 0;
 	for(int i=0; i<parameters.size(); i++){
-		if(parameters[i] != "_"){
-			numArgs++;
-		}
+		if(parameters[i] != "_"){numArgs++;}
 	}
-	vector<int64_t> argumentValues;
+
+	string asmString;
+	vector<int> argumentValues;
 	if(id->isDecodedNormally()){
+		//decode instr
+		asmString = decodeInstruction(binStr, id->getName(), parameters);
+		//get argument values
 		for(int i=0; i<numArgs; i++){
-			bitrange br = parse::getParameterBitrange(parameters[i]);
 			int argVal = decodeArgumentToValue(binStr, parameters[i]);
 			argumentValues.push_back(argVal);
 		}
-	}
-	
-	string asmString;
-	if(id->isDecodedNormally()){
-		 asmString = decodeInstruction(binStr, id->getName(), parameters);
 	}else{
+		//decode abnormal instr
+		argumentValues.clear();
 		asmString = decodeAbnormalInstruction(binStr, id->getName(), parameters, id->getId(), argumentValues);
 	}
 	
@@ -89,7 +88,7 @@ string Decoder::decodeArgumentToMnemonic(string binStr, string parameter){
 	return retStr;
 }
 
-int64_t Decoder::decodeArgumentToValue(string binStr, string parameter){
+int Decoder::decodeArgumentToValue(string binStr, string parameter){
 	parameter = parse::removeParentheses(parameter);
 	bitrange br = parse::getParameterBitrange(parameter);
 	string argumentBinStr = extractBitrange(binStr, br);
@@ -125,7 +124,7 @@ string Decoder::decodeInstruction(string binStr, string name, vector<string> par
 	return ss.str();
 }
 
-string Decoder::decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int64_t> &argumentValues){
+string Decoder::decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int> &argumentValues){
 	stringstream asmString;
 	switch(id){
 		case 179:

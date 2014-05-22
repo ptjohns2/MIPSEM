@@ -8,6 +8,7 @@
 #define INSTRUCTION_NUMBER_TABLE_SIZE		(64)
 #define INSTRUCTIONSIZE						(32)
 #define OPCODESIZE							(6)
+#define NUMBER_OF_ARGUMENTS					(4)
 
 #define DONTCAREREPLACEMENT					('0')
 
