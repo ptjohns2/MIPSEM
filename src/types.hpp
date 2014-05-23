@@ -14,9 +14,6 @@
 
 typedef uint32_t instr;
 
-typedef int32_t field;
-
-typedef uint32_t ufield;
 typedef int32_t GPreg;
 typedef float FPreg;
 

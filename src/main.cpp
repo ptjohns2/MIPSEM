@@ -22,22 +22,6 @@ int main(){
 	Decoder d = Decoder(&bank);
 	BitResolver br = BitResolver(&bank);
 	StringResolver sr = StringResolver(&bank);
-
-	//EXT rt, rs, pos, size
-	//INS rt, rs, pos, size
-	//////////////////
-
-
-	////////FIX DECODING WITH UNSIGNED/SIGNED VALUES ETC!@@ -config file toggle for each args?
-	for(char c = '0'; c <= '9'; c++){
-		cout <<  parse::hexCharToDigit(c) << '\n';
-	}
-	for(char c = 'a'; c <= 'f'; c++){
-		cout <<  parse::hexCharToDigit(c) << '\n';
-	}
-	for(char c = 'A'; c <= 'F'; c++){
-		cout <<  parse::hexCharToDigit(c) << '\n';
-	}
 	
 	//////////
 	Instruction p;
@@ -57,13 +41,12 @@ int main(){
 	p = d.buildInstruction("01111101000010001111100000000000");
 	p = e.buildInstruction("INS $t0, $t0, 5, 9");
 	p = d.buildInstruction("01111101000010000110100101000100");
-	//^^^^^ decodedes to wrong order size/pos@@@@@
-
 
 	
-	int numTests = 1000000;
+	int numTests = 10000;
 	vector<string> invalidinstructions;
 	vector<string> validinstructions;
+	vector<pair<Instruction, Instruction>> invalidArgumentInstructions;
 	time_t start;
 	time(&start);
 	for(int i=0; i<numTests; i++){
@@ -74,28 +57,46 @@ int main(){
 
 			Instruction nextPtr = e.buildInstruction(loopPtr.getAsmString());
 			if(nextPtr.getId() != NULL){
-			}
-			if(loopPtr.getBin() != nextPtr.getBin()){
-				bool chk = true;
-				for(unsigned int n=0; n<invalidinstructions.size(); n++){
-					if(nextPtr.getId()->getName() == invalidinstructions[n]){
-						chk = false;
-						break;
+				bool invalidEncode = false;
+				invalidEncode |= loopPtr.getBin() != nextPtr.getBin();
+				vector<int> lArgs = loopPtr.getArguments();
+				vector<int> nArgs = nextPtr.getArguments();
+				bool invalidArgumentValues = false;
+				invalidArgumentValues |= lArgs.size() != nArgs.size();
+
+				int numArgs = (lArgs.size() < nArgs.size())? lArgs.size() : nArgs.size();
+				for(int argValTestIterator = 0; argValTestIterator<numArgs; argValTestIterator++){
+					invalidArgumentValues |= lArgs[argValTestIterator] != nArgs[argValTestIterator];
+				}
+				if(invalidArgumentValues){
+					pair<Instruction, Instruction> tmp;
+					tmp.first = loopPtr;
+					tmp.second = nextPtr;
+					invalidArgumentInstructions.push_back(tmp);
+				}
+
+				if(invalidEncode){
+					bool chk = true;
+					for(unsigned int n=0; n<invalidinstructions.size(); n++){
+						if(nextPtr.getId()->getName() == invalidinstructions[n]){
+							chk = false;
+							break;
+						}
 					}
-				}
-				if(chk){
-					invalidinstructions.push_back(nextPtr.getId()->getName());
-				}
-			}else{
-				bool chk = true;
-				for(unsigned int n=0; n<validinstructions.size(); n++){
-					if(nextPtr.getId()->getName() == validinstructions[n]){
-						chk = false;
-						break;
+					if(chk){
+						invalidinstructions.push_back(nextPtr.getId()->getName());
 					}
-				}
-				if(chk){
-					validinstructions.push_back(nextPtr.getId()->getName());
+				}else{
+					bool chk = true;
+					for(unsigned int n=0; n<validinstructions.size(); n++){
+						if(nextPtr.getId()->getName() == validinstructions[n]){
+							chk = false;
+							break;
+						}
+					}
+					if(chk){
+						validinstructions.push_back(nextPtr.getId()->getName());
+					}	
 				}
 			}
 		}
@@ -128,7 +129,7 @@ int main(){
 	cout << "Time: " << time << '\n';
 	cout << "numTests: " << numTests << '\n';
 	cout << "Time per: " << (float)(time) / (float)(numTests);
-	*/
+	s*/
 
 
 	return 0;

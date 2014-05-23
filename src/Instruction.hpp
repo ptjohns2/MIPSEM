@@ -17,11 +17,11 @@ class Instruction{
 		Instruction(InstructionData*, string, string, instr, vector<int>);
 		~Instruction();
 
-		InstructionData* getId();
-		string getAsmString();
-		string getBinString();
-		instr getBin();
-		vector<int> getArguments();
+		InstructionData* getId() const;
+		string getAsmString() const;
+		string getBinString() const;
+		instr getBin() const;
+		vector<int> getArguments() const;
 
 	private:
 		//Members

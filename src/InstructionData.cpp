@@ -52,14 +52,14 @@ InstructionData::~InstructionData()
 }
 
 //	public Methods
-int InstructionData::getId(){return id;}
-string InstructionData::getName(){return name;}
-string InstructionData::getFormat(){return format;}
-string InstructionData::getOpcode(){return opcode;}
-string InstructionData::getFields(){return fields;}
-vector<string> InstructionData::getParameters(){return parameters;}
-bool InstructionData::isEncodedNormally(){return normalEncoding;}
-bool InstructionData::isDecodedNormally(){return normalDecoding;}
-string InstructionData::getFull(){return full;}
+int InstructionData::getId()const{return id;}
+string InstructionData::getName()const{return name;}
+string InstructionData::getFormat()const{return format;}
+string InstructionData::getOpcode()const{return opcode;}
+string InstructionData::getFields()const{return fields;}
+vector<string> InstructionData::getParameters()const{return parameters;}
+bool InstructionData::isEncodedNormally()const{return normalEncoding;}
+bool InstructionData::isDecodedNormally()const{return normalDecoding;}
+string InstructionData::getFull()const{return full;}
 
 

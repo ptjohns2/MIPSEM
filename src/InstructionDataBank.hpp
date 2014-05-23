@@ -16,7 +16,7 @@ class InstructionDataBank{
 		int size();
 		void loadFile(string);
 
-		InstructionData* operator[](const int index);
+		InstructionData* operator[](int index);
 
 		//Members
 		vector<InstructionData*> bank;

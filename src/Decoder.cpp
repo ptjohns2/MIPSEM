@@ -66,20 +66,21 @@ string Decoder::extractBitrange(string value, unsigned int start, unsigned int e
 
 //	private Methods
 string Decoder::decodeArgumentToMnemonic(string binStr, string parameter){
+	string cleanParameter = parameter;
 	bool hasParentheses = parse::hasParentheses(parameter);
 	if(hasParentheses){
-		parameter = parse::removeParentheses(parameter);
+		cleanParameter = parse::removeParentheses(parameter);
 	}
-	bitrange br = parse::getParameterBitrange(parameter);
+	bitrange br = parse::getParameterBitrange(cleanParameter);
 	string argumentBinStr = extractBitrange(binStr, br);
 	string retStr;
-	if(parse::parameterIsGPRegister(parameter)){
+	if(parse::parameterIsGPRegister(cleanParameter)){
 		retStr = parse::getGPRegisterName(parse::binStrToUnsignedDecInt(argumentBinStr));
-	}else if(parse::parameterIsFPRegister(parameter)){
+	}else if(parse::parameterIsFPRegister(cleanParameter)){
 		retStr = parse::getFPRegisterName(parse::binStrToUnsignedDecInt(argumentBinStr));
-	}else if(parse::parameterIsUnsignedLiteral(parameter)){
+	}else if(parse::parameterIsUnsignedLiteral(cleanParameter)){
 		retStr = std::to_string(parse::binStrToUnsignedDecInt(argumentBinStr));
-	}else if(parse::parameterIsSignedLiteral(parameter)){
+	}else if(parse::parameterIsSignedLiteral(cleanParameter)){
 		retStr = std::to_string(parse::binStrToSignedDecInt(argumentBinStr));
 	}
 	if(hasParentheses){
@@ -89,16 +90,17 @@ string Decoder::decodeArgumentToMnemonic(string binStr, string parameter){
 }
 
 int Decoder::decodeArgumentToValue(string binStr, string parameter){
-	parameter = parse::removeParentheses(parameter);
-	bitrange br = parse::getParameterBitrange(parameter);
+	string cleanParameter = parameter;
+	cleanParameter = parse::removeParentheses(parameter);
+	bitrange br = parse::getParameterBitrange(cleanParameter);
 	string argumentBinStr = extractBitrange(binStr, br);
-	if(parse::parameterIsGPRegister(parameter)){
+	if(parse::parameterIsGPRegister(cleanParameter)){
 		return parse::binStrToUnsignedDecInt(argumentBinStr);
-	}else if(parse::parameterIsFPRegister(parameter)){
+	}else if(parse::parameterIsFPRegister(cleanParameter)){
 		return parse::binStrToUnsignedDecInt(argumentBinStr);
-	}else if(parse::parameterIsUnsignedLiteral(parameter)){
+	}else if(parse::parameterIsUnsignedLiteral(cleanParameter)){
 		return parse::binStrToUnsignedDecInt(argumentBinStr);
-	}else if(parse::parameterIsSignedLiteral(parameter)){
+	}else if(parse::parameterIsSignedLiteral(cleanParameter)){
 		return parse::binStrToSignedDecInt(argumentBinStr);
 	}
 }
@@ -141,7 +143,6 @@ string Decoder::decodeAbnormalInstruction(string binStr, string name, vector<str
 			while(size_int < 0){size_int += 32;}
 			while(size_int > 31){size_int -= 32;}
 			string size = std::to_string(size_int);
-
 			
 			argumentValues.push_back(decodeArgumentToValue(binStr, parameters[0]));
 			argumentValues.push_back(decodeArgumentToValue(binStr, parameters[1]));

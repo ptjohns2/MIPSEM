@@ -8,7 +8,9 @@
 
 //	Constructors
 BitResolver::BitResolver(InstructionDataBank* bank){
-	clearCache();
+	for(int i=0; i<INSTRUCTION_NUMBER_TABLE_SIZE; i++){
+		table[i] = NULL;
+	}
 	addInstructionDataBank(bank);
 }
 BitResolver::~BitResolver(){
@@ -38,18 +40,8 @@ void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
 InstructionData* BitResolver::getInstructionData(string i){
 	string opcodeStr = i.substr(0,6);
 	instr opcode = parse::binStrToUnsignedDecInt(opcodeStr);
-
-	//check if in cache
-	if(cache[opcode] != NULL){
-		if(binStrIsMatch(cache[opcode], i)){
-			return cache[opcode];
-		}
-	}
-
-	//if not in cache...
 	BRInstructionDataNode* binPtr = table[opcode];
 	InstructionData* retPtr = getInstructionDataFromBinarySearchTree(binPtr, i);
-	cache[opcode] = retPtr;	//cache the result
 	return retPtr;
 }
 
@@ -186,13 +178,6 @@ void BitResolver::deleteBinarySearchTree(BRInstructionDataNode* head){
 	deleteBinarySearchTree(head->left);
 	deleteBinarySearchTree(head->right);
 	delete head;
-}
-
-void BitResolver::clearCache(){
-	for(int i=0; i<INSTRUCTION_NUMBER_TABLE_SIZE; i++){
-		table[i] = NULL;
-		cache[i] = NULL;
-	}
 }
 
 

@@ -44,7 +44,7 @@ void InstructionDataBank::loadFile(string filename){
 }
 
 
-InstructionData* InstructionDataBank::operator[](const int index){
+InstructionData* InstructionDataBank::operator[](int index){
 	return bank[index];
 }
 

@@ -11,20 +11,20 @@ class InstructionData{
 		InstructionData(string);
 		~InstructionData();
 
-		int getId();
+		int getId() const;
 
-		string getName();
-		string getFormat();
+		string getName() const;
+		string getFormat() const;
 
-		string getOpcode();
-		string getFields();
+		string getOpcode() const;
+		string getFields() const;
 
-		vector<string> getParameters();
+		vector<string> getParameters() const;
 
-		bool isEncodedNormally();
-		bool isDecodedNormally();
+		bool isEncodedNormally() const;
+		bool isDecodedNormally() const;
 		
-		string getFull();
+		string getFull() const;
 
 
 		
@@ -41,15 +41,6 @@ class InstructionData{
 
 		bool normalEncoding;
 		bool normalDecoding;
-	/*	//	Position syntax: (msb = 31, lsb = 0)
-		//	$ptr	.val
-		$[%msb%,%lsb%]			//
-		$%register_mnemonic%	//
-		.[%msb%,%lsb%]			//
-		.imm					//
-		offset (base)			//	left paired with (right) always
-		_						//	'_' means no argument		*/
-		//non-config info
 
 		string full;
 };

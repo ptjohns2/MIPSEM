@@ -17,11 +17,11 @@ Instruction::~Instruction(){
 }
 
 //	Methods
-InstructionData* Instruction::getId(){return id;}
-string Instruction::getAsmString(){return asmString;}
-string Instruction::getBinString(){return binString;}
-instr Instruction::getBin(){return bin;}
-vector<int> Instruction::getArguments(){return arguments;}
+InstructionData* Instruction::getId()const{return id;}
+string Instruction::getAsmString()const{return asmString;}
+string Instruction::getBinString()const{return binString;}
+instr Instruction::getBin()const{return bin;}
+vector<int> Instruction::getArguments()const{return arguments;}
 
 
 

@@ -1,0 +1,17 @@
+
+
+
+class CPU{
+	public:
+			
+
+
+	private:
+
+
+
+
+
+
+
+};
