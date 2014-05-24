@@ -17,19 +17,19 @@ class Instruction{
 		Instruction(InstructionData*, string, string, instr, vector<int>);
 		~Instruction();
 
-		InstructionData* getId() const;
+		InstructionData* getInstructionData() const;
 		string getAsmString() const;
 		string getBinString() const;
 		instr getBin() const;
-		vector<int> getArguments() const;
+		uint32_t getArgumentValue(int) const;
 
 	private:
 		//Members
-		InstructionData* id;
+		InstructionData* instructionData;
 		string asmString;
 		string binString;
 		instr bin;
-		vector<int> arguments;
+		uint32_t arguments[NUMBER_OF_ARGUMENTS];
 		
 
 	private:

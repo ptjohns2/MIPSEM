@@ -1,6 +1,7 @@
 
 
 #include "InstructionDataBank.hpp"
+#include "CPU.hpp"
 #include "Decoder.hpp"
 #include "Encoder.hpp"
 #include "parse.hpp"
@@ -22,27 +23,30 @@ int main(){
 	Decoder d = Decoder(&bank);
 	BitResolver br = BitResolver(&bank);
 	StringResolver sr = StringResolver(&bank);
+	CPU cpu = CPU();
 	
 	//////////
-	Instruction p;
-	p = e.buildInstruction("lw $t1, -1($zero)");
-	p = d.buildInstruction("10001100000010011111111111111111");
-
-	p = e.buildInstruction("addi $t0, $t1, 0xFFF");
-	p = d.buildInstruction("00100001001010000000111111111111");
-	p = e.buildInstruction("addiu $t0, $t1, 0b11111111111111111111111111111111");
-	p = d.buildInstruction("00100101001010001111111111111111");
-
-	p = e.buildInstruction("sub $t0, $t0, $t1");
-	p = d.buildInstruction("00000001000010010100000000100010");
-
-
-	p = e.buildInstruction("EXT $t0, $t0, 0, 0");
-	p = d.buildInstruction("01111101000010001111100000000000");
-	p = e.buildInstruction("INS $t0, $t0, 5, 9");
-	p = d.buildInstruction("01111101000010000110100101000100");
-
+	Instruction i1 = e.buildInstruction("addi $t0, $t0, 50");
+	cpu.executeInstruction(&i1);
+	Instruction i2 = e.buildInstruction("addi $t1, $t0, 50");
+	cpu.executeInstruction(&i2);
+	Instruction i3 = e.buildInstruction("add $t2, $t0, $t1");
+	cpu.executeInstruction(&i3);
+	Instruction i4 = e.buildInstruction("add $t3, $t2, $t2");
+	cpu.executeInstruction(&i4);
 	
+	////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	////////////        Instruction get arguments - make faster (array not vector etc)        ///////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////
+	
+
+
 	int numTests = 10000;
 	vector<string> invalidinstructions;
 	vector<string> validinstructions;
@@ -53,20 +57,15 @@ int main(){
 		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
 
 		Instruction nextPtr, loopPtr = d.buildInstruction(instr);
-		if(loopPtr.getId() != NULL){
+		if(loopPtr.getInstructionData() != NULL){
 
 			Instruction nextPtr = e.buildInstruction(loopPtr.getAsmString());
-			if(nextPtr.getId() != NULL){
+			if(nextPtr.getInstructionData() != NULL){
 				bool invalidEncode = false;
 				invalidEncode |= loopPtr.getBin() != nextPtr.getBin();
-				vector<int> lArgs = loopPtr.getArguments();
-				vector<int> nArgs = nextPtr.getArguments();
 				bool invalidArgumentValues = false;
-				invalidArgumentValues |= lArgs.size() != nArgs.size();
-
-				int numArgs = (lArgs.size() < nArgs.size())? lArgs.size() : nArgs.size();
-				for(int argValTestIterator = 0; argValTestIterator<numArgs; argValTestIterator++){
-					invalidArgumentValues |= lArgs[argValTestIterator] != nArgs[argValTestIterator];
+				for(int argValTestIterator = 0; argValTestIterator<NUMBER_OF_ARGUMENTS; argValTestIterator++){
+					invalidArgumentValues |= loopPtr.getArgumentValue(argValTestIterator) != nextPtr.getArgumentValue(argValTestIterator);
 				}
 				if(invalidArgumentValues){
 					pair<Instruction, Instruction> tmp;
@@ -78,24 +77,24 @@ int main(){
 				if(invalidEncode){
 					bool chk = true;
 					for(unsigned int n=0; n<invalidinstructions.size(); n++){
-						if(nextPtr.getId()->getName() == invalidinstructions[n]){
+						if(nextPtr.getInstructionData()->getName() == invalidinstructions[n]){
 							chk = false;
 							break;
 						}
 					}
 					if(chk){
-						invalidinstructions.push_back(nextPtr.getId()->getName());
+						invalidinstructions.push_back(nextPtr.getInstructionData()->getName());
 					}
 				}else{
 					bool chk = true;
 					for(unsigned int n=0; n<validinstructions.size(); n++){
-						if(nextPtr.getId()->getName() == validinstructions[n]){
+						if(nextPtr.getInstructionData()->getName() == validinstructions[n]){
 							chk = false;
 							break;
 						}
 					}
 					if(chk){
-						validinstructions.push_back(nextPtr.getId()->getName());
+						validinstructions.push_back(nextPtr.getInstructionData()->getName());
 					}	
 				}
 			}
@@ -108,28 +107,6 @@ int main(){
 	cout << "numTests: " << numTests << '\n';
 	cout << "Time per: " << (float)(time) / (float)(numTests);
 	
-
-
-	/*
-	int numTests = 1000000;
-	vector<string> invalidinstructions;
-	vector<string> validinstructions;
-	time_t start;
-	time(&start);
-
-	
-	for(unsigned int i=0; i<numTests; i++){
-		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
-		Instruction instruction = d.buildInstruction(instr);
-	}
-
-	time_t end;
-	time(&end);
-	time_t time = end - start;
-	cout << "Time: " << time << '\n';
-	cout << "numTests: " << numTests << '\n';
-	cout << "Time per: " << (float)(time) / (float)(numTests);
-	s*/
 
 
 	return 0;

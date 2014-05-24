@@ -1,15 +1,23 @@
 #include "Instruction.hpp"
 
 Instruction::Instruction(){
-	id = NULL;
+	instructionData = NULL;
 	asmString = "";
 	binString = "";
 	bin = 0x0;
+	for(int i=0; i<NUMBER_OF_ARGUMENTS; i++){
+		arguments[i] = 0x0;
+	}
 }
-Instruction::Instruction(InstructionData* id, string asmString, string binString, instr bin, vector<int> arguments)
-	:id(id), asmString(asmString), binString(binString), bin(bin), arguments(arguments)
+Instruction::Instruction(InstructionData* instructionData, string asmString, string binString, instr bin, vector<int> arguments)
+	:instructionData(instructionData), asmString(asmString), binString(binString), bin(bin)
 {
-
+	for(int i=0; i<arguments.size(); i++){
+		this->arguments[i] = arguments[i];
+	}
+	for(int i=arguments.size(); i<NUMBER_OF_ARGUMENTS; i++){
+		this->arguments[i] = 0x0;
+	}
 }
 
 Instruction::~Instruction(){
@@ -17,11 +25,11 @@ Instruction::~Instruction(){
 }
 
 //	Methods
-InstructionData* Instruction::getId()const{return id;}
+InstructionData* Instruction::getInstructionData()const{return instructionData;}
 string Instruction::getAsmString()const{return asmString;}
 string Instruction::getBinString()const{return binString;}
 instr Instruction::getBin()const{return bin;}
-vector<int> Instruction::getArguments()const{return arguments;}
+uint32_t Instruction::getArgumentValue(int index)const{return arguments[index];}
 
 
 

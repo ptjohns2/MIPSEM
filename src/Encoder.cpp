@@ -32,7 +32,7 @@ Instruction Encoder::buildInstruction(string asmString){
 	if(id->isEncodedNormally()){
 		binString = encodeInstruction(binString, parameters, arguments);
 	}else{
-		binString = encodeAbnormalInstruction(binString, parameters, arguments, id->getId());
+		binString = encodeAbnormalInstruction(binString, parameters, arguments, id->getInstructionID());
 	}
 
 	for(int i=0; i<binString.length(); i++){
@@ -50,7 +50,7 @@ Instruction Encoder::buildInstruction(string asmString){
 			}else{
 				//abnormally decoded instruction
 				vector<int> tmpArgumentValues;
-				Decoder::decodeAbnormalInstruction(binString, id->getName(), parameters, id->getId(), tmpArgumentValues);
+				Decoder::decodeAbnormalInstruction(binString, id->getName(), parameters, id->getInstructionID(), tmpArgumentValues);
 				argVal = tmpArgumentValues[i];
 			}
 		}else{

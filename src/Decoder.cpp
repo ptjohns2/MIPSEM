@@ -39,13 +39,14 @@ Instruction Decoder::buildInstruction(string binStr){
 		asmString = decodeInstruction(binStr, id->getName(), parameters);
 		//get argument values
 		for(int i=0; i<numArgs; i++){
-			int argVal = decodeArgumentToValue(binStr, parameters[i]);
+			bitrange br = parse::getParameterBitrange(parameters[i]);
+			uint32_t argVal = parse::binStrToUnsignedDecInt(extractBitrange(binStr, br));
 			argumentValues.push_back(argVal);
 		}
 	}else{
 		//decode abnormal instr
 		argumentValues.clear();
-		asmString = decodeAbnormalInstruction(binStr, id->getName(), parameters, id->getId(), argumentValues);
+		asmString = decodeAbnormalInstruction(binStr, id->getName(), parameters, id->getInstructionID(), argumentValues);
 	}
 	
 	Instruction instruction = Instruction(id, asmString, binStr, bin, argumentValues);

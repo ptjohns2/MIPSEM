@@ -15,7 +15,7 @@ InstructionData::InstructionData(string info){
 	string tmpStr;
 
 	getline(ss, tmpStr, '\t');
-	this->id = atoi(tmpStr.c_str());
+	this->instructionID = atoi(tmpStr.c_str());
 
 	getline(ss, this->name, '\t');
 	getline(ss, this->format, '\t');
@@ -41,6 +41,10 @@ InstructionData::InstructionData(string info){
 	getline(ss, tmpNormalDecoding, '\t');
 	this->normalDecoding = (tmpNormalDecoding[0] == '1')? true : false;
 
+	string tmpInstructionChangesPC;
+	getline(ss, tmpInstructionChangesPC, '\t');
+	this->instructionChangesPC = (tmpInstructionChangesPC[0] == '1')? true : false;
+
 	this->full = this->opcode + this->fields;
 	
 	assert(opcode.length() == 6 && fields.length() == 26 && full.length() == 32);
@@ -52,7 +56,7 @@ InstructionData::~InstructionData()
 }
 
 //	public Methods
-int InstructionData::getId()const{return id;}
+int InstructionData::getInstructionID()const{return instructionID;}
 string InstructionData::getName()const{return name;}
 string InstructionData::getFormat()const{return format;}
 string InstructionData::getOpcode()const{return opcode;}
@@ -60,6 +64,7 @@ string InstructionData::getFields()const{return fields;}
 vector<string> InstructionData::getParameters()const{return parameters;}
 bool InstructionData::isEncodedNormally()const{return normalEncoding;}
 bool InstructionData::isDecodedNormally()const{return normalDecoding;}
+bool InstructionData::changesPC()const{return instructionChangesPC;}
 string InstructionData::getFull()const{return full;}
 
 

@@ -11,7 +11,7 @@ class InstructionData{
 		InstructionData(string);
 		~InstructionData();
 
-		int getId() const;
+		int getInstructionID() const;
 
 		string getName() const;
 		string getFormat() const;
@@ -23,13 +23,14 @@ class InstructionData{
 
 		bool isEncodedNormally() const;
 		bool isDecodedNormally() const;
-		
+		bool changesPC() const;
+
 		string getFull() const;
 
 
 		
 	private:
-		int id;
+		int instructionID;
 
 		string name;
 		string format;
@@ -41,6 +42,7 @@ class InstructionData{
 
 		bool normalEncoding;
 		bool normalDecoding;
+		bool instructionChangesPC;
 
 		string full;
 };

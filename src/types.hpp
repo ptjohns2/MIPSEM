@@ -12,6 +12,12 @@
 
 #define DONTCAREREPLACEMENT					('0')
 
+#define MEMORY_SECTION_RESERVED				(0x0)
+#define MEMORY_SECTION_TEXT					(0x00400000)
+#define MEMORY_SECTION_STATIC_DATA			(0x10000000)
+#define MEMORY_SECTION_DYNAMIC_DATA			(0x10008000)
+#define MEMORY_SECTION_STACK				(0x7ffffffc)
+
 typedef uint32_t instr;
 
 typedef int32_t GPreg;
