@@ -2015,6 +2015,7 @@ inline void CPU::executeInstructionID_348(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	349	=	SYSCALL	:	_,	_,	_,	_		
+	char tmpChar;
 	int tmpInt;
 	float tmpFloat;
 	double tmpDouble;
@@ -2057,8 +2058,8 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 			putchar((char)GPR[4]);
 			break;
 		case 12:
-			char c = getchar();
-			GPR[4] = (int32_t)c;
+			tmpChar = getchar();
+			GPR[4] = (int32_t)tmpChar;
 			break;
 		case 13:
 
@@ -2071,6 +2072,7 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 			break;
 		default:
 
+			break;
 	}
 }
 inline void CPU::executeInstructionID_350(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
