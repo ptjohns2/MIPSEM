@@ -103,6 +103,10 @@ int Decoder::decodeArgumentToValue(string binStr, string parameter){
 		return parse::binStrToUnsignedDecInt(argumentBinStr);
 	}else if(parse::parameterIsSignedLiteral(cleanParameter)){
 		return parse::binStrToSignedDecInt(argumentBinStr);
+	}else{
+		cout << "Decoder::decodeArgumentToValue error not real param type";
+		getchar();
+		return 0;
 	}
 }
 

@@ -1,5 +1,7 @@
 #include "CPU.hpp"
 
+#include <bitset>
+#include <iostream>
 #include <math.h>
 
 #pragma warning(disable: 4100)	//Warning: unreferenced formal parameter
@@ -10,11 +12,11 @@ CPU::CPU(){
 		GPR[i] = 0x0;
 		FPR[i] = 0x0;
 	}
-	GPR[29] = MEMORY_SECTION_STACK;
-	GPR[30] = MEMORY_SECTION_STACK;
-	PC = MEMORY_SECTION_TEXT;
-	HI = 0x0;
-	LO = 0x0;
+	GPR[29] = 0;
+	GPR[30] = 0;
+	PC = 0;
+	HI = 0;
+	LO = 0;
 }
 
 CPU::~CPU(){}
@@ -27,6 +29,10 @@ void CPU::executeInstruction(Instruction* instruction){
 	int32_t a1 = instruction->getArgumentValue(1);
 	int32_t a2 = instruction->getArgumentValue(2);
 	int32_t a3 = instruction->getArgumentValue(3);
+	
+	//PC incrementation
+	//if(!instructionData->changesPC()){PC += 4;}
+	PC += 4;
 
 	//Execute the right instruction
 	switch(instructionId){
@@ -409,1552 +415,1770 @@ void CPU::executeInstruction(Instruction* instruction){
 		case 376 : {executeInstructionID_376(a0, a1, a2, a3);break;}
 	}
 
-	//PC incrementation (optional)
-	if(!instructionData->changesPC()){PC += 4;}
 }
 
-//Helper functions
-inline uint32_t CPU::calculateBranchTargetOffset(int32_t val){
-	return (signExtend(val) << 2) + 4;
-}
-
-inline uint32_t CPU::signExtend(uint32_t val){
+inline int32_t CPU::signExtend(uint32_t val, unsigned int sigFigs){
 	int32_t signedVal = (int32_t)val;
-	signedVal <<= 16;
-	signedVal >>= 16;
-	return (uint32_t)signedVal;
+	signedVal <<= sigFigs;
+	signedVal >>= sigFigs;
+	return signedVal;
 }
 
 
-//INSTRUCTIONS
-inline void CPU::executeInstructionID_0(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
-	//	0	=	ABS.S	:	$fd,	$fs,	_,	_		
-	FPR[a0] = fabs(FPR[a1]);
+inline int32_t CPU::read_int32_t(void* ptr){
+	int32_t x = 0;
+	memcpy(&x, ptr, sizeof(int32_t));
+	return x;
 }
-inline void CPU::executeInstructionID_1(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
-	//	1	=	ABS.D	:	$fd,	$fs,	_,	_	
-	FPR[a0] = ((uint32_t)(a1) << 1) >> 1;
+inline uint32_t CPU::read_uint32_t(void* ptr){
+	uint32_t x = 0;
+	memcpy(&x, ptr, sizeof(uint32_t));
+	return x;
 }
-inline void CPU::executeInstructionID_2(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline int64_t CPU::read_int64_t(void* ptr){
+	int64_t x = 0;
+	memcpy(&x, ptr, sizeof(int64_t));
+	return x;
+}
+inline uint64_t CPU::read_uint64_t(void* ptr){
+	uint64_t x = 0;
+	memcpy(&x, ptr, sizeof(uint64_t));
+	return x;
+}
+inline float CPU::read_float(void* ptr){
+	float x = 0;
+	memcpy(&x, ptr, sizeof(float));
+	return x;
+}
+inline double CPU::read_double(void* ptr){
+	double x = 0;
+	memcpy(&x, ptr, sizeof(double));
+	return x;
+}
+
+inline void CPU::regStoreDouble(double val, uint32_t index){
+	s64__floatPair fp = doubleToFloatPair(val);
+	FPR[index] = fp.msb;
+	FPR[(index+1) % 32] = fp.lsb;
+}
+
+inline double CPU::regReadDouble(uint32_t index){
+	float arr[2];
+	arr[0] = FPR[index];
+	arr[1] = FPR[(index+1) % 32];
+	return read_double(&arr[0]);
+}
+
+
+//NOT MINE: credits to K4Fr
+void CPU::printbin(const void* p, int len){
+    const unsigned char* q = (const unsigned char*)p;
+    for(; len > 0; len--, q++){
+      unsigned char v = *q;
+      for(int i = 0; i < 8; i++, v <<= 1){
+		cout << ((v & 0x80) ? '1' : '0');
+      }
+    }
+}
+
+double CPU::floatPairToDouble(float msb, float lsb){
+	//float arr[2] = {msb, lsb};
+	//return read_double(&arr[0]);
+
+	u64__floatPair_and_double raw;
+	raw._floatPair.msb = msb;
+	raw._floatPair.lsb = lsb;
+
+	return raw._double;
+}
+
+s64__floatPair CPU::doubleToFloatPair(double val){
+	u64__floatPair_and_double raw;
+	raw._double = val;
+
+	s64__floatPair retVal;
+	retVal.msb = raw._floatPair.msb;
+	retVal.lsb = raw._floatPair.lsb;
+
+	return retVal;
+}
+
+
+//==================================================>	
+//==================================================>	INSTRUCTIONS
+//==================================================>	INSTRUCTIONS
+//==================================================>	INSTRUCTIONS
+//==================================================>	INSTRUCTIONS
+//==================================================>	INSTRUCTIONS
+//==================================================>	INSTRUCTIONS
+//==================================================>	
+
+inline void CPU::executeInstructionID_0(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
+	//	0	=	ABS.S	:	$fd,	$fs,	_,	_	
+	FPR[a0] = std::abs(FPR[a1]);
+}
+inline void CPU::executeInstructionID_1(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
+	//	1	=	ABS.D	:	$fd,	$fs,	_,	_
+	double doubleVal = floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
+	doubleVal = std::abs(doubleVal);
+	regStoreDouble(doubleVal, a0);
+}
+inline void CPU::executeInstructionID_2(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	2	=	ABS.PS	:	$fd,	$fs,	_,	_			
-	FPR[a0] = fabs(FPR[a1]);
-	FPR[a0+1] = fabs(FPR[a1+1]);
+	FPR[a0] = std::abs(FPR[a1]);
+	FPR[(a0+1) % 32] = std::abs(FPR[(a1+1) % 32]);
 }
-inline void CPU::executeInstructionID_3(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_3(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	3	=	ADD	:	$rd,	$rs,	$rt,	_		
 	GPR[a0] = GPR[a1] + GPR[a2];
 }
-inline void CPU::executeInstructionID_4(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_4(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	4	=	ADD.S	:	$fd,	$ft,	$fs,	_		
 	FPR[a0] = FPR[a1] + FPR[a2];
 }
-inline void CPU::executeInstructionID_5(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_5(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	5	=	ADD.D	:	$fd,	$ft,	$fs,	_		
-	uint64_t operand1 = FPR[a1];
-	operand1 <<= 32;
-	operand1 |= (uint64_t)FPR[(a1+1) % 32];	
-
-	uint64_t operand2 = FPR[a2];
-	operand2 <<= 32;
-	operand2 |= (uint64_t)FPR[(a2+1) % 32];
-
-	double tmpSum = (double)operand1 + (double)operand2;
-	uint64_t sum = (uint64_t)tmpSum;
-	int32_t msb = sum >> 32;
-	int32_t lsb = (sum << 32) >> 32;
-	FPR[a0] = msb;
-	FPR[(a0+1) % 32] = lsb;
+	double doubleVal1 = floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
+	double doubleVal2 = floatPairToDouble(FPR[a2], FPR[(a2+1) % 32]);
+	double sum = doubleVal1 + doubleVal2;
+	regStoreDouble(sum, a0);
 }
-inline void CPU::executeInstructionID_6(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_6(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	6	=	ADD.PS	:	$fd,	$ft,	$fs,	_	
 	FPR[a0] = FPR[a1] + FPR[a2];
 	FPR[(a0+1) % 32] = FPR[(a1+1) % 32] + FPR[(a2+1) % 32];
 }
-inline void CPU::executeInstructionID_7(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_7(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	7	=	ADDI	:	$rt,	$rs,	-.imm,	_		
-	GPR[a0] = GPR[a1] + a2;
+	GPR[a0] = GPR[a1] + signExtend(a2, 16);
 }
-inline void CPU::executeInstructionID_8(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_8(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	8	=	ADDIU	:	$rt,	$rs,	+.imm,	_		
-	GPR[a0] = GPR[a1] + a2;	
+	GPR[a0] = GPR[a1] + signExtend(a2, 16);
 }
-inline void CPU::executeInstructionID_9(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_9(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	9	=	ADDU	:	$rd,	$rs,	$rt,	_		
 	GPR[a0] = GPR[a1] + GPR[a2];
 }
-inline void CPU::executeInstructionID_10(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_10(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	10	=	ALNV.PS	:	$fd,	$fs,	$ft,	$rs		
-	
+	//TODO:
 }
-inline void CPU::executeInstructionID_11(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_11(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	11	=	AND	:	$rd,	$rs,	$rt,	_		
 	GPR[a0] = GPR[a1] & GPR[a2];
 }
-inline void CPU::executeInstructionID_12(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_12(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	12	=	ANDI	:	$rt,	$rs,	+.imm,	_		
 	GPR[a0] = GPR[a1] & a2;
 }
-inline void CPU::executeInstructionID_13(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_13(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	13	=	B	:	-.imm,	_,	_,	_		
-	
+	PC += (signExtend(a0, 16) << 2);
 }
-inline void CPU::executeInstructionID_14(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_14(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	14	=	BAL	:	-.imm,	_,	_,	_		
-	
+	GPR[31] = PC + 8;
+	PC += (signExtend(a0, 16) << 2);	
 }
-inline void CPU::executeInstructionID_15(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_15(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	15	=	BC1F	:	-.imm,	_,	_,	_		
-	
+
 }
-inline void CPU::executeInstructionID_16(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_16(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	16	=	BC1F	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_17(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_17(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	17	=	BC1FL	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_18(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_18(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	18	=	BC1FL	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_19(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_19(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	19	=	BC1T	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_20(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_20(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	20	=	BC1T	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_21(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_21(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	21	=	BC1TL	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_22(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_22(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	22	=	BC1TL	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_23(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_23(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	23	=	BC2F	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_24(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_24(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	24	=	BC2F	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_25(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_25(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	25	=	BC2FL	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_26(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_26(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	26	=	BC2FL	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_27(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_27(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	27	=	BC2T	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_28(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_28(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	28	=	BC2T	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_29(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_29(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	29	=	BC2TL	:	-.imm,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_30(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_30(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	30	=	BC2TL	:	+.[20,18],	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_31(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_31(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	31	=	BEQ	:	$rs,	$rt,	-.imm,	_		
-	
+	if(GPR[a0] == GPR[a1]){
+		PC += (signExtend(a2, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_32(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_32(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	32	=	BEQL	:	$rs,	$rt,	-.imm,	_		
-	
+	if(GPR[a0] == GPR[a1]){
+		PC += (signExtend(a2, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_33(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_33(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	33	=	BGEZ	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] >= 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_34(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_34(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	34	=	BGEZAL	:	$rs,	-.imm,	_,	_		
-	
+	GPR[31] = PC;
+	if((int32_t)GPR[a0] >= 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_35(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_35(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	35	=	BGEZALL	:	$rs,	-.imm,	_,	_		
-	
+	GPR[31] = PC;
+	if((int32_t)GPR[a0] >= 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_36(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_36(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	36	=	BGEZL	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] >= 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_37(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_37(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	37	=	BGTZ	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] > 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_38(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_38(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	38	=	BGTZL	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] > 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_39(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_39(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	39	=	BLEZ	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] <= 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_40(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_40(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	40	=	BLEZL	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] <= 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_41(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_41(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	41	=	BLTZ	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] < 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_42(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_42(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	42	=	BLTZAL	:	$rs,	-.imm,	_,	_		
-	
+	GPR[31] = PC;
+	if((int32_t)GPR[a0] < 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_43(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_43(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	43	=	BLTZALL	:	$rs,	-.imm,	_,	_		
-	
+	GPR[31] = PC;
+	if((int32_t)GPR[a0] < 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_44(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_44(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	44	=	BLTZL	:	$rs,	-.imm,	_,	_		
-	
+	if((int32_t)GPR[a0] < 0){
+		PC += (signExtend(a1, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_45(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_45(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	45	=	BNE	:	$rs,	$rt,	-.imm,	_		
-	
+	if(GPR[a0] != GPR[a1]){
+		PC += (signExtend(a2, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_46(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_46(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	46	=	BNEL	:	$rs,	$rt,	-.imm,	_		
-	
+	if(GPR[a0] != GPR[a1]){
+		PC += (signExtend(a2, 16) << 2);
+	}
 }
-inline void CPU::executeInstructionID_47(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_47(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	47	=	BREAK	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_48(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_48(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	48	=	C.F.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_49(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_49(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	49	=	C.F.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_50(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_50(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	50	=	C.F.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_51(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_51(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	51	=	C.F.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_52(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_52(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	52	=	C.F.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_53(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_53(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	53	=	C.F.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_54(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_54(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	54	=	C.UN.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_55(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_55(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	55	=	C.UN.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_56(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_56(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	56	=	C.UN.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_57(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_57(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	57	=	C.UN.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_58(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_58(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	58	=	C.UN.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_59(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_59(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	59	=	C.UN.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_60(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_60(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	60	=	C.EQ.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_61(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_61(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	61	=	C.EQ.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_62(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_62(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	62	=	C.EQ.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_63(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_63(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	63	=	C.EQ.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_64(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_64(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	64	=	C.EQ.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_65(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_65(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	65	=	C.EQ.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_66(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_66(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	66	=	C.UEQ.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_67(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_67(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	67	=	C.UEQ.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_68(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_68(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	68	=	C.UEQ.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_69(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_69(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	69	=	C.UEQ.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_70(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_70(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	70	=	C.UEQ.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_71(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_71(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	71	=	C.UEQ.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_72(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_72(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	72	=	C.OLT.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_73(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_73(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	73	=	C.OLT.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_74(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_74(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	74	=	C.OLT.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_75(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_75(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	75	=	C.OLT.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_76(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_76(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	76	=	C.OLT.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_77(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_77(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	77	=	C.OLT.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_78(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_78(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	78	=	C.ULT.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_79(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_79(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	79	=	C.ULT.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_80(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_80(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	80	=	C.ULT.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_81(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_81(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	81	=	C.ULT.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_82(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_82(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	82	=	C.ULT.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_83(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_83(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	83	=	C.ULT.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_84(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_84(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	84	=	C.OLE.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_85(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_85(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	85	=	C.OLE.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_86(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_86(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	86	=	C.OLE.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_87(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_87(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	87	=	C.OLE.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_88(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_88(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	88	=	C.OLE.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_89(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_89(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	89	=	C.OLE.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_90(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_90(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	90	=	C.ULE.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_91(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_91(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	91	=	C.ULE.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_92(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_92(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	92	=	C.ULE.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_93(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_93(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	93	=	C.ULE.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_94(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_94(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	94	=	C.ULE.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_95(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_95(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	95	=	C.ULE.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_96(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_96(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	96	=	C.SF.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_97(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_97(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	97	=	C.SF.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_98(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_98(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	98	=	C.SF.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_99(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_99(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	99	=	C.SF.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_100(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_100(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	100	=	C.SF.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_101(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_101(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	101	=	C.SF.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_102(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_102(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	102	=	C.NGLE.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_103(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_103(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	103	=	C.NGLE.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_104(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_104(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	104	=	C.NGLE.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_105(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_105(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	105	=	C.NGLE.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_106(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_106(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	106	=	C.NGLE.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_107(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_107(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	107	=	C.NGLE.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_108(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_108(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	108	=	C.SEQ.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_109(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_109(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	109	=	C.SEQ.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_110(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_110(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	110	=	C.SEQ.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_111(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_111(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	111	=	C.SEQ.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_112(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_112(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	112	=	C.SEQ.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_113(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_113(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	113	=	C.SEQ.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_114(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_114(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	114	=	C.NGL.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_115(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_115(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	115	=	C.NGL.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_116(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_116(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	116	=	C.NGL.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_117(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_117(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	117	=	C.NGL.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_118(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_118(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	118	=	C.NGL.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_119(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_119(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	119	=	C.NGL.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_120(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_120(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	120	=	C.LT.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_121(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_121(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	121	=	C.LT.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_122(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_122(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	122	=	C.LT.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_123(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_123(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	123	=	C.LT.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_124(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_124(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	124	=	C.LT.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_125(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_125(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	125	=	C.LT.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_126(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_126(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	126	=	C.NGE.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_127(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_127(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	127	=	C.NGE.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_128(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_128(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	128	=	C.NGE.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_129(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_129(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	129	=	C.NGE.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_130(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_130(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	130	=	C.NGE.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_131(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_131(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	131	=	C.NGE.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_132(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_132(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	132	=	C.LE.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_133(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_133(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	133	=	C.LE.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_134(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_134(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	134	=	C.LE.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_135(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_135(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	135	=	C.LE.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_136(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_136(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	136	=	C.LE.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_137(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_137(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	137	=	C.LE.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_138(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_138(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	138	=	C.NGT.S	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_139(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_139(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	139	=	C.NGT.S	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_140(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_140(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	140	=	C.NGT.D	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_141(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_141(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	141	=	C.NGT.D	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_142(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_142(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	142	=	C.NGT.PS	:	$fs,	$ft,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_143(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_143(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	143	=	C.NGT.PS	:	+.[10,8],	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_144(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_144(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	144	=	CACHE	:	+.[20,16],	-.imm,	(g$[25,21]),	_		
 	
 }
-inline void CPU::executeInstructionID_145(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_145(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	145	=	CACHEE	:	+.[20,16],	-.[15,7],	(g$[25,21]),	_		
 	
 }
-inline void CPU::executeInstructionID_146(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_146(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	146	=	CEIL.L.S	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)FPR[a1];
+	float test = (float)newVal;
+	if(test != FPR[a1]){newVal++;}	//round up
+	s64__floatPair fp = doubleToFloatPair(read_double(&newVal));
+	FPR[a0] = fp.msb;
+	FPR[(a0+1) % 32] = fp.lsb;
 }
-inline void CPU::executeInstructionID_147(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_147(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	147	=	CEIL.L.D	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
+	double test = (double)newVal;
+	if(test != floatPairToDouble(FPR[a0], FPR[(a0+1) % 32])){newVal++;}	//round up
+	regStoreDouble(read_double(&newVal), a0);
 }
-inline void CPU::executeInstructionID_148(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_148(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	148	=	CEIL.W.S	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)FPR[a1];
+	float test = float(newVal);
+	if(test != FPR[a1]){newVal++;}
+	FPR[a0] = read_float(&newVal);
 }
-inline void CPU::executeInstructionID_149(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_149(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	149	=	CEIL.W.D	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
+	double test = (double)newVal;
+	if(test != floatPairToDouble(FPR[a1], FPR[(a1+1) % 32])){newVal++;}
+	FPR[a0] = read_float(&newVal);
 }
-inline void CPU::executeInstructionID_150(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_150(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	150	=	CFC1	:	$rt,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_151(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_151(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	151	=	CFC2	:	$rt,	+.[15,0],	_,	_		
 	
 }
-inline void CPU::executeInstructionID_152(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_152(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	152	=	CLO	:	$rd,	$rs,	_,	_	
 	//ABNORMAL_ENCODE/DECODE	
-	
+	int32_t val = GPR[a1];
+	int num = 0;
+	for(int i=0; i<32; i++){
+		if(!(val < 0)){break;}
+		val <<= 1;
+		num++;
+	}
+	GPR[a0] = num;
 }
-inline void CPU::executeInstructionID_153(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_153(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	153	=	CLZ	:	$rd,	$rs,	_,	_	
 	//ABNORMAL_ENCODE/DECODE	
-	
+	int32_t val = GPR[a1];
+	int num = 0;
+	for(int i=0; i<32; i++){
+		if(val < 0){break;}
+		val <<= 1;
+		num++;
+	}
+	GPR[a0] = num;
 }
-inline void CPU::executeInstructionID_154(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_154(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	154	=	COP2	:	+.[24,0],	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_155(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_155(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	155	=	CTC1	:	$rt,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_156(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_156(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	156	=	CTC2	:	$rt,	+.[15,0],	_,	_		
 	
 }
-inline void CPU::executeInstructionID_157(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_157(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	157	=	CVT.D.S	:	$fd,	$fs,	_,	_		
-	
+	double newVal = (double)read_float(&FPR[a1]);
+	regStoreDouble(newVal, a0);
 }
-inline void CPU::executeInstructionID_158(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_158(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	158	=	CVT.D.W	:	$fd,	$fs,	_,	_		
-	
+	double newVal = (double)read_int32_t(&FPR[a1]);
+	regStoreDouble(newVal, a0);
 }
-inline void CPU::executeInstructionID_159(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_159(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	159	=	CVT.D.L	:	$fd,	$fs,	_,	_		
-	
+	double origVal = floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
+	int64_t convertedVal = (int64_t)origVal;
+	double newVal = read_double(&convertedVal);
+	regStoreDouble(newVal, a0);
 }
-inline void CPU::executeInstructionID_160(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_160(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	160	=	CVT.L.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_161(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_161(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	161	=	CVT.L.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_162(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_162(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	162	=	CVT.PS.S	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_163(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_163(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	163	=	CVT.S.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_164(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_164(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	164	=	CVT.S.W	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_165(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_165(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	165	=	CVT.S.L	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_166(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_166(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	166	=	CVT.S.PL	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_167(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_167(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	167	=	CVT.S.PL	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_168(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_168(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	168	=	CVT.W.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_169(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_169(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	169	=	CVT.W.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_170(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_170(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	170	=	DERET	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_171(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_171(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	171	=	DI	:	$rt,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_172(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_172(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	172	=	DIV	:	$rs,	$rt,	_,	_		
-	
+	int32_t numerator = GPR[a0];
+	int32_t denominator = GPR[a1];
+	HI = numerator % denominator;
+	LO = numerator / denominator;
 }
-inline void CPU::executeInstructionID_173(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_173(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	173	=	DIV.S	:	$fd,	$fs,	$ft,	_		
-	
+	FPR[a0] = FPR[a1] / FPR[a2];
 }
-inline void CPU::executeInstructionID_174(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_174(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	174	=	DIV.D	:	$fd,	$fs,	$ft,	_		
-	
+	double numerator = regReadDouble(a1);
+	double denominator = regReadDouble(a2);
+	regStoreDouble(numerator / denominator, a0);
 }
-inline void CPU::executeInstructionID_175(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_175(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	175	=	DIVU	:	$rs,	$rt,	_,	_		
-	
+	uint32_t numerator = (uint32_t)GPR[a0];
+	uint32_t denominator = (uint32_t)GPR[a1];
+	HI = (int32_t)(numerator % denominator);
+	LO = (int32_t)(numerator / denominator);
 }
-inline void CPU::executeInstructionID_176(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_176(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	176	=	EHB	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_177(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_177(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	177	=	EI	:	$rt,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_178(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_178(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	178	=	ERET	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_179(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_179(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	179	=	EXT	:	$rt,	$rs,	+.[10,6],	+.[15,11]	
 	//ABNORMAL_ENCODE/DECODE	
 	
 }
-inline void CPU::executeInstructionID_180(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_180(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	180	=	FLOOR.L.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_181(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_181(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	181	=	FLOOR.L.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_182(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_182(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	182	=	FLOOR.W.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_183(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_183(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	183	=	FLOOR.W.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_184(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_184(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	184	=	INS	:	$rt,	$rs,	+.[10,6],	+.[15,11]	
 	//ABNORMAL_ENCODE/DECODE	
 	
 }
-inline void CPU::executeInstructionID_185(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_185(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	185	=	J	:	+.addr,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_186(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_186(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	186	=	JAL	:	+.addr,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_187(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_187(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	187	=	JALR	:	$rs,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_188(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_188(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	188	=	JALR	:	$rd,	$rs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_189(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_189(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	189	=	JALR.HB	:	$rs,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_190(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_190(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	190	=	JALR.HB	:	$rd,	$rs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_191(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_191(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	191	=	JALX	:	+.addr,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_192(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_192(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	192	=	JR	:	$rs,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_193(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_193(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	193	=	JR.HB	:	$rs,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_194(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_194(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	194	=	LB	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_195(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_195(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	195	=	LBE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_196(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_196(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	196	=	LBU	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_197(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_197(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	197	=	LBUE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_198(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_198(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	198	=	LDC1	:	$ft,	-.imm,	($fmt),	_		
 	
 }
-inline void CPU::executeInstructionID_199(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_199(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	199	=	LDC2	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_200(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_200(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	200	=	LDXC1	:	$fd,	g$[20,16],	(g$[25,21]),	_		
 	
 }
-inline void CPU::executeInstructionID_201(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_201(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	201	=	LH	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_202(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_202(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	202	=	LHE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_203(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_203(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	203	=	LHU	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_204(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_204(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	204	=	LHUE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_205(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_205(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	205	=	LL	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_206(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_206(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	206	=	LLE	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_207(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_207(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	207	=	LUI	:	$rt,	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_208(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_208(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	208	=	LUXC1	:	$fd,	g$[20,16],	(g$[25,21]),	_		
 	
 }
-inline void CPU::executeInstructionID_209(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_209(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	209	=	LW	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_210(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_210(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	210	=	LWC1	:	$ft,	-.imm,	($fmt),	_		
 	
 }
-inline void CPU::executeInstructionID_211(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_211(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	211	=	LWC2	:	$ft,	-.imm,	($fmt),	_		
 	
 }
-inline void CPU::executeInstructionID_212(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_212(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	212	=	LWE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_213(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_213(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	213	=	LWL	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_214(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_214(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	214	=	LWLE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_215(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_215(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	215	=	LWR	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_216(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_216(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	216	=	LWRE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_217(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_217(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	217	=	LWXC1	:	$fd,	g$[20,16],	(g$[25,21]),	_		
 	
 }
-inline void CPU::executeInstructionID_218(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_218(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	218	=	MADD	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_219(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_219(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	219	=	MADD.S	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_220(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_220(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	220	=	MADD.D	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_221(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_221(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	221	=	MADD.PS	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_222(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_222(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	222	=	MADDU	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_223(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_223(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	223	=	MFC0	:	$rt,	$rd,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_224(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_224(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	224	=	MFC0	:	$rt,	$rd,	+.[2,0],	_		
 	
 }
-inline void CPU::executeInstructionID_225(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_225(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	225	=	MFC1	:	$rt,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_226(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_226(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	226	=	MFC2	:	$rt,	+.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_227(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_227(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	227	=	MFC2	:	$rt,	+.imm,	+.[2,0],	_	
 	//ABNORMAL_ENCODE/DECODE	
 	
 }
-inline void CPU::executeInstructionID_228(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_228(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	228	=	MFHC1	:	$rt,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_229(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_229(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	229	=	MFHC2	:	$rt,	+.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_230(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_230(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	230	=	MFHC2	:	$rt,	+.imm,	+.[2,0],	_	
 	//ABNORMAL_ENCODE/DECODE	
 	
 }
-inline void CPU::executeInstructionID_231(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_231(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	231	=	MFHI	:	$rd,	_,	_,	_		
-	
+	GPR[a0] = HI;
 }
-inline void CPU::executeInstructionID_232(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_232(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	232	=	MFLO	:	$rd,	_,	_,	_		
-	
+	GPR[a0] = LO;
 }
-inline void CPU::executeInstructionID_233(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_233(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	233	=	MOV.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_234(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_234(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	234	=	MOV.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_235(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_235(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	235	=	MOV.PS	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_236(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_236(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	236	=	MOVF	:	$rd,	$rs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_237(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_237(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	237	=	MOVF.S	:	$fd,	$fs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_238(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_238(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	238	=	MOVF.D	:	$fd,	$fs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_239(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_239(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	239	=	MOVF.PS	:	$fd,	$fs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_240(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_240(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	240	=	MOVN	:	$rd,	$rs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_241(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_241(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	241	=	MOVN.S	:	$fd,	$fs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_242(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_242(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	242	=	MOVN.D	:	$fd,	$fs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_243(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_243(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	243	=	MOVN.PS	:	$fd,	$fs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_244(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_244(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	244	=	MOVT	:	$rd,	$rs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_245(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_245(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	245	=	MOVT.S	:	$fd,	$fs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_246(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_246(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	246	=	MOVT.D	:	$fd,	$fs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_247(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_247(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	247	=	MOVT.PS	:	$fd,	$fs,	+.[20,18],	_		
 	
 }
-inline void CPU::executeInstructionID_248(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_248(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	248	=	MOVZ	:	$rd,	$rs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_249(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_249(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	249	=	MOVZ.S	:	$fd,	$fs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_250(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_250(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	250	=	MOVZ.D	:	$fd,	$fs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_251(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_251(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	251	=	MOVZ.PS	:	$fd,	$fs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_252(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_252(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	252	=	MSUB	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_253(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_253(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	253	=	MSUB.S	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_254(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_254(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	254	=	MSUB.D	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_255(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_255(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	255	=	MSUB.PS	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_256(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_256(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	256	=	MSUBU	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_257(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_257(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	257	=	MTC0	:	$rt,	$rd,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_258(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_258(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	258	=	MTC0	:	$rt,	$rd,	+.[2,0],	_		
 	
 }
-inline void CPU::executeInstructionID_259(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_259(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	259	=	MTC1	:	$rt,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_260(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_260(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	260	=	MTC2	:	$rt,	+.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_261(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_261(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	261	=	MTC2	:	$rt,	+.imm,	+.[2,0],	_	
 	//ABNORMAL_ENCODE/DECODE	
 	
 }
-inline void CPU::executeInstructionID_262(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_262(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	262	=	MTHC1	:	$rt,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_263(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_263(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	263	=	MTHC2	:	$rt,	+.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_264(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_264(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	264	=	MTHC2	:	$rt,	+.imm,	+.[2,0],	_	
 	//ABNORMAL_ENCODE/DECODE	
 	
 }
-inline void CPU::executeInstructionID_265(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_265(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	265	=	MTHI	:	$rs,	_,	_,	_		
-	
+	HI = GPR[a0];
 }
-inline void CPU::executeInstructionID_266(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_266(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	266	=	MTLO	:	$rs,	_,	_,	_		
-	
+	LO = GPR[a0];
 }
-inline void CPU::executeInstructionID_267(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_267(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	267	=	MUL	:	$rd,	$rs,	$rt,	_		
 	
 }
-inline void CPU::executeInstructionID_268(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_268(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	268	=	MUL.S	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_269(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_269(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	269	=	MUL.D	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_270(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_270(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	270	=	MUL.PS	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_271(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_271(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	271	=	MULT	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_272(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_272(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	272	=	MULTU	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_273(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_273(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	273	=	NEG.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_274(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_274(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	274	=	NEG.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_275(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_275(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	275	=	NEG.PS	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_276(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_276(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	276	=	NMADD.S	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_277(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_277(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	277	=	NMADD.D	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_278(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_278(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	278	=	NMADD.PS	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_279(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_279(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	279	=	NMSUB.S	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_280(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_280(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	280	=	NMSUB.D	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_281(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_281(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	281	=	NMSUB.PS	:	$fd,	$fmt,	$fs,	$ft		
 	
 }
-inline void CPU::executeInstructionID_282(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_282(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	282	=	NOP	:	_,	_,	_,	_		
-	
 }
-inline void CPU::executeInstructionID_283(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_283(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	283	=	NOR	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = ~(GPR[a1] | GPR[a2]);
 }
-inline void CPU::executeInstructionID_284(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_284(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	284	=	OR	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = GPR[a1] | GPR[a2];
 }
-inline void CPU::executeInstructionID_285(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_285(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	285	=	ORI	:	$rt,	$rs,	-.imm,	_		
-	
+	GPR[a0] = GPR[a1] | a2;
 }
-inline void CPU::executeInstructionID_286(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_286(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	286	=	PAUSE	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_287(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_287(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	287	=	PLL.PS	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_288(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_288(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	288	=	PLU.PS	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_289(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_289(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	289	=	PREF	:	+.[20,16],	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_290(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_290(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	290	=	PREFE	:	+.[20,16],	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_291(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_291(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	291	=	PREFX	:	+.[15,11],	$rt,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_292(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_292(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	292	=	PUL.PS	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_293(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_293(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	293	=	PUU.PS	:	$fd,	$fs,	$ft,	_		
 	
 }
-inline void CPU::executeInstructionID_294(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_294(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	294	=	RDHWR	:	$rt,	$rd,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_295(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_295(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	295	=	RDPGPR	:	$rd,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_296(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_296(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	296	=	RECIP.S	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = 1.0 / FPR[a1];
 }
-inline void CPU::executeInstructionID_297(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_297(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	297	=	RECIP.D	:	$fd,	$fs,	_,	_		
-	
+	regStoreDouble(1.0 / regReadDouble(a1), a0);
 }
-inline void CPU::executeInstructionID_298(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_298(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	298	=	ROTR	:	$rd,	$rt,	+.shamt,	_		
 	
 }
-inline void CPU::executeInstructionID_299(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_299(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	299	=	ROTRV	:	$rd,	$rt,	$rs,	_		
 	
 }
-inline void CPU::executeInstructionID_300(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_300(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	300	=	ROUND.L.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_301(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_301(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	301	=	ROUND.L.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_302(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_302(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	302	=	ROUND.W.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_303(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_303(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	303	=	ROUND.W.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_304(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_304(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	304	=	RSQRT.S	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = 1.0 / sqrt(FPR[a1]);
 }
-inline void CPU::executeInstructionID_305(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_305(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	305	=	RSQRT.D	:	$fd,	$fs,	_,	_		
-	
+	regStoreDouble(1.0 / sqrt(regReadDouble(a1)), a0);
 }
-inline void CPU::executeInstructionID_306(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_306(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	306	=	SB	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_307(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_307(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	307	=	SBE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_308(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_308(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	308	=	SC	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_309(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_309(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	309	=	SCE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_310(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_310(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	310	=	SDBBP	:	+.[25,6],	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_311(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_311(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	311	=	SDC1	:	$ft,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_312(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_312(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	312	=	SDC2	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_313(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_313(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	313	=	SDXC1	:	$fs,	$rt,	$rs,	_		
 	
 }
-inline void CPU::executeInstructionID_314(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_314(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	314	=	SEB	:	$rd,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_315(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_315(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	315	=	SEH	:	$rd,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_316(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_316(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	316	=	SH	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_317(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_317(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	317	=	SHE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_318(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_318(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	318	=	SLL	:	$rd,	$rt,	+.shamt,	_		
-	
+	GPR[a0] = GPR[a1] << a2;
 }
-inline void CPU::executeInstructionID_319(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_319(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	319	=	SLLV	:	$rd,	$rt,	$rs,	_		
-	
+	uint32_t shamt = (uint32_t)GPR[a2];
+	shamt <<= 32 - 5;
+	shamt >>= 32 - 5;
+	GPR[a0] = GPR[a1] << shamt;
 }
-inline void CPU::executeInstructionID_320(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_320(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	320	=	SLT	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = (GPR[a1] < GPR[a2])? 1 : 0;
 }
-inline void CPU::executeInstructionID_321(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_321(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	321	=	SLTI	:	$rt,	$rs,	-.imm,	_		
-	
+	GPR[a0] = (GPR[a1] < signExtend(a2, 16))? 1 : 0;
 }
-inline void CPU::executeInstructionID_322(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_322(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	322	=	SLTIU	:	$rt,	$rs,	+.imm,	_		
-	
+	GPR[a0] = ((uint32_t)GPR[a1] < (uint32_t)signExtend(a2, 16))? 1 : 0;
 }
-inline void CPU::executeInstructionID_323(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_323(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	323	=	SLTU	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = ((uint32_t)GPR[a1] < (uint32_t)GPR[a2])? 1 : 0;
 }
-inline void CPU::executeInstructionID_324(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_324(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	324	=	SQRT.S	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = sqrt(FPR[a1]);
 }
-inline void CPU::executeInstructionID_325(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_325(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	325	=	SQRT.D	:	$fd,	$fs,	_,	_		
-	
+	regStoreDouble(sqrt(regReadDouble(a1)), a0);
 }
-inline void CPU::executeInstructionID_326(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_326(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	326	=	SRA	:	$rd,	$rt,	+.shamt,	_		
-	
+	GPR[a0] = GPR[a1] >> a2;
 }
-inline void CPU::executeInstructionID_327(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_327(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	327	=	SRAV	:	$rd,	$rt,	$rs,	_		
-	
+	uint32_t shamt = (uint32_t)GPR[a2];
+	shamt <<= 32 - 5;
+	shamt >>= 32 - 5;
+	GPR[a0] = GPR[a1] << shamt;
 }
-inline void CPU::executeInstructionID_328(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_328(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	328	=	SRL	:	$rd,	$rt,	+.shamt,	_		
-	
+	uint32_t val = (uint32_t)GPR[a1];
+	GPR[a0] = val << a2;
 }
-inline void CPU::executeInstructionID_329(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_329(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	329	=	SRLV	:	$rd,	$rt,	$rs,	_		
-	
+	uint32_t val = (uint32_t)GPR[a1];
+	uint32_t shamt = (uint32_t)GPR[a2];
+	shamt <<= 32 - 5;
+	shamt >>= 32 - 5;
+	GPR[a0] = val << shamt;
 }
-inline void CPU::executeInstructionID_330(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_330(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	330	=	SSNOP	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_331(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_331(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	331	=	SUB	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = GPR[a1] - GPR[a2];
 }
-inline void CPU::executeInstructionID_332(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_332(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	332	=	SUB.S	:	$fd,	$fs,	$ft,	_		
-	
+	FPR[a0] = FPR[a1] - FPR[a2];
 }
-inline void CPU::executeInstructionID_333(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_333(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	333	=	SUB.D	:	$fd,	$fs,	$ft,	_		
-	
+	regStoreDouble(regReadDouble(a1) - regReadDouble(a2), a0);
 }
-inline void CPU::executeInstructionID_334(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_334(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	334	=	SUB.PS	:	$fd,	$fs,	$ft,	_		
-	
+	FPR[a0] = FPR[a1] - FPR[a2];
+	FPR[(a0+1) % 32] = FPR[(a1+1) % 32] - FPR[(a2+1) % 32];
 }
-inline void CPU::executeInstructionID_335(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_335(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	335	=	SUBU	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = GPR[a1] - GPR[a2];
 }
-inline void CPU::executeInstructionID_336(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_336(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	336	=	SUXC1	:	$fs,	$rt,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_337(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_337(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	337	=	SW	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_338(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_338(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	338	=	SWC1	:	$ft,	-.imm,	($fmt),	_		
 	
 }
-inline void CPU::executeInstructionID_339(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_339(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	339	=	SWC2	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_340(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_340(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	340	=	SWE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_341(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_341(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	341	=	SWL	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_342(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_342(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	342	=	SWLE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_343(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_343(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	343	=	SWR	:	$rt,	-.imm,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_344(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_344(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	344	=	SWRE	:	$rt,	-.[15,7],	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_345(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_345(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	345	=	SWXC1	:	$fs,	$rt,	($rs),	_		
 	
 }
-inline void CPU::executeInstructionID_346(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_346(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	346	=	SYNC	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_347(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_347(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	347	=	SYNC	:	+.[10,6],	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_348(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_348(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	348	=	SYNCI	:	-.imm,	(g$[25,21]),	_,	_		
 	
 }
-inline void CPU::executeInstructionID_349(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	349	=	SYSCALL	:	_,	_,	_,	_		
-	
+	int tmpInt;
+	float tmpFloat;
+	double tmpDouble;
+
+	switch(GPR[2]){
+		case 1:
+			cout << GPR[4];
+			break;
+		case 2:
+			cout << FPR[12];
+			break;
+		case 3:
+			cout << regReadDouble(12);
+			break;
+		case 4:
+			
+			break;
+		case 5:
+			cin >> tmpInt;
+			GPR[2] = tmpInt;
+			break;
+		case 6:
+			cin >> tmpFloat;
+			FPR[0] = tmpFloat;
+			break;
+		case 7:
+			cin >> tmpDouble;
+			FPR[0] = tmpDouble;
+			break;
+		case 8:
+
+			break;
+		case 9:
+
+			break;
+		case 10:
+
+			break;
+		case 11:
+			putchar((char)GPR[4]);
+			break;
+		case 12:
+			char c = getchar();
+			GPR[4] = (int32_t)c;
+			break;
+		case 13:
+
+			break;
+		case 14:
+
+			break;
+		case 15:
+			
+			break;
+		default:
+
+	}
 }
-inline void CPU::executeInstructionID_350(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_350(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	350	=	TEQ	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_351(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_351(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	351	=	TEQI	:	$rs,	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_352(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_352(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	352	=	TGE	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_353(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_353(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	353	=	TGEI	:	$rs,	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_354(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_354(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	354	=	TGEIU	:	$rs,	+.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_355(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_355(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	355	=	TGEU	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_356(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_356(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	356	=	TLBINV	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_357(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_357(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	357	=	TLBINVF	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_358(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_358(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	358	=	TLBP	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_359(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_359(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	359	=	TLBR	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_360(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_360(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	360	=	TLBWI	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_361(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_361(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	361	=	TLBWR	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_362(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_362(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	362	=	TLT	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_363(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_363(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	363	=	TLTI	:	$rs,	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_364(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_364(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	364	=	TLTIU	:	$rs,	+.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_365(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_365(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	365	=	TLTU	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_366(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_366(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	366	=	TNE	:	$rs,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_367(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_367(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	367	=	TNEI	:	$rs,	-.imm,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_368(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_368(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	368	=	TRUNC.L.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_369(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_369(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	369	=	TRUNC.L.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_370(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_370(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	370	=	TRUNC.W.S	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_371(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_371(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	371	=	TRUNC.W.D	:	$fd,	$fs,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_372(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_372(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	372	=	WAIT	:	_,	_,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_373(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_373(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	373	=	WRPGPR	:	$rd,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_374(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_374(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	374	=	WSBH	:	$rd,	$rt,	_,	_		
 	
 }
-inline void CPU::executeInstructionID_375(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_375(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	375	=	XOR	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = GPR[a1] ^ GPR[a2];
 }
-inline void CPU::executeInstructionID_376(int32_t a0, int32_t a1, int32_t a2, int32_t a3){
+inline void CPU::executeInstructionID_376(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	376	=	XORI	:	$rt,	$rs,	-.imm,	_		
-	
+	GPR[a0] = GPR[a1] ^ a2;
 }
+

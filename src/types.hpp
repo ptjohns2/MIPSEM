@@ -20,17 +20,28 @@
 
 typedef uint32_t instr;
 
-typedef int32_t GPreg;
-typedef float FPreg;
-
 
 
 typedef std::pair<int,int> bitrange;
 
+typedef struct {
+	float msb, lsb;
+} s64__floatPair;
 
+typedef union {
+	float _float;
+	uint32_t _uint32_t; 
+} u32__float_and_uint32_t;
 
+typedef union {
+	double _double;
+	uint64_t _uint64_t;
+} u64__double_and_uint64_t;
 
-
+typedef union {
+	s64__floatPair _floatPair;
+    double _double;
+} u64__floatPair_and_double;
 
 
 

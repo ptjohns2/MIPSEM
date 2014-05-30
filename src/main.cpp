@@ -6,16 +6,24 @@
 #include "Encoder.hpp"
 #include "parse.hpp"
 
+#include <bitset>
 #include <cassert>
 #include <iostream>
 #include <fstream>
 #include <time.h>
+
 
 using namespace std;
 
 int main(){
 	assert(sizeof(float) == 4);
 	assert(sizeof(int) == 4);
+	assert(sizeof(unsigned int) == 4);
+	assert(sizeof(uint32_t) == 4);
+	assert(sizeof(int32_t) == 4);
+	assert(sizeof(uint64_t) == 8);
+	assert(sizeof(int64_t) == 8);
+
 	srand((unsigned int)time(NULL));
 	InstructionDataBank bank = InstructionDataBank();
 	bank.loadFile("instructions.txt");
@@ -24,16 +32,26 @@ int main(){
 	BitResolver br = BitResolver(&bank);
 	StringResolver sr = StringResolver(&bank);
 	CPU cpu = CPU();
-	
+
+	float asdf = 2352.23;
+	int64_t asdfg = (int64_t)asdf;
+	float asdfgh = (float)(asdfg);
+
+
+	string instrArr[10] = {
+		"addi $t0, $zero, 9",
+		"addi $t1, $zero, -1",
+		"clo $1, $t1",
+		"clz $2, $t1",};
+				
+	for(int i=0; i<4; i++){
+		Instruction instr = e.buildInstruction(instrArr[i]);
+		cpu.executeInstruction(&instr);
+	}
+
+
+	int wait = 0x101u;
 	//////////
-	Instruction i1 = e.buildInstruction("addi $t0, $t0, 50");
-	cpu.executeInstruction(&i1);
-	Instruction i2 = e.buildInstruction("addi $t1, $t0, 50");
-	cpu.executeInstruction(&i2);
-	Instruction i3 = e.buildInstruction("add $t2, $t0, $t1");
-	cpu.executeInstruction(&i3);
-	Instruction i4 = e.buildInstruction("add $t3, $t2, $t2");
-	cpu.executeInstruction(&i4);
 	
 	////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +124,6 @@ int main(){
 	cout << "Time: " << time << '\n';
 	cout << "numTests: " << numTests << '\n';
 	cout << "Time per: " << (float)(time) / (float)(numTests);
-	
 
 
 	return 0;

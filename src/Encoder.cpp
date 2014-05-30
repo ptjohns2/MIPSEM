@@ -41,22 +41,23 @@ Instruction Encoder::buildInstruction(string asmString){
 		}
 	}
 	
+	int numArgs = 0;
+	for(int i=0; i<parameters.size(); i++){
+		if(parameters[i] != "_"){numArgs++;}
+	}
+
 	//get argument values
-	for(int i=0; i<arguments.size(); i++){
-		int argVal;
-		if(parse::parameterIsLiteral(parameters[i])){
-			if(id->isDecodedNormally()){
-				argVal = Decoder::decodeArgumentToValue(binString, parameters[i]);
-			}else{
-				//abnormally decoded instruction
-				vector<int> tmpArgumentValues;
-				Decoder::decodeAbnormalInstruction(binString, id->getName(), parameters, id->getInstructionID(), tmpArgumentValues);
-				argVal = tmpArgumentValues[i];
-			}
-		}else{
-			argVal = parse::getArgumentValue(arguments[i]);
+	if(id->isDecodedNormally()){
+		//get argument values
+		for(int i=0; i<numArgs; i++){
+			bitrange br = parse::getParameterBitrange(parameters[i]);
+			uint32_t argVal = parse::binStrToUnsignedDecInt(Decoder::extractBitrange(binString, br));
+			argumentValues.push_back(argVal);
 		}
-		argumentValues.push_back(argVal);
+	}else{
+		//decode abnormal instr
+		argumentValues.clear();
+		asmString = Decoder::decodeAbnormalInstruction(binString, id->getName(), parameters, id->getInstructionID(), argumentValues);
 	}
 	
 
@@ -109,7 +110,7 @@ string Encoder::encodeAbnormalInstruction(string binString, vector<string> param
 			{
 			//CLO rd, rs
 			newInstruction = encodeArgument(newInstruction, parameters[0], arguments[0]);
-			newInstruction = encodeArgument(newInstruction, parameters[0], "$rt");
+			newInstruction = encodeArgument(newInstruction, "$rt", arguments[0]);
 			newInstruction = encodeArgument(newInstruction, parameters[1], arguments[1]);
 			}
 			break;
@@ -117,7 +118,7 @@ string Encoder::encodeAbnormalInstruction(string binString, vector<string> param
 			{
 			//CLZ rd, rs
 			newInstruction = encodeArgument(newInstruction, parameters[0], arguments[0]);
-			newInstruction = encodeArgument(newInstruction, parameters[0], "$rt");
+			newInstruction = encodeArgument(newInstruction, "$rt", arguments[0]);
 			newInstruction = encodeArgument(newInstruction, parameters[1], arguments[1]);
 			}
 			break;
