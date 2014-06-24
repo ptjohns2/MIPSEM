@@ -33,97 +33,31 @@ int main(){
 	StringResolver sr = StringResolver(&bank);
 	CPU cpu = CPU();
 
-	float asdf = 2352.23;
-	int64_t asdfg = (int64_t)asdf;
-	float asdfgh = (float)(asdfg);
+	vector<string> instrStrArr;
+	instrStrArr.push_back("addi	$t0, $zero, 8");
+	instrStrArr.push_back("addi	$t1, $zero, -1");
+	instrStrArr.push_back("clo	$1, $t0");
+	instrStrArr.push_back("clz	$2, $t0");
+	instrStrArr.push_back("addi	$v0, $zero, 1");
+	instrStrArr.push_back("add	$a0, $zero, $1");
+	instrStrArr.push_back("syscall");
 
-
-	string instrArr[10] = {
-		"addi $t0, $zero, 9",
-		"addi $t1, $zero, -1",
-		"clo $1, $t1",
-		"clz $2, $t1",};
-				
-	for(int i=0; i<4; i++){
-		Instruction instr = e.buildInstruction(instrArr[i]);
-		cpu.executeInstruction(&instr);
+	vector<Instruction> instrArr;
+	for(int i=0; i<instrStrArr.size(); i++){
+		Instruction tmpInstr = e.buildInstruction(instrStrArr[i]);
+		instrArr.push_back(tmpInstr);
 	}
 
-
-	int wait = 0x101u;
-	//////////
-	
-	////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	////////////        Instruction get arguments - make faster (array not vector etc)        ///////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////
-	
-
-
-	int numTests = 10000;
-	vector<string> invalidinstructions;
-	vector<string> validinstructions;
-	vector<pair<Instruction, Instruction>> invalidArgumentInstructions;
-	time_t start;
+	time_t start, end;
 	time(&start);
-	for(int i=0; i<numTests; i++){
-		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
-
-		Instruction nextPtr, loopPtr = d.buildInstruction(instr);
-		if(loopPtr.getInstructionData() != NULL){
-
-			Instruction nextPtr = e.buildInstruction(loopPtr.getAsmString());
-			if(nextPtr.getInstructionData() != NULL){
-				bool invalidEncode = false;
-				invalidEncode |= loopPtr.getBin() != nextPtr.getBin();
-				bool invalidArgumentValues = false;
-				for(int argValTestIterator = 0; argValTestIterator<NUMBER_OF_ARGUMENTS; argValTestIterator++){
-					invalidArgumentValues |= loopPtr.getArgumentValue(argValTestIterator) != nextPtr.getArgumentValue(argValTestIterator);
-				}
-				if(invalidArgumentValues){
-					pair<Instruction, Instruction> tmp;
-					tmp.first = loopPtr;
-					tmp.second = nextPtr;
-					invalidArgumentInstructions.push_back(tmp);
-				}
-
-				if(invalidEncode){
-					bool chk = true;
-					for(unsigned int n=0; n<invalidinstructions.size(); n++){
-						if(nextPtr.getInstructionData()->getName() == invalidinstructions[n]){
-							chk = false;
-							break;
-						}
-					}
-					if(chk){
-						invalidinstructions.push_back(nextPtr.getInstructionData()->getName());
-					}
-				}else{
-					bool chk = true;
-					for(unsigned int n=0; n<validinstructions.size(); n++){
-						if(nextPtr.getInstructionData()->getName() == validinstructions[n]){
-							chk = false;
-							break;
-						}
-					}
-					if(chk){
-						validinstructions.push_back(nextPtr.getInstructionData()->getName());
-					}	
-				}
-			}
+	Instruction instr = e.buildInstruction(instrStrArr[0]);
+	for(int i=0; i<100000; i++){
+		for(int instrIndex=0; instrIndex<instrArr.size(); instrIndex++){
+			cpu.executeInstruction(&instrArr[instrIndex]);
 		}
 	}
-	time_t end;
 	time(&end);
-	time_t time = end - start;
-	cout << "Time: " << time << '\n';
-	cout << "numTests: " << numTests << '\n';
-	cout << "Time per: " << (float)(time) / (float)(numTests);
+	int timeTaken = end - start;
 
 
 	return 0;

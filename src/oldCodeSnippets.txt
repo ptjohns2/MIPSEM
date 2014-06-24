@@ -1,0 +1,62 @@
+
+	/*
+	int numTests = 10000;
+	vector<string> invalidinstructions;
+	vector<string> validinstructions;
+	vector<pair<Instruction, Instruction>> invalidArgumentInstructions;
+	time_t start;
+	time(&start);
+	for(int i=0; i<numTests; i++){
+		int instr = rand() * (((rand() % 2) == 0)? 1 : -1);
+
+		Instruction nextPtr, loopPtr = d.buildInstruction(instr);
+		if(loopPtr.getInstructionData() != NULL){
+
+			Instruction nextPtr = e.buildInstruction(loopPtr.getAsmString());
+			if(nextPtr.getInstructionData() != NULL){
+				bool invalidEncode = false;
+				invalidEncode |= loopPtr.getBin() != nextPtr.getBin();
+				bool invalidArgumentValues = false;
+				for(int argValTestIterator = 0; argValTestIterator<NUMBER_OF_ARGUMENTS; argValTestIterator++){
+					invalidArgumentValues |= loopPtr.getArgumentValue(argValTestIterator) != nextPtr.getArgumentValue(argValTestIterator);
+				}
+				if(invalidArgumentValues){
+					pair<Instruction, Instruction> tmp;
+					tmp.first = loopPtr;
+					tmp.second = nextPtr;
+					invalidArgumentInstructions.push_back(tmp);
+				}
+
+				if(invalidEncode){
+					bool chk = true;
+					for(unsigned int n=0; n<invalidinstructions.size(); n++){
+						if(nextPtr.getInstructionData()->getName() == invalidinstructions[n]){
+							chk = false;
+							break;
+						}
+					}
+					if(chk){
+						invalidinstructions.push_back(nextPtr.getInstructionData()->getName());
+					}
+				}else{
+					bool chk = true;
+					for(unsigned int n=0; n<validinstructions.size(); n++){
+						if(nextPtr.getInstructionData()->getName() == validinstructions[n]){
+							chk = false;
+							break;
+						}
+					}
+					if(chk){
+						validinstructions.push_back(nextPtr.getInstructionData()->getName());
+					}	
+				}
+			}
+		}
+	}
+	time_t end;
+	time(&end);
+	time_t time = end - start;
+	cout << "Time: " << time << '\n';
+	cout << "numTests: " << numTests << '\n';
+	cout << "Time per: " << (float)(time) / (float)(numTests);
+	*/

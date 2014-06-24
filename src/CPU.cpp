@@ -415,6 +415,8 @@ void CPU::executeInstruction(Instruction* instruction){
 		case 376 : {executeInstructionID_376(a0, a1, a2, a3);break;}
 	}
 
+	//make sure $zero stays 0
+	GPR[0] = 0;
 }
 
 inline int32_t CPU::signExtend(uint32_t val, unsigned int sigFigs){
