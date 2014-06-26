@@ -1,5 +1,7 @@
 #include "CPU.hpp"
 
+#include "BitManip.hpp"
+
 #include <bitset>
 #include <iostream>
 #include <math.h>
@@ -419,91 +421,20 @@ void CPU::executeInstruction(Instruction* instruction){
 	GPR[0] = 0;
 }
 
-inline int32_t CPU::signExtend(uint32_t val, unsigned int sigFigs){
-	int32_t signedVal = (int32_t)val;
-	signedVal <<= sigFigs;
-	signedVal >>= sigFigs;
-	return signedVal;
-}
-
-
-inline int32_t CPU::read_int32_t(void* ptr){
-	int32_t x = 0;
-	memcpy(&x, ptr, sizeof(int32_t));
-	return x;
-}
-inline uint32_t CPU::read_uint32_t(void* ptr){
-	uint32_t x = 0;
-	memcpy(&x, ptr, sizeof(uint32_t));
-	return x;
-}
-inline int64_t CPU::read_int64_t(void* ptr){
-	int64_t x = 0;
-	memcpy(&x, ptr, sizeof(int64_t));
-	return x;
-}
-inline uint64_t CPU::read_uint64_t(void* ptr){
-	uint64_t x = 0;
-	memcpy(&x, ptr, sizeof(uint64_t));
-	return x;
-}
-inline float CPU::read_float(void* ptr){
-	float x = 0;
-	memcpy(&x, ptr, sizeof(float));
-	return x;
-}
-inline double CPU::read_double(void* ptr){
-	double x = 0;
-	memcpy(&x, ptr, sizeof(double));
-	return x;
-}
 
 inline void CPU::regStoreDouble(double val, uint32_t index){
-	s64__floatPair fp = doubleToFloatPair(val);
-	FPR[index] = fp.msb;
-	FPR[(index+1) % 32] = fp.lsb;
+	FPR[index] = splitToUpperHalf<float, double>(val);
+	FPR[(index+1) % 32] = splitToLowerHalf<float, double>(val);
 }
 
 inline double CPU::regReadDouble(uint32_t index){
 	float arr[2];
 	arr[0] = FPR[index];
 	arr[1] = FPR[(index+1) % 32];
-	return read_double(&arr[0]);
+	return readMemAs<double>(&arr[0]);
 }
 
 
-//NOT MINE: credits to K4Fr
-void CPU::printbin(const void* p, int len){
-    const unsigned char* q = (const unsigned char*)p;
-    for(; len > 0; len--, q++){
-      unsigned char v = *q;
-      for(int i = 0; i < 8; i++, v <<= 1){
-		cout << ((v & 0x80) ? '1' : '0');
-      }
-    }
-}
-
-double CPU::floatPairToDouble(float msb, float lsb){
-	//float arr[2] = {msb, lsb};
-	//return read_double(&arr[0]);
-
-	u64__floatPair_and_double raw;
-	raw._floatPair.msb = msb;
-	raw._floatPair.lsb = lsb;
-
-	return raw._double;
-}
-
-s64__floatPair CPU::doubleToFloatPair(double val){
-	u64__floatPair_and_double raw;
-	raw._double = val;
-
-	s64__floatPair retVal;
-	retVal.msb = raw._floatPair.msb;
-	retVal.lsb = raw._floatPair.lsb;
-
-	return retVal;
-}
 
 
 //==================================================>	
@@ -521,7 +452,7 @@ inline void CPU::executeInstructionID_0(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_1(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	1	=	ABS.D	:	$fd,	$fs,	_,	_
-	double doubleVal = floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
+	double doubleVal = concatenateBitPair<float, double>(FPR[a1], FPR[(a1+1) % 32]);
 	doubleVal = std::abs(doubleVal);
 	regStoreDouble(doubleVal, a0);
 }
@@ -540,8 +471,8 @@ inline void CPU::executeInstructionID_4(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_5(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	5	=	ADD.D	:	$fd,	$ft,	$fs,	_		
-	double doubleVal1 = floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
-	double doubleVal2 = floatPairToDouble(FPR[a2], FPR[(a2+1) % 32]);
+	double doubleVal1 = concatenateBitPair<float, double>(FPR[a1], FPR[(a1+1) % 32]);
+	double doubleVal2 = concatenateBitPair<float, double>(FPR[a2], FPR[(a2+1) % 32]);
 	double sum = doubleVal1 + doubleVal2;
 	regStoreDouble(sum, a0);
 }
@@ -1145,33 +1076,31 @@ inline void CPU::executeInstructionID_145(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_146(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	146	=	CEIL.L.S	:	$fd,	$fs,	_,	_		
-	int64_t newVal = (int64_t)FPR[a1];
-	float test = (float)newVal;
-	if(test != FPR[a1]){newVal++;}	//round up
-	s64__floatPair fp = doubleToFloatPair(read_double(&newVal));
-	FPR[a0] = fp.msb;
-	FPR[(a0+1) % 32] = fp.lsb;
+	int64_t roundedDouble = (int64_t)FPR[a1];
+	double test = (double)roundedDouble;
+	if(test != FPR[a1]){roundedDouble++;}	//round up
+	regStoreDouble(readMemAs<double>(&roundedDouble), a0);
 }
 inline void CPU::executeInstructionID_147(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	147	=	CEIL.L.D	:	$fd,	$fs,	_,	_		
-	int64_t newVal = (int64_t)floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
-	double test = (double)newVal;
-	if(test != floatPairToDouble(FPR[a0], FPR[(a0+1) % 32])){newVal++;}	//round up
-	regStoreDouble(read_double(&newVal), a0);
+	int64_t roundedDouble = (int64_t)regReadDouble(a1);
+	double test = (double)roundedDouble;
+	if(test != regReadDouble(a1)){roundedDouble++;}	//round up
+	regStoreDouble(readMemAs<double>(&roundedDouble), a0);
 }
 inline void CPU::executeInstructionID_148(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	148	=	CEIL.W.S	:	$fd,	$fs,	_,	_		
-	int32_t newVal = (int32_t)FPR[a1];
-	float test = float(newVal);
-	if(test != FPR[a1]){newVal++;}
-	FPR[a0] = read_float(&newVal);
+	int32_t roundedDouble = (int32_t)FPR[a1];
+	double test = (double)roundedDouble;
+	if(test != FPR[a1]){roundedDouble++;}	//round up
+	FPR[a0] = readMemAs<float>(&roundedDouble);
 }
 inline void CPU::executeInstructionID_149(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	149	=	CEIL.W.D	:	$fd,	$fs,	_,	_		
-	int32_t newVal = (int32_t)floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
-	double test = (double)newVal;
-	if(test != floatPairToDouble(FPR[a1], FPR[(a1+1) % 32])){newVal++;}
-	FPR[a0] = read_float(&newVal);
+	int32_t roundedDouble = (int32_t)regReadDouble(a1);
+	double test = (double)roundedDouble;
+	if(test != regReadDouble(a1)){roundedDouble++;}	//round up
+	FPR[a0] = readMemAs<float>(&roundedDouble);
 }
 inline void CPU::executeInstructionID_150(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	150	=	CFC1	:	$rt,	$fs,	_,	_		
@@ -1219,20 +1148,20 @@ inline void CPU::executeInstructionID_156(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_157(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	157	=	CVT.D.S	:	$fd,	$fs,	_,	_		
-	double newVal = (double)read_float(&FPR[a1]);
+	double newVal = (double)FPR[a1];
 	regStoreDouble(newVal, a0);
 }
 inline void CPU::executeInstructionID_158(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	158	=	CVT.D.W	:	$fd,	$fs,	_,	_		
-	double newVal = (double)read_int32_t(&FPR[a1]);
+	double newVal = (double)readMemAs<int32_t>(&FPR[a1]);
 	regStoreDouble(newVal, a0);
 }
 inline void CPU::executeInstructionID_159(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	159	=	CVT.D.L	:	$fd,	$fs,	_,	_		
-	double origVal = floatPairToDouble(FPR[a1], FPR[(a1+1) % 32]);
-	int64_t convertedVal = (int64_t)origVal;
-	double newVal = read_double(&convertedVal);
-	regStoreDouble(newVal, a0);
+	double rawDouble = regReadDouble(a1);
+	int64_t rawLong = readMemAs<int64_t>(&rawDouble);
+	double convertedDouble = (double)rawLong;
+	regStoreDouble(convertedDouble, a0);
 }
 inline void CPU::executeInstructionID_160(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	160	=	CVT.L.S	:	$fd,	$fs,	_,	_		

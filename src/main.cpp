@@ -51,7 +51,7 @@ int main(){
 	time_t start, end;
 	time(&start);
 	Instruction instr = e.buildInstruction(instrStrArr[0]);
-	for(int i=0; i<100000; i++){
+	for(int i=0; i<1; i++){
 		for(int instrIndex=0; instrIndex<instrArr.size(); instrIndex++){
 			cpu.executeInstruction(&instrArr[instrIndex]);
 		}

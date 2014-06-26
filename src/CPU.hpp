@@ -2,8 +2,8 @@
 #define __CPU_HPP__
 
 
+#include "BitManip.hpp"
 #include "Instruction.hpp"
-
 
 
 class CPU{
@@ -14,21 +14,9 @@ class CPU{
 		void executeInstruction(Instruction* instruction);
 
 		//Helper functions
-		inline int32_t signExtend(uint32_t, unsigned int);
-
-		inline int32_t read_int32_t(void* ptr);
-		inline uint32_t read_uint32_t(void* ptr);
-		inline int64_t read_int64_t(void* ptr);
-		inline uint64_t read_uint64_t(void* ptr);
-		inline float read_float(void* ptr);
-		inline double read_double(void* ptr);
 		
 		inline void regStoreDouble(double val, uint32_t index);
 		inline double regReadDouble(uint32_t index);
-
-		static void printbin(const void* p, int len);
-		inline double floatPairToDouble(float, float);
-		inline s64__floatPair doubleToFloatPair(double);
 
 	private:
 		//CPU internal states
