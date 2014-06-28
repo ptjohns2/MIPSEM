@@ -21,6 +21,10 @@ datatype readMemAs(void* ptr){
 	memcpy(&x, ptr, sizeof(datatype));
 	return x;
 }
+template int8_t	readMemAs<int8_t>	(void* ptr);
+template uint8_t	readMemAs<uint8_t>	(void* ptr);
+template int16_t	readMemAs<int16_t>	(void* ptr);
+template uint16_t	readMemAs<uint16_t>	(void* ptr);
 template int32_t	readMemAs<int32_t>	(void* ptr);
 template uint32_t	readMemAs<uint32_t>	(void* ptr);
 template int64_t	readMemAs<int64_t>	(void* ptr);
@@ -29,16 +33,22 @@ template float		readMemAs<float>	(void* ptr);
 template double		readMemAs<double>	(void* ptr);
 
 
+
 template<typename datatype>
 void writeMemAs(void* ptr, datatype value){
 	memcpy(ptr, &value, sizeof(value));
 }
+template void		writeMemAs<int8_t>	(void* ptr, int8_t value);
+template void		writeMemAs<uint8_t>	(void* ptr, uint8_t value);
+template void		writeMemAs<int16_t>	(void* ptr, int16_t value);
+template void		writeMemAs<uint16_t>(void* ptr, uint16_t value);
 template void		writeMemAs<int32_t>	(void* ptr, int32_t value);
 template void		writeMemAs<uint32_t>(void* ptr, uint32_t value);
 template void		writeMemAs<int64_t>	(void* ptr, int64_t value);
 template void		writeMemAs<uint64_t>(void* ptr, uint64_t value);
 template void		writeMemAs<float>	(void* ptr, float value);
 template void		writeMemAs<double>	(void* ptr, double value);
+
 
 
 template<typename part, typename whole> 
@@ -48,6 +58,7 @@ whole concatenateBitPair(part msb, part lsb){
 	whole retVal = readMemAs<whole>(&tmpArr[0]);
 	return retVal;
 }
+template uint16_t	concatenateBitPair<uint8_t, uint16_t>	(uint8_t msb, uint8_t lsb);
 template uint32_t	concatenateBitPair<uint16_t, uint32_t>	(uint16_t msb, uint16_t lsb);
 template uint64_t	concatenateBitPair<uint32_t, uint64_t>	(uint32_t msb, uint32_t lsb);
 template double		concatenateBitPair<float, double>		(float msb, float lsb);

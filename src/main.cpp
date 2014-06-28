@@ -5,6 +5,7 @@
 #include "Decoder.hpp"
 #include "Encoder.hpp"
 #include "parse.hpp"
+#include "VirtualMemory.hpp"
 
 #include <bitset>
 #include <cassert>
@@ -25,6 +26,7 @@ int main(){
 	assert(sizeof(int64_t) == 8);
 
 	srand((unsigned int)time(NULL));
+	
 	InstructionDataBank bank = InstructionDataBank();
 	bank.loadFile("instructions.txt");
 	Encoder e = Encoder(&bank);
@@ -33,6 +35,58 @@ int main(){
 	StringResolver sr = StringResolver(&bank);
 	CPU cpu = CPU();
 
+	
+	VirtualMemory vm = VirtualMemory(&d);
+	
+
+
+	
+	int sfdjsdkfdsdfsds = 4;
+	
+
+	
+	vector<pair<virtualAddr, uint32_t>> junkValues;
+	virtualAddr randVal = 1;
+	for(int i=0; i<100000; i++){
+		pair<virtualAddr, uint32_t> tmpPair;
+
+		randVal += sizeof(tmpPair.first) + (rand() % 20);
+		if(!(rand() % 100)){randVal += 1000;}
+		
+		tmpPair.first = randVal;
+		tmpPair.second = rand();
+		junkValues.push_back(tmpPair);
+	}
+	
+
+	int dkfjasdfsdf = 1;
+
+	for(int i=0; i<junkValues.size(); i++){
+		uint32_t tmpValue = junkValues[i].second;
+		vm.writeToVirtualMemorySpace(junkValues[i].first, sizeof(uint32_t), &tmpValue);
+	}
+
+	int asdkfjads = 2;
+	vector<uint32_t> readValues;
+	for(int i=0; i<junkValues.size(); i++){
+		virtualAddr addr = junkValues[i].first;
+		uint32_t* tmpValue = (uint32_t*)vm.readVirtualMemorySpaceToHeap(addr, sizeof(uint32_t));
+		uint32_t readValue = *tmpValue;
+		uint32_t writtenValue = junkValues[i].second;
+		readValues.push_back(readValue);
+		if(readValue != writtenValue){
+			virtualAddr pageNum = VirtualMemoryPageTable::calculatePageNumber(addr);
+			virtualAddr pageOffset = VirtualMemoryPage::calculatePageOffset(addr);
+			char pipe = 200;
+			cout << std::dec << i << " addr: 0x" << std::hex << addr << "\tpageNum: 0x" << std::hex << pageNum << "\tpageOffset: 0x" << std::hex << pageOffset << '\n';
+			cout << pipe << "----------> written:" << std::dec << writtenValue << "\tread:" << std::dec << readValue << '\n';;
+		}
+		delete tmpValue;
+	}
+
+
+	int x = 1;
+	/*
 	vector<string> instrStrArr;
 	instrStrArr.push_back("addi	$t0, $zero, 8");
 	instrStrArr.push_back("addi	$t1, $zero, -1");
@@ -58,6 +112,7 @@ int main(){
 	}
 	time(&end);
 	int timeTaken = end - start;
+	*/
 
 
 	return 0;
