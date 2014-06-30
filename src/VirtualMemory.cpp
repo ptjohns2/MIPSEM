@@ -6,16 +6,11 @@
 VirtualMemory::VirtualMemory(){
 	init();
 }
-VirtualMemory::VirtualMemory(Decoder* decoder){
-	init();
-	this->decoder = decoder;
-	pageTable = new VirtualMemoryPageTable(this->decoder);
-}
 VirtualMemory::~VirtualMemory(){
-	delete pageTable;
+	delete this->pageTable;
 }
 void VirtualMemory::init(){
-
+	this->pageTable = new VirtualMemoryPageTable();
 }
 
 h_byte* VirtualMemory::readVirtualMemorySpaceToHeap(virtualAddr address, size_t size){
@@ -66,12 +61,6 @@ byte* VirtualMemory::getByteAddr(virtualAddr address){
 	return bytePtr;
 }
 
-Instruction* VirtualMemory::readInstruction(virtualAddr address){
-	VirtualMemoryPage* pagePtr = pageTable->getPageAddr(address);
-	Instruction* instrPtr = pagePtr->getValidInstructionPtr(address);
-	return instrPtr;
-}
-
 
 
 
@@ -83,10 +72,6 @@ Instruction* VirtualMemory::readInstruction(virtualAddr address){
 
 VirtualMemoryPageTable::VirtualMemoryPageTable(){
 	init();
-}
-VirtualMemoryPageTable::VirtualMemoryPageTable(Decoder* decoder){
-	init();
-	this->decoder = decoder;
 }
 VirtualMemoryPageTable::~VirtualMemoryPageTable(){
 	for(int i=0; i<NUM_PAGES_IN_PAGE_TABLE; i++){
@@ -107,7 +92,7 @@ uint32_t VirtualMemoryPageTable::calculatePageNumber(virtualAddr address){
 VirtualMemoryPage* VirtualMemoryPageTable::getPageAddr(virtualAddr address){
 	uint32_t pageNumber = calculatePageNumber(address);
 	if(pageTable[pageNumber] == NULL){
-		pageTable[pageNumber] = new VirtualMemoryPage(pageNumber, this->decoder);	
+		pageTable[pageNumber] = new VirtualMemoryPage(pageNumber);	
 	}
 	return pageTable[pageNumber];
 }
@@ -123,22 +108,20 @@ VirtualMemoryPage* VirtualMemoryPageTable::getPageAddr(virtualAddr address){
 VirtualMemoryPage::VirtualMemoryPage(){
 	init();
 }
-VirtualMemoryPage::VirtualMemoryPage(uint32_t pageNumber, Decoder* decoder){
+VirtualMemoryPage::VirtualMemoryPage(uint32_t pageNumber){
 	init();
-	this->decoder = decoder;
 	this->pageNumber = pageNumber;
 
 	lowerBound = (pageNumber << NUM_BITS_IN_PAGE_OFFSET);
 	upperBound = lowerBound + MAX_PAGE_OFFSET;
 }
 VirtualMemoryPage::~VirtualMemoryPage(){
-	for(int i=0; i<NUM_WORDS_IN_PAGE; i++){delete instructionTable[i];}
+
 }
 void VirtualMemoryPage::init(){
 	pageNumber = 0;
 	lowerBound = 0;
 	upperBound = 0;
-	for(int i=0; i<NUM_WORDS_IN_PAGE; i++){instructionTable[i] = NULL;}
 	for(int i=0; i<NUM_BYTES_IN_PAGE; i++){rawMem[i] = 0x0;}
 }
 
@@ -152,40 +135,6 @@ byte* VirtualMemoryPage::getByteAddr(virtualAddr address){
 	uint32_t pageOffset = calculatePageOffset(address);
 	return &rawMem[pageOffset];
 }
-Instruction* VirtualMemoryPage::getValidInstructionPtr(virtualAddr address){
-	revalidateInstruction(address);
-	return getInstructionPtr(address);
-}
-Instruction* VirtualMemoryPage::getInstructionPtr(virtualAddr address){
-	return *getInstructionPtrAddr(address);
-}
-Instruction** VirtualMemoryPage::getInstructionPtrAddr(virtualAddr address){
-	//pageOffset >> 2	//word aligns the address for proper index
-	uint32_t pageOffset = calculatePageOffset(address);
-	uint32_t wordOffset = pageOffset >> 2;
-	return &instructionTable[wordOffset];
-}
-void VirtualMemoryPage::invalidateInstruction(virtualAddr address){
-	Instruction** instrPtrAddr = getInstructionPtrAddr(address);
-	*instrPtrAddr = NULL;
-}
-void VirtualMemoryPage::revalidateInstruction(virtualAddr address){
-	Instruction* instrPtr = getInstructionPtr(address);
-
-	if(instrPtr != NULL){return;}
-
-	instr encodedBits = 0;
-	byte* byteAddr = getByteAddr(address & 0xFFFFFFFC);
-	memcpy(&encodedBits, byteAddr, sizeof(instr));
-
-	Instruction newInstr = decoder->buildInstruction(encodedBits);
-	Instruction* newInstrPtr = new Instruction();
-	*newInstrPtr = newInstr;
-
-	Instruction** instrPtrAddr = getInstructionPtrAddr(address);
-	*instrPtrAddr = newInstrPtr;
-}
-
 bool VirtualMemoryPage::memSpaceIsInBounds(virtualAddr address, size_t size){
 	return (lowerBound <= address) && ((address + size) <= upperBound);
 }

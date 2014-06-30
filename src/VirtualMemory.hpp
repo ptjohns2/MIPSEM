@@ -33,38 +33,18 @@ class VirtualMemoryPage;
 class VirtualMemory{
 	public:
 		VirtualMemory();
-		VirtualMemory(Decoder* decoder);
 		~VirtualMemory();
 		void init();
-		/*
-		Load:
-			byte unsigned
-			halfword
-			halfword unsigned
-			word
-			word left (msb)
-			word right (lsb)
-		Store:
-			byte
-			conditional word
-			halfword
-			word
-			word left (msb)
-			word right (lsb)
-		*/
 		
 		h_byte* readVirtualMemorySpaceToHeap(virtualAddr address, size_t size);
 		void writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr);
 		byte* getByteAddr(virtualAddr address);
 		void writeByte(virtualAddr address, byte val);
 		byte readByte(virtualAddr address);
-
-		Instruction* readInstruction(virtualAddr address);
-
 		
 	private:
 		VirtualMemoryPageTable* pageTable;
-		Decoder* decoder;
+
 };
 
 class VirtualMemoryPageTable{
@@ -79,26 +59,18 @@ class VirtualMemoryPageTable{
 		
 	private:
 		VirtualMemoryPage* pageTable[NUM_PAGES_IN_PAGE_TABLE];
-		Decoder* decoder;
+
 };
 
 class VirtualMemoryPage{
 	public:
 		VirtualMemoryPage();
-		VirtualMemoryPage(uint32_t pageNumber, Decoder* decoder);
+		VirtualMemoryPage(uint32_t pageNumber);
 		~VirtualMemoryPage();
 		void init();
 
 		static uint32_t calculatePageOffset(virtualAddr address);
-		
 		byte* getByteAddr(virtualAddr virtualAddr);
-		
-		Instruction* getValidInstructionPtr(virtualAddr address);
-		Instruction* getInstructionPtr(virtualAddr address);
-		Instruction** getInstructionPtrAddr(virtualAddr address);
-		void invalidateInstruction(virtualAddr address);
-		void revalidateInstruction(virtualAddr address);
-
 		bool memSpaceIsInBounds(virtualAddr address, size_t size);
 
 	private:
@@ -106,9 +78,7 @@ class VirtualMemoryPage{
 		virtualAddr lowerBound;
 		virtualAddr upperBound;
 		byte rawMem[NUM_BYTES_IN_PAGE];
-		Instruction* instructionTable[NUM_WORDS_IN_PAGE];	//PC always word aligned
 
-		Decoder* decoder;
 };
 
 

@@ -9,6 +9,7 @@
 
 #include <bitset>
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <time.h>
@@ -36,18 +37,17 @@ int main(){
 	CPU cpu = CPU();
 
 	
-	VirtualMemory vm = VirtualMemory(&d);
+	VirtualMemory vm = VirtualMemory();
 	
 
 
 	
 	int sfdjsdkfdsdfsds = 4;
 	
-
 	
 	vector<pair<virtualAddr, uint32_t>> junkValues;
 	virtualAddr randVal = 1;
-	for(int i=0; i<100000; i++){
+	for(int i=0; i<10000000; i++){
 		pair<virtualAddr, uint32_t> tmpPair;
 
 		randVal += sizeof(tmpPair.first) + (rand() % 20);
@@ -57,16 +57,20 @@ int main(){
 		tmpPair.second = rand();
 		junkValues.push_back(tmpPair);
 	}
-	
+	cout <<  "Memory range: [" << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[0].first << ", " << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[junkValues.size() - 1].first << ']' << '\n';
 
 	int dkfjasdfsdf = 1;
+
 
 	for(int i=0; i<junkValues.size(); i++){
 		uint32_t tmpValue = junkValues[i].second;
 		vm.writeToVirtualMemorySpace(junkValues[i].first, sizeof(uint32_t), &tmpValue);
 	}
 
+
 	int asdkfjads = 2;
+	
+	
 	vector<uint32_t> readValues;
 	for(int i=0; i<junkValues.size(); i++){
 		virtualAddr addr = junkValues[i].first;
@@ -78,7 +82,7 @@ int main(){
 			virtualAddr pageNum = VirtualMemoryPageTable::calculatePageNumber(addr);
 			virtualAddr pageOffset = VirtualMemoryPage::calculatePageOffset(addr);
 			char pipe = 200;
-			cout << std::dec << i << " addr: 0x" << std::hex << addr << "\tpageNum: 0x" << std::hex << pageNum << "\tpageOffset: 0x" << std::hex << pageOffset << '\n';
+			cout << std::dec << i << " addr: " << "0x" << std::setw(8) << std::setfill('0') << std::hex << addr << "\tpageNum: " << "0x" << std::setw(8) << std::setfill('0') << std::hex << pageNum << "\tpageOffset: 0x" << std::hex << pageOffset << '\n';
 			cout << pipe << "----------> written:" << std::dec << writtenValue << "\tread:" << std::dec << readValue << '\n';;
 		}
 		delete tmpValue;
@@ -86,6 +90,8 @@ int main(){
 
 
 	int x = 1;
+	
+	
 	/*
 	vector<string> instrStrArr;
 	instrStrArr.push_back("addi	$t0, $zero, 8");
@@ -117,3 +123,4 @@ int main(){
 
 	return 0;
 }
+
