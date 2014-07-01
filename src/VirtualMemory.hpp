@@ -11,7 +11,7 @@ using namespace std;
 #define NUM_BITS_IN_WORD			(32)
 #define NUM_BITS_IN_VIRTUAL_ADDR	(32)
 
-#define NUM_BITS_IN_PAGE_NUM		(20)
+#define NUM_BITS_IN_PAGE_NUM		(NUM_BITS_IN_VIRTUAL_ADDR - NUM_BITS_IN_PAGE_OFFSET)
 #define NUM_BITS_IN_PAGE_OFFSET		(12)
 #define WORD_ALIGN_OFFSET			(2)
 
@@ -36,12 +36,18 @@ class VirtualMemory{
 		~VirtualMemory();
 		void init();
 		
+		void setDecoder(Decoder* decoder);
+
 		h_byte* readVirtualMemorySpaceToHeap(virtualAddr address, size_t size);
 		void writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr);
 		byte* getByteAddr(virtualAddr address);
-		void writeByte(virtualAddr address, byte val);
-		byte readByte(virtualAddr address);
 		
+		static virtualAddr wordAlignAddr(virtualAddr address);
+
+		//InstructionCache functions
+		void invalidateInstructionsCacheOfVirtualMemorySpace(virtualAddr address, size_t size);
+		Instruction* readInstruction(virtualAddr address);
+
 	private:
 		VirtualMemoryPageTable* pageTable;
 
@@ -70,15 +76,30 @@ class VirtualMemoryPage{
 		void init();
 
 		static uint32_t calculatePageOffset(virtualAddr address);
-		byte* getByteAddr(virtualAddr virtualAddr);
+		byte* getByteAddr(virtualAddr address);
 		bool memSpaceIsInBounds(virtualAddr address, size_t size);
+
+		//InstructionCache functions
+		static void setDecoder(Decoder* newDecoder);
+		bool instructionCacheIsAllocated();
+		void allocInstructionCache();
+		void deallocInstructionCache();
+
+		bool isValidInstruction(virtualAddr address);
+		void invalidateInstruction(virtualAddr address);
+		void revalidateInstruction(virtualAddr address);
+		Instruction* readInstruction(virtualAddr address);
 
 	private:
 		uint32_t pageNumber;
 		virtualAddr lowerBound;
 		virtualAddr upperBound;
+
 		byte rawMem[NUM_BYTES_IN_PAGE];
 
+		//InstructionCache members
+		Instruction** instructionCache;
+		static Decoder* decoder;
 };
 
 

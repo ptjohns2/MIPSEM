@@ -36,18 +36,30 @@ int main(){
 	StringResolver sr = StringResolver(&bank);
 	CPU cpu = CPU();
 
-	
 	VirtualMemory vm = VirtualMemory();
-	
-
+	vm.setDecoder(&d);
+	/*
+	Instruction instruction1 = e.buildInstruction("addi $t0, $t0, 5");
+	instr instruction1bin = instruction1.getBin();
+	vm.writeToVirtualMemorySpace(0x00000008, sizeof(instr), &instruction1bin);
+	Instruction* readInstructionPtr = vm.readInstruction(0x00000008);
+	unsigned char tmpVal = 10;
+	vm.writeToVirtualMemorySpace(0x00000008, 1, &tmpVal);
+	Instruction* readModifiedInstructionPtr = vm.readInstruction(0x00000008);
+	*/
+	int16_t val = 0xFFFF;
+	vm.writeToVirtualMemorySpace(0, 2, &val);
+	uint16_t* val2ptr = (uint16_t*)vm.readVirtualMemorySpaceToHeap(2, 1);
+	uint16_t val2 = *val2ptr;
 
 	
 	int sfdjsdkfdsdfsds = 4;
-	
+	delete val2ptr;
+	/*
 	
 	vector<pair<virtualAddr, uint32_t>> junkValues;
 	virtualAddr randVal = 1;
-	for(int i=0; i<10000000; i++){
+	for(int i=0; i<100000; i++){
 		pair<virtualAddr, uint32_t> tmpPair;
 
 		randVal += sizeof(tmpPair.first) + (rand() % 20);
@@ -92,6 +104,16 @@ int main(){
 	int x = 1;
 	
 	
+	*/
+
+	
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+
 	/*
 	vector<string> instrStrArr;
 	instrStrArr.push_back("addi	$t0, $zero, 8");
