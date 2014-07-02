@@ -57,10 +57,10 @@ InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructi
 		if(binStrIsMatch(head->val, i)){
 			return head->val;
 		}else{
-			if(greaterThan(head->val->getFull(), i)){
-				return getInstructionDataFromBinarySearchTree(head->left, i);
-			}else{
+			if(lessThan(i, head->val->getFull())){
 				return getInstructionDataFromBinarySearchTree(head->right, i);
+			}else{
+				return getInstructionDataFromBinarySearchTree(head->left, i);
 			}
 		}
 	}else{
@@ -131,7 +131,13 @@ bool BitResolver::binStrIsMatch(InstructionData* id, string bitStr){
 
 int BitResolver::compareInstructionData(string lhs, string rhs){
 	assert(lhs.size() == rhs.size());
-
+	
+	for(int i=0; i<32; i++){
+		int chk = compareBits(lhs[i], rhs[i]);
+		if(chk != 0){return chk;}
+	}
+	return 0;
+	/*
 	//Test funct next
 	for(int i=26; i<32; i++){
 		int chk = compareBits(lhs[i], rhs[i]);
@@ -149,6 +155,7 @@ int BitResolver::compareInstructionData(string lhs, string rhs){
 	}
 	//If none of these conditions failed, return true for a match
 	return true;
+	*/
 }
 
 int BitResolver::compareBits(char lhs, char rhs){

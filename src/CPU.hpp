@@ -4,6 +4,7 @@
 
 #include "BitManip.hpp"
 #include "Instruction.hpp"
+#include "VirtualMemory.hpp"
 
 
 class CPU{
@@ -11,6 +12,7 @@ class CPU{
 		CPU();
 		~CPU();
 
+		void executeInstructionAtPC();
 		void executeInstruction(Instruction* instruction);
 
 		//Helper functions
@@ -18,7 +20,8 @@ class CPU{
 		inline void regStoreDouble(double val, uint32_t index);
 		inline double regReadDouble(uint32_t index);
 
-	private:
+
+	//private:
 		//CPU internal states
 		int32_t GPR[32];
 		float FPR[32];
@@ -28,7 +31,10 @@ class CPU{
 		int32_t HI;
 		int32_t LO;
 
+		VirtualMemory MEM;
 
+
+	private:
 
 		//INSTRUCTIONS
 		inline void executeInstructionID_0(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3);

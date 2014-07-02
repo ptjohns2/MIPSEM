@@ -17,7 +17,8 @@ Encoder::~Encoder(){}
 Instruction Encoder::buildInstruction(string asmString){
 	InstructionData* id = resolver.getInstructionData(asmString);
 	if(id == NULL){
-		Instruction jnk;
+		//TODO: FIX
+		Instruction jnk = buildInstruction("nop");
 		return jnk;
 	}
 

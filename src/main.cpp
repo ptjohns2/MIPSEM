@@ -38,73 +38,14 @@ int main(){
 
 	VirtualMemory vm = VirtualMemory();
 	vm.setDecoder(&d);
-	/*
-	Instruction instruction1 = e.buildInstruction("addi $t0, $t0, 5");
+	
+	Instruction instruction1 = e.buildInstruction("addi $t0, $t0, 1");
+	//Instruction instruction1 = e.buildInstruction("beq $t0, $t1, -4");
 	instr instruction1bin = instruction1.getBin();
-	vm.writeToVirtualMemorySpace(0x00000008, sizeof(instr), &instruction1bin);
-	Instruction* readInstructionPtr = vm.readInstruction(0x00000008);
-	unsigned char tmpVal = 10;
-	vm.writeToVirtualMemorySpace(0x00000008, 1, &tmpVal);
-	Instruction* readModifiedInstructionPtr = vm.readInstruction(0x00000008);
-	*/
-	int16_t val = 0xFFFF;
-	vm.writeToVirtualMemorySpace(0, 2, &val);
-	uint16_t* val2ptr = (uint16_t*)vm.readVirtualMemorySpaceToHeap(2, 1);
-	uint16_t val2 = *val2ptr;
-
+	Instruction instruction2 = d.buildInstruction(instruction1bin);
+	
 	
 	int sfdjsdkfdsdfsds = 4;
-	delete val2ptr;
-	/*
-	
-	vector<pair<virtualAddr, uint32_t>> junkValues;
-	virtualAddr randVal = 1;
-	for(int i=0; i<100000; i++){
-		pair<virtualAddr, uint32_t> tmpPair;
-
-		randVal += sizeof(tmpPair.first) + (rand() % 20);
-		if(!(rand() % 100)){randVal += 1000;}
-		
-		tmpPair.first = randVal;
-		tmpPair.second = rand();
-		junkValues.push_back(tmpPair);
-	}
-	cout <<  "Memory range: [" << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[0].first << ", " << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[junkValues.size() - 1].first << ']' << '\n';
-
-	int dkfjasdfsdf = 1;
-
-
-	for(int i=0; i<junkValues.size(); i++){
-		uint32_t tmpValue = junkValues[i].second;
-		vm.writeToVirtualMemorySpace(junkValues[i].first, sizeof(uint32_t), &tmpValue);
-	}
-
-
-	int asdkfjads = 2;
-	
-	
-	vector<uint32_t> readValues;
-	for(int i=0; i<junkValues.size(); i++){
-		virtualAddr addr = junkValues[i].first;
-		uint32_t* tmpValue = (uint32_t*)vm.readVirtualMemorySpaceToHeap(addr, sizeof(uint32_t));
-		uint32_t readValue = *tmpValue;
-		uint32_t writtenValue = junkValues[i].second;
-		readValues.push_back(readValue);
-		if(readValue != writtenValue){
-			virtualAddr pageNum = VirtualMemoryPageTable::calculatePageNumber(addr);
-			virtualAddr pageOffset = VirtualMemoryPage::calculatePageOffset(addr);
-			char pipe = 200;
-			cout << std::dec << i << " addr: " << "0x" << std::setw(8) << std::setfill('0') << std::hex << addr << "\tpageNum: " << "0x" << std::setw(8) << std::setfill('0') << std::hex << pageNum << "\tpageOffset: 0x" << std::hex << pageOffset << '\n';
-			cout << pipe << "----------> written:" << std::dec << writtenValue << "\tread:" << std::dec << readValue << '\n';;
-		}
-		delete tmpValue;
-	}
-
-
-	int x = 1;
-	
-	
-	*/
 
 	
 	////////////////////////////////////////////////////////////////////////
@@ -114,34 +55,47 @@ int main(){
 	////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
 
-	/*
+	
 	vector<string> instrStrArr;
-	instrStrArr.push_back("addi	$t0, $zero, 8");
-	instrStrArr.push_back("addi	$t1, $zero, -1");
-	instrStrArr.push_back("clo	$1, $t0");
-	instrStrArr.push_back("clz	$2, $t0");
-	instrStrArr.push_back("addi	$v0, $zero, 1");
-	instrStrArr.push_back("add	$a0, $zero, $1");
-	instrStrArr.push_back("syscall");
 
-	vector<Instruction> instrArr;
+	instrStrArr.push_back("addi $t1, $zero, 48");	//0
+	instrStrArr.push_back("addi	$t0, $zero, 0");	//4
+
+	instrStrArr.push_back("addi $t0, $t0, 8");	//8
+	instrStrArr.push_back("addi	$v0, $zero, 1");	//12
+	instrStrArr.push_back("add	$a0, $zero, $t0");	//16
+	instrStrArr.push_back("syscall");	//20
+
+	instrStrArr.push_back("beq $t0, $t1, 1");	//24
+	instrStrArr.push_back("b -6");
+
+	instrStrArr.push_back("addi $a0, $zero, 9999");	//28
+	instrStrArr.push_back("syscall");	//32
+
 	for(int i=0; i<instrStrArr.size(); i++){
-		Instruction tmpInstr = e.buildInstruction(instrStrArr[i]);
-		instrArr.push_back(tmpInstr);
+		Instruction instruction = e.buildInstruction(instrStrArr[i]);
+		instr instructionBin = instruction.getBin();
+		vm.writeToVirtualMemorySpace(i * sizeof(instr), sizeof(instr), &instructionBin);
 	}
 
-	time_t start, end;
-	time(&start);
-	Instruction instr = e.buildInstruction(instrStrArr[0]);
-	for(int i=0; i<1; i++){
-		for(int instrIndex=0; instrIndex<instrArr.size(); instrIndex++){
-			cpu.executeInstruction(&instrArr[instrIndex]);
+	for(int i=0; i<instrStrArr.size(); i++){
+		Instruction* instructionFromMemory = vm.readInstruction(i * 4);
+		string out = instructionFromMemory->getAsmString();
+		cout << out << '\n';
+	}
+
+	int asdfas = 3;
+	
+	while(true){
+		if(cpu.PC >= (4 * instrStrArr.size())){
+			getchar();
 		}
+		Instruction* instructionFromMemory = vm.readInstruction(cpu.PC);
+		cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
+		cpu.executeInstruction(instructionFromMemory);
 	}
-	time(&end);
-	int timeTaken = end - start;
-	*/
 
+	
 
 	return 0;
 }

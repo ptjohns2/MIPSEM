@@ -19,7 +19,7 @@ Instruction Decoder::buildInstruction(instr i){
 Instruction Decoder::buildInstruction(string binStr){
 	InstructionData* id = resolver.getInstructionData(binStr);
 	if(id == NULL){
-		Instruction jnk;
+		Instruction jnk = buildInstruction(0x0);
 		return jnk;
 	}
 

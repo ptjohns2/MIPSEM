@@ -8,5 +8,3 @@ Implements numerous data structures for optimization such as:
 	-Cache for the most commonly decoded instruction types  
 
 A work in progress.  
-
-
