@@ -27,7 +27,7 @@ class StringResolver{
 		int hash(string);	
 		static string getHashableStringFromInstructionString(string instructionString);
 		static string getHashableStringFromInstructionTokens(string name, vector<string> arguments);
-		static string getHashableStringFromParameterTokens(string name, vector<string> parameters);
+		static string getHashableStringFromInstructionData(InstructionData* id);
 
 
 		//Members

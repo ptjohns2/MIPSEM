@@ -14,9 +14,9 @@ CPU::CPU(){
 		GPR[i] = 0x0;
 		FPR[i] = 0x0;
 	}
-	GPR[29] = 0;
+	GPR[29] = 0x7FFFFFC;
 	GPR[30] = 0;
-	PC = 0;
+	PC = 0x00400000;
 	HI = 0;
 	LO = 0;
 }

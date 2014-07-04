@@ -18,7 +18,7 @@
 				bool invalidEncode = false;
 				invalidEncode |= loopPtr.getBin() != nextPtr.getBin();
 				bool invalidArgumentValues = false;
-				for(int argValTestIterator = 0; argValTestIterator<NUMBER_OF_ARGUMENTS; argValTestIterator++){
+				for(int argValTestIterator = 0; argValTestIterator<NUMBER_OF_PARAMETERS; argValTestIterator++){
 					invalidArgumentValues |= loopPtr.getArgumentValue(argValTestIterator) != nextPtr.getArgumentValue(argValTestIterator);
 				}
 				if(invalidArgumentValues){

@@ -9,42 +9,412 @@
 //	Constructors
 InstructionDataBank::InstructionDataBank()
 {
+	bank[	0	] = InstructionData(	0	,	"abs.s"	,	0x11	,	0x46000005	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	1	] = InstructionData(	1	,	"abs.d"	,	0x11	,	0x46200005	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	2	] = InstructionData(	2	,	"abs.ps"	,	0x11	,	0x46C00005	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	3	] = InstructionData(	3	,	"add"	,	0x00	,	0x00000020	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	4	] = InstructionData(	4	,	"add.s"	,	0x11	,	0x46000000	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	5	] = InstructionData(	5	,	"add.d"	,	0x11	,	0x46200000	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	6	] = InstructionData(	6	,	"add.ps"	,	0x11	,	0x46C00000	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	7	] = InstructionData(	7	,	"addi"	,	0x08	,	0x20000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	8	] = InstructionData(	8	,	"addiu"	,	0x09	,	0x24000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	9	] = InstructionData(	9	,	"addu"	,	0x00	,	0x00000021	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	10	] = InstructionData(	10	,	"alnv.ps"	,	0x13	,	0x4C00001E	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	true	,	true	,	false	);	
+	bank[	11	] = InstructionData(	11	,	"and"	,	0x00	,	0x00000024	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	12	] = InstructionData(	12	,	"andi"	,	0x0C	,	0x30000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	13	] = InstructionData(	13	,	"b"	,	0x04	,	0x10000000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	14	] = InstructionData(	14	,	"bal"	,	0x01	,	0x04110000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	15	] = InstructionData(	15	,	"bc1f"	,	0x11	,	0x45000000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	16	] = InstructionData(	16	,	"bc1f"	,	0x11	,	0x45000000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	17	] = InstructionData(	17	,	"bc1fl"	,	0x11	,	0x45020000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	18	] = InstructionData(	18	,	"bc1fl"	,	0x11	,	0x45020000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	19	] = InstructionData(	19	,	"bc1t"	,	0x11	,	0x45010000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	20	] = InstructionData(	20	,	"bc1t"	,	0x11	,	0x45010000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	21	] = InstructionData(	21	,	"bc1tl"	,	0x11	,	0x45030000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	22	] = InstructionData(	22	,	"bc1tl"	,	0x11	,	0x45030000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	23	] = InstructionData(	23	,	"bc2f"	,	0x12	,	0x49000000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	24	] = InstructionData(	24	,	"bc2f"	,	0x12	,	0x49000000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	25	] = InstructionData(	25	,	"bc2fl"	,	0x12	,	0x49020000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	26	] = InstructionData(	26	,	"bc2fl"	,	0x12	,	0x49020000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	27	] = InstructionData(	27	,	"bc2t"	,	0x12	,	0x49010000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	28	] = InstructionData(	28	,	"bc2t"	,	0x12	,	0x49010000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	29	] = InstructionData(	29	,	"bc2tl"	,	0x12	,	0x49030000	,	0xFFFF0000	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	30	] = InstructionData(	30	,	"bc2tl"	,	0x12	,	0x49030000	,	0xFFE30000	,	'+'	,	false	,	20	,	18	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	31	] = InstructionData(	31	,	"beq"	,	0x04	,	0x10000000	,	0xFC000000	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	32	] = InstructionData(	32	,	"beql"	,	0x14	,	0x50000000	,	0xFC000000	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	33	] = InstructionData(	33	,	"bgez"	,	0x01	,	0x04010000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	34	] = InstructionData(	34	,	"bgezal"	,	0x01	,	0x04110000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	35	] = InstructionData(	35	,	"bgezall"	,	0x01	,	0x04130000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	36	] = InstructionData(	36	,	"bgezl"	,	0x01	,	0x04030000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	37	] = InstructionData(	37	,	"bgtz"	,	0x07	,	0x1C000000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	38	] = InstructionData(	38	,	"bgtzl"	,	0x17	,	0x5C000000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	39	] = InstructionData(	39	,	"blez"	,	0x06	,	0x18000000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	40	] = InstructionData(	40	,	"blezl"	,	0x16	,	0x58000000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	41	] = InstructionData(	41	,	"bltz"	,	0x01	,	0x04000000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	42	] = InstructionData(	42	,	"bltzal"	,	0x01	,	0x04100000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	43	] = InstructionData(	43	,	"bltzall"	,	0x01	,	0x04120000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	44	] = InstructionData(	44	,	"bltzl"	,	0x01	,	0x04020000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	45	] = InstructionData(	45	,	"bne"	,	0x05	,	0x14000000	,	0xFC000000	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	46	] = InstructionData(	46	,	"bnel"	,	0x15	,	0x54000000	,	0xFC000000	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	47	] = InstructionData(	47	,	"break"	,	0x00	,	0x0000000D	,	0xFC00003F	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	48	] = InstructionData(	48	,	"c.f.s"	,	0x11	,	0x46000030	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	49	] = InstructionData(	49	,	"c.f.s"	,	0x11	,	0x46000030	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	50	] = InstructionData(	50	,	"c.f.d"	,	0x11	,	0x46200030	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	51	] = InstructionData(	51	,	"c.f.d"	,	0x11	,	0x46200030	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	52	] = InstructionData(	52	,	"c.f.ps"	,	0x11	,	0x46C00030	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	53	] = InstructionData(	53	,	"c.f.ps"	,	0x11	,	0x46C00030	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	54	] = InstructionData(	54	,	"c.un.s"	,	0x11	,	0x46000031	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	55	] = InstructionData(	55	,	"c.un.s"	,	0x11	,	0x46000031	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	56	] = InstructionData(	56	,	"c.un.d"	,	0x11	,	0x46200031	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	57	] = InstructionData(	57	,	"c.un.d"	,	0x11	,	0x46200031	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	58	] = InstructionData(	58	,	"c.un.ps"	,	0x11	,	0x46C00031	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	59	] = InstructionData(	59	,	"c.un.ps"	,	0x11	,	0x46C00031	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	60	] = InstructionData(	60	,	"c.eq.s"	,	0x11	,	0x46000032	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	61	] = InstructionData(	61	,	"c.eq.s"	,	0x11	,	0x46000032	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	62	] = InstructionData(	62	,	"c.eq.d"	,	0x11	,	0x46200032	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	63	] = InstructionData(	63	,	"c.eq.d"	,	0x11	,	0x46200032	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	64	] = InstructionData(	64	,	"c.eq.ps"	,	0x11	,	0x46C00032	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	65	] = InstructionData(	65	,	"c.eq.ps"	,	0x11	,	0x46C00032	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	66	] = InstructionData(	66	,	"c.ueq.s"	,	0x11	,	0x46000033	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	67	] = InstructionData(	67	,	"c.ueq.s"	,	0x11	,	0x46000033	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	68	] = InstructionData(	68	,	"c.ueq.d"	,	0x11	,	0x46200033	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	69	] = InstructionData(	69	,	"c.ueq.d"	,	0x11	,	0x46200033	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	70	] = InstructionData(	70	,	"c.ueq.ps"	,	0x11	,	0x46C00033	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	71	] = InstructionData(	71	,	"c.ueq.ps"	,	0x11	,	0x46C00033	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	72	] = InstructionData(	72	,	"c.olt.s"	,	0x11	,	0x46000034	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	73	] = InstructionData(	73	,	"c.olt.s"	,	0x11	,	0x46000034	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	74	] = InstructionData(	74	,	"c.olt.d"	,	0x11	,	0x46200034	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	75	] = InstructionData(	75	,	"c.olt.d"	,	0x11	,	0x46200034	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	76	] = InstructionData(	76	,	"c.olt.ps"	,	0x11	,	0x46C00034	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	77	] = InstructionData(	77	,	"c.olt.ps"	,	0x11	,	0x46C00034	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	78	] = InstructionData(	78	,	"c.ult.s"	,	0x11	,	0x46000035	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	79	] = InstructionData(	79	,	"c.ult.s"	,	0x11	,	0x46000035	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	80	] = InstructionData(	80	,	"c.ult.d"	,	0x11	,	0x46200035	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	81	] = InstructionData(	81	,	"c.ult.d"	,	0x11	,	0x46200035	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	82	] = InstructionData(	82	,	"c.ult.ps"	,	0x11	,	0x46C00035	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	83	] = InstructionData(	83	,	"c.ult.ps"	,	0x11	,	0x46C00035	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	84	] = InstructionData(	84	,	"c.ole.s"	,	0x11	,	0x46000036	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	85	] = InstructionData(	85	,	"c.ole.s"	,	0x11	,	0x46000036	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	86	] = InstructionData(	86	,	"c.ole.d"	,	0x11	,	0x46200036	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	87	] = InstructionData(	87	,	"c.ole.d"	,	0x11	,	0x46200036	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	88	] = InstructionData(	88	,	"c.ole.ps"	,	0x11	,	0x46C00036	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	89	] = InstructionData(	89	,	"c.ole.ps"	,	0x11	,	0x46C00036	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	90	] = InstructionData(	90	,	"c.ule.s"	,	0x11	,	0x46000037	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	91	] = InstructionData(	91	,	"c.ule.s"	,	0x11	,	0x46000037	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	92	] = InstructionData(	92	,	"c.ule.d"	,	0x11	,	0x46200037	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	93	] = InstructionData(	93	,	"c.ule.d"	,	0x11	,	0x46200037	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	94	] = InstructionData(	94	,	"c.ule.ps"	,	0x11	,	0x46C00037	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	95	] = InstructionData(	95	,	"c.ule.ps"	,	0x11	,	0x46C00037	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	96	] = InstructionData(	96	,	"c.sf.s"	,	0x11	,	0x46000038	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	97	] = InstructionData(	97	,	"c.sf.s"	,	0x11	,	0x46000038	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	98	] = InstructionData(	98	,	"c.sf.d"	,	0x11	,	0x46200038	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	99	] = InstructionData(	99	,	"c.sf.d"	,	0x11	,	0x46200038	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	100	] = InstructionData(	100	,	"c.sf.ps"	,	0x11	,	0x46C00038	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	101	] = InstructionData(	101	,	"c.sf.ps"	,	0x11	,	0x46C00038	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	102	] = InstructionData(	102	,	"c.ngle.s"	,	0x11	,	0x46000039	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	103	] = InstructionData(	103	,	"c.ngle.s"	,	0x11	,	0x46000039	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	104	] = InstructionData(	104	,	"c.ngle.d"	,	0x11	,	0x46200039	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	105	] = InstructionData(	105	,	"c.ngle.d"	,	0x11	,	0x46200039	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	106	] = InstructionData(	106	,	"c.ngle.ps"	,	0x11	,	0x46C00039	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	107	] = InstructionData(	107	,	"c.ngle.ps"	,	0x11	,	0x46C00039	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	108	] = InstructionData(	108	,	"c.seq.s"	,	0x11	,	0x4600003A	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	109	] = InstructionData(	109	,	"c.seq.s"	,	0x11	,	0x4600003A	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	110	] = InstructionData(	110	,	"c.seq.d"	,	0x11	,	0x4620003A	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	111	] = InstructionData(	111	,	"c.seq.d"	,	0x11	,	0x4620003A	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	112	] = InstructionData(	112	,	"c.seq.ps"	,	0x11	,	0x46C0003A	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	113	] = InstructionData(	113	,	"c.seq.ps"	,	0x11	,	0x46C0003A	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	114	] = InstructionData(	114	,	"c.ngl.s"	,	0x11	,	0x4600003B	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	115	] = InstructionData(	115	,	"c.ngl.s"	,	0x11	,	0x4600003B	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	116	] = InstructionData(	116	,	"c.ngl.d"	,	0x11	,	0x4620003B	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	117	] = InstructionData(	117	,	"c.ngl.d"	,	0x11	,	0x4620003B	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	118	] = InstructionData(	118	,	"c.ngl.ps"	,	0x11	,	0x46C0003B	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	119	] = InstructionData(	119	,	"c.ngl.ps"	,	0x11	,	0x46C0003B	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	120	] = InstructionData(	120	,	"c.lt.s"	,	0x11	,	0x4600003C	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	121	] = InstructionData(	121	,	"c.lt.s"	,	0x11	,	0x4600003C	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	122	] = InstructionData(	122	,	"c.lt.d"	,	0x11	,	0x4620003C	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	123	] = InstructionData(	123	,	"c.lt.d"	,	0x11	,	0x4620003C	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	124	] = InstructionData(	124	,	"c.lt.ps"	,	0x11	,	0x46C0003C	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	125	] = InstructionData(	125	,	"c.lt.ps"	,	0x11	,	0x46C0003C	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	126	] = InstructionData(	126	,	"c.nge.s"	,	0x11	,	0x4600003D	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	127	] = InstructionData(	127	,	"c.nge.s"	,	0x11	,	0x4600003D	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	128	] = InstructionData(	128	,	"c.nge.d"	,	0x11	,	0x4620003D	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	129	] = InstructionData(	129	,	"c.nge.d"	,	0x11	,	0x4620003D	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	130	] = InstructionData(	130	,	"c.nge.ps"	,	0x11	,	0x46C0003D	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	131	] = InstructionData(	131	,	"c.nge.ps"	,	0x11	,	0x46C0003D	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	132	] = InstructionData(	132	,	"c.le.s"	,	0x11	,	0x4600003E	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	133	] = InstructionData(	133	,	"c.le.s"	,	0x11	,	0x4600003E	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	134	] = InstructionData(	134	,	"c.le.d"	,	0x11	,	0x4620003E	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	135	] = InstructionData(	135	,	"c.le.d"	,	0x11	,	0x4620003E	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	136	] = InstructionData(	136	,	"c.le.ps"	,	0x11	,	0x46C0003E	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	137	] = InstructionData(	137	,	"c.le.ps"	,	0x11	,	0x46C0003E	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	138	] = InstructionData(	138	,	"c.ngt.s"	,	0x11	,	0x4600003F	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	139	] = InstructionData(	139	,	"c.ngt.s"	,	0x11	,	0x4600003F	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	140	] = InstructionData(	140	,	"c.ngt.d"	,	0x11	,	0x4620003F	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	141	] = InstructionData(	141	,	"c.ngt.d"	,	0x11	,	0x4620003F	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	142	] = InstructionData(	142	,	"c.ngt.ps"	,	0x11	,	0x46C0003F	,	0xFFE007FF	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	143	] = InstructionData(	143	,	"c.ngt.ps"	,	0x11	,	0x46C0003F	,	0xFFE000FF	,	'+'	,	false	,	10	,	8	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	144	] = InstructionData(	144	,	"cache"	,	0x2F	,	0xBC000000	,	0xFC000000	,	'+'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	145	] = InstructionData(	145	,	"cachee"	,	0x1F	,	0x7C00001B	,	0xFC00007F	,	'+'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	146	] = InstructionData(	146	,	"ceil.l.s"	,	0x11	,	0x4600000A	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	147	] = InstructionData(	147	,	"ceil.l.d"	,	0x11	,	0x4620000A	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	148	] = InstructionData(	148	,	"ceil.w.s"	,	0x11	,	0x4600000E	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	149	] = InstructionData(	149	,	"ceil.w.d"	,	0x11	,	0x4620000E	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	150	] = InstructionData(	150	,	"cfc1"	,	0x11	,	0x44400000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	151	] = InstructionData(	151	,	"cfc2"	,	0x12	,	0x48400000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	152	] = InstructionData(	152	,	"clo"	,	0x1C	,	0x70000021	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	false	,	true	,	false	);	
+	bank[	153	] = InstructionData(	153	,	"clz"	,	0x1C	,	0x70000020	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	false	,	true	,	false	);	
+	bank[	154	] = InstructionData(	154	,	"cop2"	,	0x12	,	0x4A000000	,	0xFE000000	,	'+'	,	false	,	24	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	155	] = InstructionData(	155	,	"ctc1"	,	0x11	,	0x44C00000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	156	] = InstructionData(	156	,	"ctc2"	,	0x12	,	0x48C00000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	157	] = InstructionData(	157	,	"cvt.d.s"	,	0x11	,	0x46000021	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	158	] = InstructionData(	158	,	"cvt.d.w"	,	0x11	,	0x46800021	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	159	] = InstructionData(	159	,	"cvt.d.l"	,	0x11	,	0x46A00021	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	160	] = InstructionData(	160	,	"cvt.l.s"	,	0x11	,	0x46000025	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	161	] = InstructionData(	161	,	"cvt.l.d"	,	0x11	,	0x46200025	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	162	] = InstructionData(	162	,	"cvt.ps.s"	,	0x11	,	0x46000026	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	163	] = InstructionData(	163	,	"cvt.s.d"	,	0x11	,	0x46200020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	164	] = InstructionData(	164	,	"cvt.s.w"	,	0x11	,	0x46800020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	165	] = InstructionData(	165	,	"cvt.s.l"	,	0x11	,	0x46A00020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	166	] = InstructionData(	166	,	"cvt.s.pl"	,	0x11	,	0x46C00028	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	167	] = InstructionData(	167	,	"cvt.s.pl"	,	0x11	,	0x46C00020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	168	] = InstructionData(	168	,	"cvt.w.s"	,	0x11	,	0x46000024	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	169	] = InstructionData(	169	,	"cvt.w.d"	,	0x11	,	0x46200024	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	170	] = InstructionData(	170	,	"deret"	,	0x10	,	0x4200001F	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	171	] = InstructionData(	171	,	"di"	,	0x10	,	0x41606000	,	0xFFE0FFFF	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	172	] = InstructionData(	172	,	"div"	,	0x00	,	0x0000001A	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	173	] = InstructionData(	173	,	"div.s"	,	0x11	,	0x46000003	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	174	] = InstructionData(	174	,	"div.d"	,	0x11	,	0x46200003	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	175	] = InstructionData(	175	,	"divu"	,	0x00	,	0x0000001B	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	176	] = InstructionData(	176	,	"ehb"	,	0x00	,	0x000000C0	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	177	] = InstructionData(	177	,	"ei"	,	0x10	,	0x41606020	,	0xFFE0FFFF	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	178	] = InstructionData(	178	,	"eret"	,	0x10	,	0x42000018	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	179	] = InstructionData(	179	,	"ext"	,	0x1F	,	0x7C000000	,	0xFC00003F	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	10	,	6	,	'+'	,	false	,	15	,	11	,	false	,	false	,	false	);	
+	bank[	180	] = InstructionData(	180	,	"floor.l.s"	,	0x11	,	0x4600000B	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	181	] = InstructionData(	181	,	"floor.l.d"	,	0x11	,	0x4620000B	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	182	] = InstructionData(	182	,	"floor.w.s"	,	0x11	,	0x4600000F	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	183	] = InstructionData(	183	,	"floor.w.d"	,	0x11	,	0x4620000B	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	184	] = InstructionData(	184	,	"ins"	,	0x1F	,	0x7C000004	,	0xFC00003F	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	10	,	6	,	'+'	,	false	,	15	,	11	,	false	,	false	,	false	);	
+	bank[	185	] = InstructionData(	185	,	"j"	,	0x02	,	0x08000000	,	0xFC000000	,	'+'	,	false	,	25	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	186	] = InstructionData(	186	,	"jal"	,	0x03	,	0x0C000000	,	0xFC000000	,	'+'	,	false	,	25	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	187	] = InstructionData(	187	,	"jalr"	,	0x00	,	0x0000F809	,	0xFC1FF83F	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	188	] = InstructionData(	188	,	"jalr"	,	0x00	,	0x00000009	,	0xFC1F003F	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	189	] = InstructionData(	189	,	"jalr.hb"	,	0x00	,	0x0000FC09	,	0xFC1FFC3F	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	190	] = InstructionData(	190	,	"jalr.hb"	,	0x00	,	0x00000409	,	0xFC1F043F	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	191	] = InstructionData(	191	,	"jalx"	,	0x1D	,	0x74000000	,	0xFC000000	,	'+'	,	false	,	25	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	192	] = InstructionData(	192	,	"jr"	,	0x00	,	0x00000008	,	0xFC1FF83F	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	193	] = InstructionData(	193	,	"jr.hb"	,	0x00	,	0x00000408	,	0xFC1FFC3F	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	);	
+	bank[	194	] = InstructionData(	194	,	"lb"	,	0x20	,	0x80000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	195	] = InstructionData(	195	,	"lbe"	,	0x1F	,	0x7C00002C	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	196	] = InstructionData(	196	,	"lbu"	,	0x24	,	0x90000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	197	] = InstructionData(	197	,	"lbue"	,	0x1F	,	0x7C000028	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	198	] = InstructionData(	198	,	"ldc1"	,	0x35	,	0xD4000000	,	0xFC000000	,	'f'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'f'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	199	] = InstructionData(	199	,	"ldc2"	,	0x36	,	0xD8000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	200	] = InstructionData(	200	,	"ldxc1"	,	0x13	,	0x4C000001	,	0xFC00F83F	,	'f'	,	false	,	10	,	6	,	'g'	,	false	,	20	,	16	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	201	] = InstructionData(	201	,	"lh"	,	0x21	,	0x84000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	202	] = InstructionData(	202	,	"lhe"	,	0x1F	,	0x7C00002D	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	203	] = InstructionData(	203	,	"lhu"	,	0x25	,	0x94000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	204	] = InstructionData(	204	,	"lhue"	,	0x1F	,	0x7C000029	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	205	] = InstructionData(	205	,	"ll"	,	0x30	,	0xC0000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	206	] = InstructionData(	206	,	"lle"	,	0x1F	,	0x7C00002E	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	207	] = InstructionData(	207	,	"lui"	,	0x0F	,	0x3C000000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	208	] = InstructionData(	208	,	"luxc1"	,	0x13	,	0x4C000005	,	0xFC00F83F	,	'f'	,	false	,	10	,	6	,	'g'	,	false	,	20	,	16	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	209	] = InstructionData(	209	,	"lw"	,	0x23	,	0x8C000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	210	] = InstructionData(	210	,	"lwc1"	,	0x31	,	0xC4000000	,	0xFC000000	,	'f'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'f'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	211	] = InstructionData(	211	,	"lwc2"	,	0x32	,	0xC8000000	,	0xFC000000	,	'f'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'f'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	212	] = InstructionData(	212	,	"lwe"	,	0x1F	,	0x7C00002F	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	213	] = InstructionData(	213	,	"lwl"	,	0x22	,	0x88000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	214	] = InstructionData(	214	,	"lwle"	,	0x1F	,	0x7C000019	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	215	] = InstructionData(	215	,	"lwr"	,	0x26	,	0x98000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	216	] = InstructionData(	216	,	"lwre"	,	0x1F	,	0x7C00001A	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	217	] = InstructionData(	217	,	"lwxc1"	,	0x13	,	0x4C000000	,	0xFC00F83F	,	'f'	,	false	,	10	,	6	,	'g'	,	false	,	20	,	16	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	218	] = InstructionData(	218	,	"madd"	,	0x1C	,	0x70000000	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	219	] = InstructionData(	219	,	"madd.s"	,	0x13	,	0x4C000020	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	220	] = InstructionData(	220	,	"madd.d"	,	0x13	,	0x4C000021	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	221	] = InstructionData(	221	,	"madd.ps"	,	0x13	,	0x4C000026	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	222	] = InstructionData(	222	,	"maddu"	,	0x1C	,	0x70000001	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	223	] = InstructionData(	223	,	"mfc0"	,	0x10	,	0x40000000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	224	] = InstructionData(	224	,	"mfc0"	,	0x10	,	0x40000000	,	0xFFE007F8	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	15	,	11	,	'+'	,	false	,	2	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	225	] = InstructionData(	225	,	"mfc1"	,	0x11	,	0x44000000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	226	] = InstructionData(	226	,	"mfc2"	,	0x12	,	0x48000000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	227	] = InstructionData(	227	,	"mfc2"	,	0x12	,	0x48000000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'+'	,	false	,	2	,	0	,	'x'	,	false	,	-1	,	-1	,	false	,	false	,	false	);	
+	bank[	228	] = InstructionData(	228	,	"mfhc1"	,	0x11	,	0x44600000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	229	] = InstructionData(	229	,	"mfhc2"	,	0x12	,	0x48600000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	230	] = InstructionData(	230	,	"mfhc2"	,	0x12	,	0x48600000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'+'	,	false	,	2	,	0	,	'x'	,	false	,	-1	,	-1	,	false	,	false	,	false	);	
+	bank[	231	] = InstructionData(	231	,	"mfhi"	,	0x00	,	0x00000010	,	0xFFFF07FF	,	'g'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	232	] = InstructionData(	232	,	"mflo"	,	0x00	,	0x00000012	,	0xFFFF07FF	,	'g'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	233	] = InstructionData(	233	,	"mov.s"	,	0x11	,	0x46000006	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	234	] = InstructionData(	234	,	"mov.d"	,	0x11	,	0x46200006	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	235	] = InstructionData(	235	,	"mov.ps"	,	0x11	,	0x46C00006	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	236	] = InstructionData(	236	,	"movf"	,	0x00	,	0x00000001	,	0xFC0307FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	237	] = InstructionData(	237	,	"movf.s"	,	0x11	,	0x46000011	,	0xFFE3003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	238	] = InstructionData(	238	,	"movf.d"	,	0x11	,	0x46200011	,	0xFFE3003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	239	] = InstructionData(	239	,	"movf.ps"	,	0x11	,	0x46C00011	,	0xFFE3003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	240	] = InstructionData(	240	,	"movn"	,	0x00	,	0x0000000B	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	241	] = InstructionData(	241	,	"movn.s"	,	0x11	,	0x46000013	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	242	] = InstructionData(	242	,	"movn.d"	,	0x11	,	0x46200013	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	243	] = InstructionData(	243	,	"movn.ps"	,	0x11	,	0x46C00013	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	244	] = InstructionData(	244	,	"movt"	,	0x00	,	0x00010001	,	0xFC0307FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	245	] = InstructionData(	245	,	"movt.s"	,	0x11	,	0x46010011	,	0xFFE3003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	246	] = InstructionData(	246	,	"movt.d"	,	0x11	,	0x46210011	,	0xFFE3003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	247	] = InstructionData(	247	,	"movt.ps"	,	0x11	,	0x46C10011	,	0xFFE3003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'+'	,	false	,	20	,	18	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	248	] = InstructionData(	248	,	"movz"	,	0x00	,	0x0000000A	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	249	] = InstructionData(	249	,	"movz.s"	,	0x11	,	0x46000012	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	250	] = InstructionData(	250	,	"movz.d"	,	0x11	,	0x46200012	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	251	] = InstructionData(	251	,	"movz.ps"	,	0x11	,	0x46C00012	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	252	] = InstructionData(	252	,	"msub"	,	0x1C	,	0x70000004	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	253	] = InstructionData(	253	,	"msub.s"	,	0x13	,	0x4C000028	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	254	] = InstructionData(	254	,	"msub.d"	,	0x13	,	0x4C000029	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	255	] = InstructionData(	255	,	"msub.ps"	,	0x13	,	0x4C00002E	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	256	] = InstructionData(	256	,	"msubu"	,	0x1C	,	0x70000005	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	257	] = InstructionData(	257	,	"mtc0"	,	0x10	,	0x40800000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	258	] = InstructionData(	258	,	"mtc0"	,	0x10	,	0x40800000	,	0xFFE007F8	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	15	,	11	,	'+'	,	false	,	2	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	259	] = InstructionData(	259	,	"mtc1"	,	0x11	,	0x44800000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	260	] = InstructionData(	260	,	"mtc2"	,	0x12	,	0x48800000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	261	] = InstructionData(	261	,	"mtc2"	,	0x12	,	0x48800000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'+'	,	false	,	2	,	0	,	'x'	,	false	,	-1	,	-1	,	false	,	false	,	false	);	
+	bank[	262	] = InstructionData(	262	,	"mthc1"	,	0x11	,	0x44E00000	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	263	] = InstructionData(	263	,	"mthc2"	,	0x12	,	0x48E00000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	264	] = InstructionData(	264	,	"mthc2"	,	0x12	,	0x48E00000	,	0xFFE00000	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	15	,	0	,	'+'	,	false	,	2	,	0	,	'x'	,	false	,	-1	,	-1	,	false	,	false	,	false	);	
+	bank[	265	] = InstructionData(	265	,	"mthi"	,	0x00	,	0x00000011	,	0xFC1FFFFF	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	266	] = InstructionData(	266	,	"mtlo"	,	0x00	,	0x00000013	,	0xFC1FFFFF	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	267	] = InstructionData(	267	,	"mul"	,	0x1C	,	0x70000002	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	268	] = InstructionData(	268	,	"mul.s"	,	0x11	,	0x46000002	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	269	] = InstructionData(	269	,	"mul.d"	,	0x11	,	0x46200002	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	270	] = InstructionData(	270	,	"mul.ps"	,	0x11	,	0x46C00002	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	271	] = InstructionData(	271	,	"mult"	,	0x00	,	0x00000018	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	272	] = InstructionData(	272	,	"multu"	,	0x00	,	0x00000019	,	0xFC00FFFF	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	273	] = InstructionData(	273	,	"neg.s"	,	0x11	,	0x46000007	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	274	] = InstructionData(	274	,	"neg.d"	,	0x11	,	0x46200007	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	275	] = InstructionData(	275	,	"neg.ps"	,	0x11	,	0x46C00007	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	276	] = InstructionData(	276	,	"nmadd.s"	,	0x13	,	0x4C000030	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	277	] = InstructionData(	277	,	"nmadd.d"	,	0x13	,	0x4C000031	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	278	] = InstructionData(	278	,	"nmadd.ps"	,	0x13	,	0x4C000036	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	279	] = InstructionData(	279	,	"nmsub.s"	,	0x13	,	0x4C000038	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	280	] = InstructionData(	280	,	"nmsub.d"	,	0x13	,	0x4C000039	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	281	] = InstructionData(	281	,	"nmsub.ps"	,	0x13	,	0x4C00003E	,	0xFC00003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	25	,	21	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	true	,	true	,	false	);	
+	bank[	282	] = InstructionData(	282	,	"nop"	,	0x00	,	0x00000000	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	283	] = InstructionData(	283	,	"nor"	,	0x00	,	0x00000027	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	284	] = InstructionData(	284	,	"or"	,	0x00	,	0x00000025	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	285	] = InstructionData(	285	,	"ori"	,	0x0D	,	0x34000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	286	] = InstructionData(	286	,	"pause"	,	0x00	,	0x00000140	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	287	] = InstructionData(	287	,	"pll.ps"	,	0x11	,	0x46C0002C	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	288	] = InstructionData(	288	,	"plu.ps"	,	0x11	,	0x46C0002D	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	289	] = InstructionData(	289	,	"pref"	,	0x33	,	0xCC000000	,	0xFC000000	,	'+'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	290	] = InstructionData(	290	,	"prefe"	,	0x1F	,	0x7C000023	,	0xFC00007F	,	'+'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	291	] = InstructionData(	291	,	"prefx"	,	0x13	,	0x4C00000F	,	0xFC0007FF	,	'+'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	292	] = InstructionData(	292	,	"pul.ps"	,	0x11	,	0x46C0002E	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	293	] = InstructionData(	293	,	"puu.ps"	,	0x11	,	0x46C0002F	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	294	] = InstructionData(	294	,	"rdhwr"	,	0x1F	,	0x7C00003B	,	0xFFE007FF	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	295	] = InstructionData(	295	,	"rdpgpr"	,	0x10	,	0x41400000	,	0xFFE007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	296	] = InstructionData(	296	,	"recip.s"	,	0x11	,	0x46000015	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	297	] = InstructionData(	297	,	"recip.d"	,	0x11	,	0x46200015	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	298	] = InstructionData(	298	,	"rotr"	,	0x00	,	0x00200002	,	0xFFE0003F	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	10	,	6	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	299	] = InstructionData(	299	,	"rotrv"	,	0x00	,	0x00000046	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	300	] = InstructionData(	300	,	"round.l.s"	,	0x11	,	0x46000008	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	301	] = InstructionData(	301	,	"round.l.d"	,	0x11	,	0x46200008	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	302	] = InstructionData(	302	,	"round.w.s"	,	0x11	,	0x4600000C	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	303	] = InstructionData(	303	,	"round.w.d"	,	0x11	,	0x4620000C	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	304	] = InstructionData(	304	,	"rsqrt.s"	,	0x11	,	0x46000016	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	305	] = InstructionData(	305	,	"rsqrt.d"	,	0x11	,	0x46200016	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	306	] = InstructionData(	306	,	"sb"	,	0x28	,	0xA0000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	307	] = InstructionData(	307	,	"sbe"	,	0x1F	,	0x7C00001C	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	308	] = InstructionData(	308	,	"sc"	,	0x38	,	0xE0000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	309	] = InstructionData(	309	,	"sce"	,	0x1F	,	0x7C00001E	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	310	] = InstructionData(	310	,	"sdbbp"	,	0x1C	,	0x7000003F	,	0xFC00003F	,	'+'	,	false	,	25	,	6	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	311	] = InstructionData(	311	,	"sdc1"	,	0x3D	,	0xF4000000	,	0xFC000000	,	'f'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	312	] = InstructionData(	312	,	"sdc2"	,	0x3E	,	0xF8000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	313	] = InstructionData(	313	,	"sdxc1"	,	0x13	,	0x4C000009	,	0xFC0007FF	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	314	] = InstructionData(	314	,	"seb"	,	0x1F	,	0x7C000420	,	0xFFE007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	315	] = InstructionData(	315	,	"seh"	,	0x1F	,	0x7C000620	,	0xFFE007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	316	] = InstructionData(	316	,	"sh"	,	0x29	,	0xA4000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	317	] = InstructionData(	317	,	"she"	,	0x1F	,	0x7C00001D	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	318	] = InstructionData(	318	,	"sll"	,	0x00	,	0x00000000	,	0xFFE0003F	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	10	,	6	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	319	] = InstructionData(	319	,	"sllv"	,	0x00	,	0x00000004	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	320	] = InstructionData(	320	,	"slt"	,	0x00	,	0x0000002A	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	321	] = InstructionData(	321	,	"slti"	,	0x0A	,	0x28000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	322	] = InstructionData(	322	,	"sltiu"	,	0x0B	,	0x2C000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	323	] = InstructionData(	323	,	"sltu"	,	0x00	,	0x0000002B	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	324	] = InstructionData(	324	,	"sqrt.s"	,	0x11	,	0x46000004	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	325	] = InstructionData(	325	,	"sqrt.d"	,	0x11	,	0x46200004	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	326	] = InstructionData(	326	,	"sra"	,	0x00	,	0x00000003	,	0xFFE0003F	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	10	,	6	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	327	] = InstructionData(	327	,	"srav"	,	0x00	,	0x00000007	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	328	] = InstructionData(	328	,	"srl"	,	0x00	,	0x00000002	,	0xFFE0003F	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'+'	,	false	,	10	,	6	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	329	] = InstructionData(	329	,	"srlv"	,	0x00	,	0x00000006	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	330	] = InstructionData(	330	,	"ssnop"	,	0x00	,	0x00000040	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	331	] = InstructionData(	331	,	"sub"	,	0x00	,	0x00000022	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	332	] = InstructionData(	332	,	"sub.s"	,	0x11	,	0x46000001	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	333	] = InstructionData(	333	,	"sub.d"	,	0x11	,	0x46200001	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	334	] = InstructionData(	334	,	"sub.ps"	,	0x11	,	0x46C00001	,	0xFFE0003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'f'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	335	] = InstructionData(	335	,	"subu"	,	0x00	,	0x00000023	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	336	] = InstructionData(	336	,	"suxc1"	,	0x13	,	0x4C00000D	,	0xFC0007FF	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	337	] = InstructionData(	337	,	"sw"	,	0x2B	,	0xAC000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	338	] = InstructionData(	338	,	"swc1"	,	0x39	,	0xE4000000	,	0xFC000000	,	'f'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'f'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	339	] = InstructionData(	339	,	"swc2"	,	0x3A	,	0xE8000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	340	] = InstructionData(	340	,	"swe"	,	0x1F	,	0x7C00001F	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	341	] = InstructionData(	341	,	"swl"	,	0x2A	,	0xA8000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	342	] = InstructionData(	342	,	"swle"	,	0x1F	,	0x7C000021	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	343	] = InstructionData(	343	,	"swr"	,	0x2E	,	0xB8000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	344	] = InstructionData(	344	,	"swre"	,	0x1F	,	0x7C000022	,	0xFC00007F	,	'g'	,	false	,	20	,	16	,	'-'	,	false	,	15	,	7	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	345	] = InstructionData(	345	,	"swxc1"	,	0x13	,	0x4C000008	,	0xFC0007FF	,	'f'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	346	] = InstructionData(	346	,	"sync"	,	0x00	,	0x0000000F	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	347	] = InstructionData(	347	,	"sync"	,	0x00	,	0x0000000F	,	0xFFFFF83F	,	'+'	,	false	,	10	,	6	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	348	] = InstructionData(	348	,	"synci"	,	0x01	,	0x041F0000	,	0xFC1F0000	,	'-'	,	false	,	15	,	0	,	'g'	,	true	,	25	,	21	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	349	] = InstructionData(	349	,	"syscall"	,	0x00	,	0x0000000C	,	0xFC00003F	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	350	] = InstructionData(	350	,	"teq"	,	0x00	,	0x00000034	,	0xFC00003F	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	351	] = InstructionData(	351	,	"teqi"	,	0x01	,	0x040C0000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	352	] = InstructionData(	352	,	"tge"	,	0x00	,	0x00000030	,	0xFC00003F	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	353	] = InstructionData(	353	,	"tgei"	,	0x01	,	0x04080000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	354	] = InstructionData(	354	,	"tgeiu"	,	0x01	,	0x04090000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	355	] = InstructionData(	355	,	"tgeu"	,	0x00	,	0x00000031	,	0xFC00003F	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	356	] = InstructionData(	356	,	"tlbinv"	,	0x10	,	0x42000003	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	357	] = InstructionData(	357	,	"tlbinvf"	,	0x10	,	0x42000004	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	358	] = InstructionData(	358	,	"tlbp"	,	0x10	,	0x42000008	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	359	] = InstructionData(	359	,	"tlbr"	,	0x10	,	0x42000001	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	360	] = InstructionData(	360	,	"tlbwi"	,	0x10	,	0x42000002	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	361	] = InstructionData(	361	,	"tlbwr"	,	0x10	,	0x42000006	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	362	] = InstructionData(	362	,	"tlt"	,	0x00	,	0x00000032	,	0xFC00003F	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	363	] = InstructionData(	363	,	"tlti"	,	0x01	,	0x040A0000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	364	] = InstructionData(	364	,	"tltiu"	,	0x01	,	0x040B0000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'+'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	365	] = InstructionData(	365	,	"tltu"	,	0x00	,	0x00000033	,	0xFC00003F	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	366	] = InstructionData(	366	,	"tne"	,	0x00	,	0x00000036	,	0xFC00003F	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	367	] = InstructionData(	367	,	"tnei"	,	0x01	,	0x040E0000	,	0xFC1F0000	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	368	] = InstructionData(	368	,	"trunc.l.s"	,	0x11	,	0x46000009	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	369	] = InstructionData(	369	,	"trunc.l.d"	,	0x11	,	0x46200009	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	370	] = InstructionData(	370	,	"trunc.w.s"	,	0x11	,	0x4600000D	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	371	] = InstructionData(	371	,	"trunc.w.d"	,	0x11	,	0x4620000D	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	372	] = InstructionData(	372	,	"wait"	,	0x10	,	0x42000020	,	0xFE00003F	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	373	] = InstructionData(	373	,	"wrpgpr"	,	0x10	,	0x41C00000	,	0xFFE007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	374	] = InstructionData(	374	,	"wsbh"	,	0x1F	,	0x7C0000A0	,	0xFFE007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	375	] = InstructionData(	375	,	"xor"	,	0x00	,	0x00000026	,	0xFC0007FF	,	'g'	,	false	,	15	,	11	,	'g'	,	false	,	25	,	21	,	'g'	,	false	,	20	,	16	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
+	bank[	376	] = InstructionData(	376	,	"xori"	,	0x0E	,	0x38000000	,	0xFC000000	,	'g'	,	false	,	20	,	16	,	'g'	,	false	,	25	,	21	,	'-'	,	false	,	15	,	0	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	);	
 
 }
 
 InstructionDataBank::~InstructionDataBank()
 {
-	for(int i=0; i<bank.size(); i++){
-		delete bank[i];
-	}
+
 }
 
 //	Methods
-void InstructionDataBank::add(string info){
-	InstructionData* newInstr = new InstructionData(info);
-	bank.push_back(newInstr);
-}
 
-int InstructionDataBank::size(){
-	return bank.size();
-}
 
-void InstructionDataBank::loadFile(string filename){
-	ifstream instructionFile;
-	instructionFile.open(filename);
-	if (!instructionFile.is_open()){
-		cout << "int main()::ERROR: cannot open file";
-		getchar();
-	}
-	string tmpStr;
-
-	while(getline(instructionFile, tmpStr, '\n')){
-		add(tmpStr);
-	}
+int InstructionDataBank::size() const{
+	return NUMBER_OF_INSTRUCTIONS;
 }
 
 
-InstructionData* InstructionDataBank::operator[](int index){
-	return bank[index];
+InstructionData* InstructionDataBank::get(int index){
+	return &bank[index];
 }
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -172,25 +172,6 @@ string parse::twosComplement(string binStr){
 
 
 
-bool parse::parameterIsRegister(string parameter){
-	return parameterIsGPRegister(parameter) || parameterIsFPRegister(parameter);
-}
-bool parse::parameterIsGPRegister(string parameter){
-	if(parameter[0] == 'g' && parameter[1] == '$'){return true;}
-	if(parameter == "$rs"){return true;}
-	if(parameter == "$rt"){return true;}
-	if(parameter == "$rd"){return true;}
-	return false;
-}
-bool parse::parameterIsFPRegister(string parameter){
-	if(parameter[0] == 'f' && parameter[1] == '$'){return true;}
-	if(parameter == "$fmt"){return true;}
-	if(parameter == "$ft"){return true;}
-	if(parameter == "$fs"){return true;}
-	if(parameter == "$fd"){return true;}
-	return false;
-}
-
 bool parse::argumentIsRegister(string argument){
 	return argumentIsGPRegister(argument) || argumentIsFPRegister(argument);
 }
@@ -262,16 +243,6 @@ int parse::getFPRegisterIndex(string argument){
 	return -1;
 }
 
-
-bool parse::parameterIsLiteral(string parameter){
-	return parameterIsSignedLiteral(parameter) || parameterIsUnsignedLiteral(parameter);
-}
-bool parse::parameterIsSignedLiteral(string parameter){
-	return parameter[0] == '-';
-}
-bool parse::parameterIsUnsignedLiteral(string parameter){
-	return parameter[0] == '+';
-}
 
 
 bool parse::tokenIsLiteral(string argument){
@@ -359,54 +330,6 @@ int parse::getArgumentValue(string argument){
 	return 0;
 }
 
-
-bitrange parse::getParameterBitrange(string parameter){
-	if(hasParentheses(parameter)){
-		parameter = removeParentheses(parameter);
-	}
-	if(parameter[0] == '-' || parameter[0] == '+' || parameter[0] == 'f' || parameter[0] == 'g'){
-		parameter = parameter.substr(1);
-	}
-	bitrange retBitrange;
-	if(parameter[1] != '['){
-		//standard mnemonic not specific range	{$/.}%mnemonic%
-		if(parameter == "$rs" || parameter == "$fmt"){
-			retBitrange.first = 25;
-			retBitrange.second = 21;
-		}else if(parameter == "$rt" || parameter == "$ft"){
-			retBitrange.first = 20;
-			retBitrange.second = 16;
-		}else if(parameter == "$rd" || parameter == "$fs"){
-			retBitrange.first = 15;
-			retBitrange.second = 11;
-		}else if(parameter == ".shamt" || parameter == "$fd"){
-			retBitrange.first = 10;
-			retBitrange.second = 6;	
-		}else if(parameter == ".imm"){
-			retBitrange.first = 15;
-			retBitrange.second = 0;
-		}else if(parameter == ".addr"){
-			retBitrange.first = 25;
-			retBitrange.second = 0;
-		}else{
-			cout << "\n\n\n" << parameter;
-			assert(!"invalid field mnemonic - check instructions.txt");
-		}
-	}else{
-		//specific range	ex. $[20,1]
-		string inBrackets = parameter.substr(2, parameter.length()-3);
-		stringstream ss;
-		ss << inBrackets;
-	
-		string num1, num2;
-		getline(ss, num1, ',');
-		getline(ss, num2);
-		
-		retBitrange.first = atoi(num1.c_str());
-		retBitrange.second = atoi(num2.c_str());
-	}
-	return retBitrange;
-}
 
 //
 bool parse::isDecimalDigit(char c){

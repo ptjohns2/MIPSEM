@@ -31,10 +31,6 @@ class parse{
 		static string twosComplement(string binStr);
 
 
-		static bool parameterIsRegister(string parameter);
-		static bool parameterIsGPRegister(string parameter);
-		static bool parameterIsFPRegister(string parameter);
-
 		static bool argumentIsRegister(string argument);
 		static bool argumentIsGPRegister(string argument);
 		static bool argumentIsFPRegister(string argument);
@@ -48,10 +44,6 @@ class parse{
 		static int getFPRegisterIndex(string parameter);
 
 
-		static bool parameterIsLiteral(string parameter);
-		static bool parameterIsSignedLiteral(string parameter);
-		static bool parameterIsUnsignedLiteral(string parameter);
-
 		static bool tokenIsLiteral(string argument);
 		static bool tokenIsDecimalLiteral(string argument);
 		static bool tokenIsHexLiteral(string argument);
@@ -63,8 +55,7 @@ class parse{
 		static int getBinaryLiteralValue(string argument);
 
 		static int getArgumentValue(string argument);
-		static bitrange getParameterBitrange(string parameter);
-
+		
 
 		static bool isDecimalDigit(char);
 		static bool isHexDigit(char);

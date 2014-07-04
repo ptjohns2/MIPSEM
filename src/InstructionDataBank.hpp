@@ -4,6 +4,7 @@
 
 #include "InstructionData.hpp"
 
+
 using namespace std;
 
 class InstructionDataBank{
@@ -12,17 +13,14 @@ class InstructionDataBank{
 		//	Constructors
 		InstructionDataBank();
 		~InstructionDataBank();
-		void add(string);
-		int size();
-		void loadFile(string);
+		int size() const;
 
-		InstructionData* operator[](int index);
-
-		//Members
-		vector<InstructionData*> bank;
+		InstructionData* get(int);
 
 
 	private:
+		//Members
+		InstructionData bank[NUMBER_OF_INSTRUCTIONS];
 
 };
 

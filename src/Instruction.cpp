@@ -5,7 +5,7 @@ Instruction::Instruction(){
 	asmString = "";
 	binString = "";
 	bin = 0x0;
-	for(int i=0; i<NUMBER_OF_ARGUMENTS; i++){
+	for(int i=0; i<NUMBER_OF_PARAMETERS; i++){
 		arguments[i] = 0x0;
 	}
 }
@@ -15,7 +15,7 @@ Instruction::Instruction(InstructionData* instructionData, string asmString, str
 	for(int i=0; i<arguments.size(); i++){
 		this->arguments[i] = arguments[i];
 	}
-	for(int i=arguments.size(); i<NUMBER_OF_ARGUMENTS; i++){
+	for(int i=arguments.size(); i<NUMBER_OF_PARAMETERS; i++){
 		this->arguments[i] = 0x0;
 	}
 }

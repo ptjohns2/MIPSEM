@@ -8,7 +8,10 @@
 
 using namespace std;
 
-
+struct InstructionExecutableData{
+	int instructionID;
+	uint32_t args[NUMBER_OF_PARAMETERS];
+};
 
 class Instruction{
 	public:
@@ -29,8 +32,9 @@ class Instruction{
 		string asmString;
 		string binString;
 		instr bin;
-		uint32_t arguments[NUMBER_OF_ARGUMENTS];
+		uint32_t arguments[NUMBER_OF_PARAMETERS];
 		
+		InstructionExecutableData executableData;
 
 	private:
 

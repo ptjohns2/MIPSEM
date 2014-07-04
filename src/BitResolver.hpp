@@ -22,23 +22,21 @@ class BitResolver{
 		//Methods
 		void addInstructionData(InstructionData* id);
 		void addInstructionDataBank(InstructionDataBank* bank);
-		InstructionData* getInstructionData(string i);
 		InstructionData* getInstructionData(instr i);
 		
 
 	private:
 		//Methods
-		static InstructionData* getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, string i);
+		static InstructionData* getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, instr i);
 		static void addInstructionToBinarySearchTree(BRInstructionDataNode* &head, BRInstructionDataNode* newNode);
 		
-		static bool lessThan(string lhs, string rhs);
-		static bool equalTo(string lhs, string rhs);
-		static bool greaterThan(string lhs, string rhs);
+		static bool lessThan(instr lhs, instr rhs);
+		static bool equalTo(instr lhs, instr rhs);
+		static bool greaterThan(instr lhs, instr rhs);
 
-		static bool binStrIsMatch(InstructionData* id, string bitStr);
+		static bool instrIsMatch(InstructionData* id, instr i);
 
-		static int compareInstructionData(string lhs, string rhs);
-		static int compareBits(char lhs, char rhs);
+		static int compareInstructionData(instr lhs, instr rhs);
 		
 		static void deleteBinarySearchTree(BRInstructionDataNode* head);
 

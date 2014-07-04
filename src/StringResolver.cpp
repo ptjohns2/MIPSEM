@@ -21,7 +21,7 @@ StringResolver::~StringResolver()
 
 void StringResolver::addInstructionDataBank(InstructionDataBank* bank){
 	for(int i=0; i<bank->size(); i++){
-		addInstructionData(bank->bank[i]);
+		addInstructionData(bank->get(i));
 	}
 }
 
@@ -39,13 +39,13 @@ InstructionData* StringResolver::getInstructionData(string instructionString){
 
 //	private Methods
 void StringResolver::addInstructionData(InstructionData* id){
-	int bin = hash(getHashableStringFromParameterTokens(id->getName(), id->getParameters()));
+	int bin = hash(getHashableStringFromInstructionData(id));
 	table[bin].push_back(id);
 }
 
 bool StringResolver::instructionStrIsMatch(InstructionData* id, string rightInstrStr){
 	string hashRHS = StringResolver::getHashableStringFromInstructionString(rightInstrStr);
-	string hashID = StringResolver::getHashableStringFromParameterTokens(id->getName(), id->getParameters());
+	string hashID = StringResolver::getHashableStringFromInstructionData(id);
 	return (hashRHS == hashID);
 }
 
@@ -96,33 +96,24 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 	return tmpHashable;
 }
 
-string StringResolver::getHashableStringFromParameterTokens(string name, vector<string> arguments){
+string StringResolver::getHashableStringFromInstructionData(InstructionData* id){
 	stringstream ss;
-	ss << name << ":";
+	ss << id->getName() << ":";
 
-	for(unsigned int i=0; i<arguments.size(); i++){
-		string tmpArg = arguments[i];
-		if(tmpArg != "_"){
-			string tmpTokStr;
-			bool hasParentheses = parse::hasParentheses(tmpArg);
-			if(hasParentheses){
-				tmpArg = parse::removeParentheses(tmpArg);
-			}
-			if(parse::parameterIsGPRegister(tmpArg)){
-				tmpTokStr = "g$";
-			}else if(parse::parameterIsFPRegister(tmpArg)){
-				tmpTokStr = "f$";
-			}else if(parse::parameterIsLiteral(tmpArg)){
-				tmpTokStr = ".";
-			}else{
-				cout << "invalid token " << tmpArg;
-				getchar();
-			}
-			if(hasParentheses){
-				tmpTokStr = "(" + tmpTokStr + ")";
-			}
-			ss << tmpTokStr;
+	for(unsigned int i=0; i<id->getNumParameters(); i++){
+		string tmpTokStr;
+		if(id->parameterIsGPRegister(i)){
+			tmpTokStr = "g$";
+		}else if(id->parameterIsFPRegister(i)){
+			tmpTokStr = "f$";
+		}else if(id->parameterIsLiteral(i)){
+			tmpTokStr = ".";
 		}
+
+		if(id->paramHasParenthises(i)){
+			tmpTokStr = "(" + tmpTokStr + ")";
+		}
+		ss << tmpTokStr;
 	}
 
 	string tmpHashable = ss.str();
