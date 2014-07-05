@@ -12,21 +12,21 @@ class Decoder{
 		~Decoder();
 		
 		//Methods
-		Instruction buildInstruction(instr i);
-		Instruction buildInstruction(string binStr);
+		Instruction buildInstruction(instr ins);
 		
-		static string extractBitrange(string value, bitrange range);
-		static string extractBitrange(string value, unsigned int start, unsigned int end);
+		static int32_t extractBitrangeUnsigned(instr value, unsigned int start, unsigned int end);
+		static int32_t extractBitrangeUnsigned(instr value, bitrange range);
+		static int32_t extractBitrangeSigned(instr value, unsigned int start, unsigned int end);
+		static int32_t extractBitrangeSigned(instr value, bitrange range);
+		
+		static string decodeArgumentToMnemonic(instr ins, InstructionData* id, int parameterNumber);
+		static int32_t decodeArgumentToValue(instr ins, InstructionData* id, int parameterNumber);
+		
+		static string decodeInstruction(InstructionData* id, instr ins);
+		static string decodeAbnormalInstruction(InstructionData* id, instr ins, int32_t argumentValues[NUMBER_OF_PARAMETERS]);
 
-		static int decodeArgumentToValue(string binStr, string parameter);
-		static string decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int> &argumentValues);
 
-	private:
-		//Methods
-		static string decodeArgumentToMnemonic(string binStr, string parameter);
-		static string decodeInstruction(string binStr, string name, vector<string> parameters);
-
-		//Members
+	private:		
 		BitResolver resolver;
 
 

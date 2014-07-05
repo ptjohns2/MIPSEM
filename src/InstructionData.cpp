@@ -34,15 +34,15 @@ InstructionData::InstructionData(int id, string name, int opcode, instr face, in
 	this->parameterTypes[2] = at3;
 	this->parameterTypes[3] = at4;
 	
-	this->parameterStartBits[0] = asb1;
-	this->parameterStartBits[1] = asb2;
-	this->parameterStartBits[2] = asb3;
-	this->parameterStartBits[3] = asb4;
+	this->parameterBitranges[0].first = asb1;
+	this->parameterBitranges[1].first = asb2;
+	this->parameterBitranges[2].first = asb3;
+	this->parameterBitranges[3].first = asb4;
 	
-	this->parameterEndBits[0] = aeb1;
-	this->parameterEndBits[1] = aeb2;
-	this->parameterEndBits[2] = aeb3;
-	this->parameterEndBits[3] = aeb4;
+	this->parameterBitranges[0].second = aeb1;
+	this->parameterBitranges[1].second = aeb2;
+	this->parameterBitranges[2].second = aeb3;
+	this->parameterBitranges[3].second = aeb4;
 
 	this->normalEncoding = normalEncoding;
 	this->normalDecoding = normalDecoding;
@@ -66,6 +66,8 @@ InstructionData::~InstructionData()
 int InstructionData::getID()const{return id;}
 string InstructionData::getName()const{return name;}
 int InstructionData::getOpcode()const{return opcode;}
+instr InstructionData::getFace()const{return face;}
+instr InstructionData::getMask()const{return face;}
 
 char InstructionData::getParameterType(int i)const{return parameterTypes[i];}
 
@@ -88,8 +90,8 @@ bool InstructionData::parameterIsGPRegister(int i) const{
 bool InstructionData::parameterIsFPRegister(int i) const{
 	return parameterTypes[i] == TOKEN_FP_REGISTER;
 }
-int InstructionData::getParameterStartBit(int i)const{return parameterStartBits[i];}
-int InstructionData::getParameterEndBit(int i)const{return parameterEndBits[i];}
+bool InstructionData::paramHasParenthises(int i)const{return parameterParenthises[i];}
+bitrange InstructionData::getParameterBitrange(int i)const{return parameterBitranges[i];}
 int InstructionData::getNumParameters()const{return numParameters;}
 
 bool InstructionData::isEncodedNormally()const{return normalEncoding;}

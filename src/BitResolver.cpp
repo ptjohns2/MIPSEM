@@ -38,24 +38,25 @@ void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
 }
 
 
-InstructionData* BitResolver::getInstructionData(instr i){
-	int opcode = i >> (INSTRUCTIONSIZE - OPCODESIZE);
+InstructionData* BitResolver::getInstructionData(instr ins){
+	int opcode = ins >> (INSTRUCTIONSIZE - OPCODESIZE);
 	BRInstructionDataNode* binPtr = table[opcode];
-	InstructionData* retPtr = getInstructionDataFromBinarySearchTree(binPtr, i);
+	InstructionData* retPtr = getInstructionDataFromBinarySearchTree(binPtr, ins);
 	return retPtr;
 }
 
 
 //	private Methods
-InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, instr i){
+InstructionData* BitResolver::getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, instr ins){
 	if(head != NULL){
-		if(instrIsMatch(head->val, i)){
+		if(instrIsMatch(head->val, ins)){
 			return head->val;
 		}else{
-			if(lessThan(i, head->val->getFace())){
-				return getInstructionDataFromBinarySearchTree(head->right, i);
+			instr maskedInstr = ins & head->val->getMask();
+			if(lessThan(head->val->getFace(), maskedInstr)){
+				return getInstructionDataFromBinarySearchTree(head->right, ins);
 			}else{
-				return getInstructionDataFromBinarySearchTree(head->left, i);
+				return getInstructionDataFromBinarySearchTree(head->left, ins);
 			}
 		}
 	}else{
@@ -70,7 +71,8 @@ void BitResolver::addInstructionToBinarySearchTree(BRInstructionDataNode* &head,
 		return;
 	}else{
 		//recursive case
-		if(lessThan(head->val->getFace(), newNode->val->getFace())){
+		instr maskedInstr = newNode->val->getFace() & head->val->getMask();
+		if(lessThan(head->val->getFace(), maskedInstr)){
 			addInstructionToBinarySearchTree(head->right, newNode);
 			return;
 		}else{
@@ -92,14 +94,15 @@ bool BitResolver::greaterThan(instr lhs, instr rhs){
 }
 
 
-bool BitResolver::instrIsMatch(InstructionData* id, instr i){
-	instr maskedInstr = i & id->getMask();
+bool BitResolver::instrIsMatch(InstructionData* id, instr ins){
+	instr maskedInstr = ins & id->getMask();
 	return id->getFace() == maskedInstr;
 }
 
 
 int BitResolver::compareInstructionData(instr lhs, instr rhs){
 	return (lhs == rhs)? 0 : (	(lhs < rhs)? -1 : 1	);
+	//return lhs - rhs;
 }
 
 

@@ -29,9 +29,8 @@ int main(){
 	srand((unsigned int)time(NULL));
 	
 	InstructionDataBank bank = InstructionDataBank();
-	bank.loadFile("instructions.txt");
-	Encoder e = Encoder(&bank);
 	Decoder d = Decoder(&bank);
+	Encoder e = Encoder(&bank, &d);
 	BitResolver br = BitResolver(&bank);
 	StringResolver sr = StringResolver(&bank);
 	CPU cpu = CPU();

@@ -34,8 +34,7 @@ class InstructionData{
 		
 		bool paramHasParenthises(int) const;
 
-		int getParameterStartBit(int) const;
-		int getParameterEndBit(int) const;
+		bitrange getParameterBitrange(int) const;
 		
 		int getNumParameters() const;
 
@@ -54,8 +53,7 @@ class InstructionData{
 
 		char parameterTypes[NUMBER_OF_PARAMETERS];
 		bool parameterParenthises[NUMBER_OF_PARAMETERS];
-		int parameterStartBits[NUMBER_OF_PARAMETERS];
-		int parameterEndBits[NUMBER_OF_PARAMETERS];
+		bitrange parameterBitranges[NUMBER_OF_PARAMETERS];
 		int numParameters;
 
 		bool normalEncoding;

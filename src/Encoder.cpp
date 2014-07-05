@@ -9,7 +9,9 @@
 #include <tuple>
 
 //	Constructors
-Encoder::Encoder(InstructionDataBank* bank) : resolver(bank) {}
+Encoder::Encoder(InstructionDataBank* bank, Decoder* decoder) : resolver(bank){
+	this->decoder = decoder;	
+}
 
 Encoder::~Encoder(){}
 
@@ -22,38 +24,26 @@ Instruction Encoder::buildInstruction(string asmString){
 		return jnk;
 	}
 
-	string binString = id->getFull();
-
-	vector<int> argumentValues;
-
-	vector<string> parameters = id->getParameters();
 	vector<string> arguments = parse::tokenizeInstruction(asmString);
 	arguments.erase(arguments.begin());
 
+	instr bin;
 	if(id->isEncodedNormally()){
-		binString = encodeInstruction(binString, parameters, arguments);
+		bin = encodeInstruction(id, arguments);
 	}else{
-		binString = encodeAbnormalInstruction(binString, parameters, arguments, id->getInstructionID());
+		bin = encodeAbnormalInstruction(id, arguments);
 	}
 
-	for(int i=0; i<binString.length(); i++){
-		if(!parse::isBinaryDigit(binString[i])){
-			binString[i] = DONTCAREREPLACEMENT;
-		}
-	}
-	
-	int numArgs = 0;
-	for(int i=0; i<parameters.size(); i++){
-		if(parameters[i] != "_"){numArgs++;}
-	}
-
+	return decoder->buildInstruction(bin);
+	/*
+	int32_t argumentValues[NUMBER_OF_PARAMETERS];
 	//get argument values
 	if(id->isDecodedNormally()){
 		//get argument values
-		for(int i=0; i<numArgs; i++){
-			bitrange br = parse::getParameterBitrange(parameters[i]);
-			uint32_t argVal = parse::binStrToUnsignedDecInt(Decoder::extractBitrange(binString, br));
-			argumentValues.push_back(argVal);
+		for(int i=0; i<id->getNumParameters(); i++){
+			bitrange br = id->getParameterBitrange(i);
+			int32_t argVal = Decoder::decodeArgumentToValue(bin, id, i);
+			argumentValues[i] = argVal;
 		}
 	}else{
 		//decode abnormal instr
@@ -62,93 +52,101 @@ Instruction Encoder::buildInstruction(string asmString){
 	}
 	
 
-	instr bin = parse::binStrToUnsignedDecInt(binString);
 	Instruction instruction = Instruction(id, asmString, binString, bin, argumentValues);
 	return instruction;
+	*/
 }
 
-string Encoder::setBitrange(string instruction, string value, bitrange range){
-	return setBitrange(instruction, value, range.first, range.second);
+instr Encoder::setBitrange(instr bin, uint32_t value, unsigned int start, unsigned int end){
+	//extract clean value (right #bits) from value
+	uint32_t cleanValue = Decoder::extractBitrangeUnsigned(value, start - end, 0);
+	//shift cleanValue to position
+	cleanValue = cleanValue << end;
+
+	//generate positive mask "start" bits long
+	instr mask = (1 << (start - end + 1)) - 1;
+	//shift mask to position
+	mask = mask << end;
+	//flip mask
+	mask = ~mask;
+
+	//clear bits under mask on instruction
+	instr newInstr = bin & mask;
+	//set cleanValue as cleared bits of newInstr
+	newInstr = newInstr & cleanValue;
+
+	return newInstr;
 }
-string Encoder::setBitrange(string instruction, string value, unsigned int start, unsigned int end){
-	assert(instruction.length() == INSTRUCTIONSIZE);
-	
-	int segmentSize = start - end + 1;
-	assert(segmentSize <= value.length());
-
-	int instructionStart = instruction.length() - start - 1;
-	int valueStart = value.length() - segmentSize;
-
-	for(int i=0; i<segmentSize; i++){
-		instruction[instructionStart + i] = value[valueStart + i];
-	}
-
-	return instruction;
+instr Encoder::setBitrange(instr bin, uint32_t value, bitrange br){
+	return setBitrange(bin, value, br.first, br.second);
 }
-
 
 //	private Methods
-string Encoder::encodeArgument(string binString, string parameter, string argument){
-	bitrange br = parse::getParameterBitrange(parameter);
-	int parameterValue = parse::getArgumentValue(argument);
-	string parameterBinStr = parse::decIntToBinStr(parameterValue);
-	binString = setBitrange(binString, parameterBinStr, br);
-	return binString;
+instr Encoder::encodeArgument(instr bin, string argument, bitrange br){
+	int32_t parameterValue = parse::getArgumentValue(argument);
+	instr encodedInstr = setBitrange(bin, parameterValue, br);
+	return encodedInstr;
 }
 
-string Encoder::encodeInstruction(string binString, vector<string> parameters, vector<string> arguments){
-	string newInstruction = binString;
+instr Encoder::encodeInstruction(InstructionData* id, vector<string> arguments){
+	instr newInstruction = id->getFace();
 	for(int i=0; i<arguments.size(); i++){
-		newInstruction = encodeArgument(newInstruction, parameters[i], arguments[i]);
+		newInstruction = encodeArgument(newInstruction, arguments[i], id->getParameterBitrange(i));
 	}
 	return newInstruction;
 }
 
-string Encoder::encodeAbnormalInstruction(string binString, vector<string> parameters, vector<string> arguments, int id){
-	string newInstruction = binString;
-	switch(id){
+instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arguments){
+	instr newInstruction = id->getFace();
+	switch(id->getID()){
 		case 152:
 			{
 			//CLO rd, rs
-			newInstruction = encodeArgument(newInstruction, parameters[0], arguments[0]);
-			newInstruction = encodeArgument(newInstruction, "$rt", arguments[0]);
-			newInstruction = encodeArgument(newInstruction, parameters[1], arguments[1]);
+			newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
+			bitrange rt_br;
+			rt_br.first = 20;
+			rt_br.second = 16;
+			newInstruction = encodeArgument(newInstruction, arguments[0], rt_br);
+			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(0));
 			}
 			break;
 		case 153:
 			{
 			//CLZ rd, rs
-			newInstruction = encodeArgument(newInstruction, parameters[0], arguments[0]);
-			newInstruction = encodeArgument(newInstruction, "$rt", arguments[0]);
-			newInstruction = encodeArgument(newInstruction, parameters[1], arguments[1]);
+				newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
+			bitrange rt_br;
+			rt_br.first = 20;
+			rt_br.second = 16;
+			newInstruction = encodeArgument(newInstruction, arguments[0], rt_br);
+			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 			}
 			break;
 		case 179:
 			{
 			//EXT rt, rs, pos, size
-			newInstruction = encodeArgument(newInstruction, parameters[0], arguments[0]);
-			newInstruction = encodeArgument(newInstruction, parameters[1], arguments[1]);
-			newInstruction = encodeArgument(newInstruction, parameters[2], arguments[2]);
+				newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
+			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
+			newInstruction = encodeArgument(newInstruction, arguments[2], id->getParameterBitrange(2));
 
 			int size = parse::getLiteralValue(arguments[3]);
 			//negatives will be handled since only 5 lsb of binstr
 			int msbd = size - 1;
-			newInstruction = encodeArgument(newInstruction, parameters[3], std::to_string(msbd));
+			newInstruction = encodeArgument(newInstruction, std::to_string(msbd), id->getParameterBitrange(3));
 			}
 			break;
 		case 184:
 			{
 			//INS rt, rs, pos, size
-			newInstruction = encodeArgument(newInstruction, parameters[0], arguments[0]);
-			newInstruction = encodeArgument(newInstruction, parameters[1], arguments[1]);
+			newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
+			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 
 			int pos = parse::getLiteralValue(arguments[2]);
 			int size = parse::getLiteralValue(arguments[3]);
 			//negatives will be handled since only 5 lsb of binstr
 			int msb = pos + size - 1;
 		
-			newInstruction = encodeArgument(newInstruction, parameters[2], arguments[2]);
-			newInstruction = encodeArgument(newInstruction, parameters[3], std::to_string(msb));
+			newInstruction = encodeArgument(newInstruction, arguments[2], id->getParameterBitrange(2));
+			newInstruction = encodeArgument(newInstruction, std::to_string(msb), id->getParameterBitrange(3));
 			}
 			break;
 		default:
@@ -156,6 +154,7 @@ string Encoder::encodeAbnormalInstruction(string binString, vector<string> param
 
 			}
 	}
+	
 	return newInstruction;
 }
 

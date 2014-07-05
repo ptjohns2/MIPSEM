@@ -12,117 +12,109 @@ Decoder::Decoder(InstructionDataBank* bank)	: resolver(bank){}
 Decoder::~Decoder(){}
 
 //	public Methods
-Instruction Decoder::buildInstruction(instr i){
-	return buildInstruction(parse::decIntToBinStr(i));
-}
-
-Instruction Decoder::buildInstruction(string binStr){
-	InstructionData* id = resolver.getInstructionData(binStr);
+Instruction Decoder::buildInstruction(instr ins){	
+	InstructionData* id = resolver.getInstructionData(ins);
 	if(id == NULL){
 		Instruction jnk = buildInstruction(0x0);
 		return jnk;
 	}
 
-	instr bin = parse::binStrToUnsignedDecInt(binStr);
-
-	vector<string> parameters = id->getParameters();
-	
-	int numArgs = 0;
-	for(int i=0; i<parameters.size(); i++){
-		if(parameters[i] != "_"){numArgs++;}
-	}
-
 	string asmString;
-	vector<int> argumentValues;
+	int32_t argumentValues[NUMBER_OF_PARAMETERS];
 	if(id->isDecodedNormally()){
-		//decode instr
-		asmString = decodeInstruction(binStr, id->getName(), parameters);
 		//get argument values
-		for(int i=0; i<numArgs; i++){
-			bitrange br = parse::getParameterBitrange(parameters[i]);
-			uint32_t argVal = parse::binStrToUnsignedDecInt(extractBitrange(binStr, br));
-			argumentValues.push_back(argVal);
+		for(int i=0; i<id->getNumParameters(); i++){
+			bitrange br = id->getParameterBitrange(i);
+			int32_t argVal = decodeArgumentToValue(ins, id, i);
+			argumentValues[i] = argVal;
 		}
+		for(int i=id->getNumParameters(); i<NUMBER_OF_PARAMETERS; i++){
+			argumentValues[i] = 0;
+		}
+		//decode normal instr
+		asmString = decodeInstruction(id, ins);
+
 	}else{
 		//decode abnormal instr
-		argumentValues.clear();
-		asmString = decodeAbnormalInstruction(binStr, id->getName(), parameters, id->getInstructionID(), argumentValues);
+		asmString = decodeAbnormalInstruction(id, ins, argumentValues);
 	}
 	
-	Instruction instruction = Instruction(id, asmString, binStr, bin, argumentValues);
+	Instruction instruction = Instruction(id, asmString, ins, argumentValues);
 	return instruction;
 }
 
 
-string Decoder::extractBitrange(string value, bitrange range){
-	return extractBitrange(value, range.first, range.second);
+int32_t Decoder::extractBitrangeUnsigned(instr value, unsigned int start, unsigned int end){
+	value = value << (INSTRUCTIONSIZE - 1 - start);	/*	shift out high bits	*/
+	value = value >> (INSTRUCTIONSIZE - 1 - start);	/*	shift back into place	*/
+	value = value >> end;		/*	shift out low bits	*/
+	return (int32_t)value;
+	//return (value & ((1 << start) - 1)) & (value & ~((1 << end) - 1)) >> end;
 }
-string Decoder::extractBitrange(string value, unsigned int start, unsigned int end){
-	int valueStart = value.length() - start - 1;
-	int segmentSize = start - end + 1;
-	string retVal = value.substr(valueStart, segmentSize);
-	return retVal;
+int32_t Decoder::extractBitrangeUnsigned(instr value, bitrange range){
+	return extractBitrangeUnsigned(value, range.first, range.second);
 }
 
+int32_t Decoder::extractBitrangeSigned(instr value, unsigned int start, unsigned int end){
+	int32_t signedValue = (int32_t)(value);
+	signedValue = signedValue << (INSTRUCTIONSIZE - 1 - start);	/*	shift out high bits	*/
+	signedValue = signedValue >> (INSTRUCTIONSIZE - 1 - start);	/*	shift back into place	*/
+	signedValue = signedValue >> end;		/*	shift out low bits	*/
+	return signedValue;
+	//return (value & ((1 << start) - 1)) & (value & ~((1 << end) - 1)) >> end;
+}
+int32_t Decoder::extractBitrangeSigned(instr value, bitrange range){
+	return extractBitrangeSigned(value, range.first, range.second);
+}
 
 //	private Methods
-string Decoder::decodeArgumentToMnemonic(string binStr, string parameter){
-	string cleanParameter = parameter;
-	bool hasParentheses = parse::hasParentheses(parameter);
-	if(hasParentheses){
-		cleanParameter = parse::removeParentheses(parameter);
-	}
-	bitrange br = parse::getParameterBitrange(cleanParameter);
-	string argumentBinStr = extractBitrange(binStr, br);
+string Decoder::decodeArgumentToMnemonic(instr ins, InstructionData* id, int parameterNumber){
+	bitrange br = id->getParameterBitrange(parameterNumber);
 	string retStr;
-	if(parse::parameterIsGPRegister(cleanParameter)){
-		retStr = parse::getGPRegisterName(parse::binStrToUnsignedDecInt(argumentBinStr));
-	}else if(parse::parameterIsFPRegister(cleanParameter)){
-		retStr = parse::getFPRegisterName(parse::binStrToUnsignedDecInt(argumentBinStr));
-	}else if(parse::parameterIsUnsignedLiteral(cleanParameter)){
-		retStr = std::to_string(parse::binStrToUnsignedDecInt(argumentBinStr));
-	}else if(parse::parameterIsSignedLiteral(cleanParameter)){
-		retStr = std::to_string(parse::binStrToSignedDecInt(argumentBinStr));
+	if(id->parameterIsGPRegister(parameterNumber)){
+		int fieldVal = extractBitrangeUnsigned(ins, br);
+		retStr = parse::getGPRegisterName(fieldVal);
+	}else if(id->parameterIsFPRegister(parameterNumber)){
+		int fieldVal = extractBitrangeUnsigned(ins, br);
+		retStr = parse::getFPRegisterName(fieldVal);
+	}else if(id->parameterIsUnsignedLiteral(parameterNumber)){
+		int fieldVal = extractBitrangeUnsigned(ins, br);
+		retStr = std::to_string(fieldVal);
+	}else if(id->parameterIsSignedLiteral(parameterNumber)){
+		int fieldVal = extractBitrangeSigned(ins, br);
+		retStr = std::to_string(fieldVal);
 	}
-	if(hasParentheses){
+	if(id->paramHasParenthises(parameterNumber)){
 		retStr = "(" + retStr + ")";
 	}
 	return retStr;
 }
 
-int Decoder::decodeArgumentToValue(string binStr, string parameter){
-	string cleanParameter = parameter;
-	cleanParameter = parse::removeParentheses(parameter);
-	bitrange br = parse::getParameterBitrange(cleanParameter);
-	string argumentBinStr = extractBitrange(binStr, br);
-	if(parse::parameterIsGPRegister(cleanParameter)){
-		return parse::binStrToUnsignedDecInt(argumentBinStr);
-	}else if(parse::parameterIsFPRegister(cleanParameter)){
-		return parse::binStrToUnsignedDecInt(argumentBinStr);
-	}else if(parse::parameterIsUnsignedLiteral(cleanParameter)){
-		return parse::binStrToUnsignedDecInt(argumentBinStr);
-	}else if(parse::parameterIsSignedLiteral(cleanParameter)){
-		return parse::binStrToSignedDecInt(argumentBinStr);
+int32_t Decoder::decodeArgumentToValue(instr ins, InstructionData* id, int parameterNumber){
+	bitrange br = id->getParameterBitrange(parameterNumber);
+	if(id->parameterIsGPRegister(parameterNumber)){
+		return extractBitrangeUnsigned(ins, br);
+	}else if(id->parameterIsFPRegister(parameterNumber)){
+		return extractBitrangeUnsigned(ins, br);
+	}else if(id->parameterIsUnsignedLiteral(parameterNumber)){
+		return extractBitrangeUnsigned(ins, br);
+	}else if(id->parameterIsSignedLiteral(parameterNumber)){
+		return extractBitrangeSigned(ins, br);
 	}else{
-		cout << "Decoder::decodeArgumentToValue error not real param type";
-		getchar();
+		cout << "int Decoder::decodeArgumentToValue error - invalid argument";
 		return 0;
 	}
 }
 
-string Decoder::decodeInstruction(string binStr, string name, vector<string> parameters){
+string Decoder::decodeInstruction(InstructionData* id, instr ins){
 	stringstream ss;
-	ss << name;
-	int numParameters = 0;
-	for(int i=0; i<parameters.size(); i++){
-		if(parameters[i] != "_"){numParameters++;}
-	}
-	if(numParameters > 0){ss << '\t';}
+	ss << id->getName();
+	if(id->getNumParameters() > 0){ss << '\t';}
 
-	for(int i=0; i<numParameters; i++){
-		ss << decodeArgumentToMnemonic(binStr, parameters[i]);
-		if(i < (numParameters - 1)){
-			if(!parse::hasParentheses(parameters[i+1])){
+	for(int i=0; i<id->getNumParameters(); i++){
+		ss << decodeArgumentToMnemonic(ins, id, i);
+		if(i < (id->getNumParameters() - 1)){
+			if(!id->paramHasParenthises(i+1)){
 				ss << ", ";
 			}
 		}
@@ -131,52 +123,52 @@ string Decoder::decodeInstruction(string binStr, string name, vector<string> par
 	return ss.str();
 }
 
-string Decoder::decodeAbnormalInstruction(string binStr, string name, vector<string> parameters, int id, vector<int> &argumentValues){
+string Decoder::decodeAbnormalInstruction(InstructionData* id, instr ins, int32_t argumentValues[NUMBER_OF_PARAMETERS]){
 	stringstream asmString;
-	switch(id){
+	switch(id->getID()){
 		case 179:
 			{
 			//EXT rt, rs, pos, size
-			string rt = decodeArgumentToMnemonic(binStr, parameters[0]);
-			string rs = decodeArgumentToMnemonic(binStr, parameters[1]);
+			string rt = decodeArgumentToMnemonic(ins, id, 0);
+			string rs = decodeArgumentToMnemonic(ins, id, 1);
 			
-			string pos = decodeArgumentToMnemonic(binStr, parameters[2]);
-			int pos_int = decodeArgumentToValue(binStr, parameters[2]);
+			string pos = decodeArgumentToMnemonic(ins, id, 2);
+			int pos_int = decodeArgumentToValue(ins, id, 2);
 
-			int msbd_int = decodeArgumentToValue(binStr, parameters[3]);
+			int msbd_int = decodeArgumentToValue(ins, id, 3);
 			int size_int = msbd_int + 1;
 			while(size_int < 0){size_int += 32;}
 			while(size_int > 31){size_int -= 32;}
 			string size = std::to_string(size_int);
 			
-			argumentValues.push_back(decodeArgumentToValue(binStr, parameters[0]));
-			argumentValues.push_back(decodeArgumentToValue(binStr, parameters[1]));
-			argumentValues.push_back(pos_int);
-			argumentValues.push_back(size_int);
+			argumentValues[0] = decodeArgumentToValue(ins, id, 0);
+			argumentValues[1] = decodeArgumentToValue(ins, id, 1);
+			argumentValues[2] = pos_int;
+			argumentValues[3] = size_int;
 
-			asmString << name << '\t' << rt << ", " << rs << ", " << pos << ", " << size;
+			asmString << id->getName() << '\t' << rt << ", " << rs << ", " << pos << ", " << size;
 			}
 			break;
 		case 184:
 			{
 			//INS rt, rs, pos, size
-			string rt = decodeArgumentToMnemonic(binStr, parameters[0]);
-			string rs = decodeArgumentToMnemonic(binStr, parameters[1]);
-			string pos = decodeArgumentToMnemonic(binStr, parameters[2]);
-			int pos_int = decodeArgumentToValue(binStr, parameters[2]);
-			int msb_int = decodeArgumentToValue(binStr, parameters[3]);
+			string rt = decodeArgumentToMnemonic(ins, id, 0);
+			string rs = decodeArgumentToMnemonic(ins, id, 1);
+			string pos = decodeArgumentToMnemonic(ins, id, 2);
+			int pos_int = decodeArgumentToValue(ins, id, 2);
+			int msb_int = decodeArgumentToValue(ins, id, 3);
 
 			int size_int = msb_int - pos_int + 1;
 			while(size_int < 0){size_int += 32;}
 			while(size_int > 31){size_int -= 32;}
 			string size = std::to_string(size_int);
 
-			argumentValues.push_back(decodeArgumentToValue(binStr, parameters[0]));
-			argumentValues.push_back(decodeArgumentToValue(binStr, parameters[1]));
-			argumentValues.push_back(pos_int);
-			argumentValues.push_back(size_int);
+			argumentValues[0] = decodeArgumentToValue(ins, id, 0);
+			argumentValues[1] = decodeArgumentToValue(ins, id, 1);
+			argumentValues[2] = pos_int;
+			argumentValues[3] = size_int;
 
-			asmString << name << '\t' << rt << ", " << rs << ", " << pos << ", " << size;
+			asmString << id->getName() << '\t' << rt << ", " << rs << ", " << pos << ", " << size;
 
 			}
 			break;

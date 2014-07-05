@@ -30,7 +30,7 @@ void CPU::executeInstructionAtPC(){
 void CPU::executeInstruction(Instruction* instruction){
 	//Get necessary data
 	InstructionData* instructionData = instruction->getInstructionData();
-	int instructionId = instructionData->getInstructionID();
+	int instructionId = instructionData->getID();
 	int32_t a0 = instruction->getArgumentValue(0);
 	int32_t a1 = instruction->getArgumentValue(1);
 	int32_t a2 = instruction->getArgumentValue(2);

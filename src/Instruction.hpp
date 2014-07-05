@@ -8,33 +8,25 @@
 
 using namespace std;
 
-struct InstructionExecutableData{
-	int instructionID;
-	uint32_t args[NUMBER_OF_PARAMETERS];
-};
-
 class Instruction{
 	public:
 		//Methods
 		Instruction();
-		Instruction(InstructionData*, string, string, instr, vector<int>);
+		Instruction(InstructionData* instructionData, string asmString, instr bin, int32_t arguments[NUMBER_OF_PARAMETERS]);
 		~Instruction();
 
 		InstructionData* getInstructionData() const;
 		string getAsmString() const;
-		string getBinString() const;
 		instr getBin() const;
-		uint32_t getArgumentValue(int) const;
+		int32_t getArgumentValue(int) const;
 
 	private:
 		//Members
 		InstructionData* instructionData;
 		string asmString;
-		string binString;
 		instr bin;
-		uint32_t arguments[NUMBER_OF_PARAMETERS];
+		int32_t arguments[NUMBER_OF_PARAMETERS];
 		
-		InstructionExecutableData executableData;
 
 	private:
 
