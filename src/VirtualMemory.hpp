@@ -45,7 +45,6 @@ class VirtualMemory{
 		static virtualAddr wordAlignAddr(virtualAddr address);
 
 		//InstructionCache functions
-		void invalidateInstructionsCacheOfVirtualMemorySpace(virtualAddr address, size_t size);
 		Instruction* readInstruction(virtualAddr address);
 
 	private:

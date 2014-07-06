@@ -27,6 +27,7 @@ template int16_t	readMemAs<int16_t>	(void* ptr);
 template uint16_t	readMemAs<uint16_t>	(void* ptr);
 template int32_t	readMemAs<int32_t>	(void* ptr);
 template uint32_t	readMemAs<uint32_t>	(void* ptr);
+template instr		readMemAs<instr>	(void* ptr);
 template int64_t	readMemAs<int64_t>	(void* ptr);
 template uint64_t	readMemAs<uint64_t>	(void* ptr);
 template float		readMemAs<float>	(void* ptr);

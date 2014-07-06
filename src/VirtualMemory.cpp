@@ -50,7 +50,6 @@ void VirtualMemory::writeToVirtualMemorySpace(virtualAddr address, size_t size, 
 			*byteAddr = *((byte*)ptr + i);
 		}
 	}
-	invalidateInstructionsCacheOfVirtualMemorySpace(address, size);
 }
 byte* VirtualMemory::getByteAddr(virtualAddr address){
 	VirtualMemoryPage* pagePtr = pageTable->getPageAddr(address);
@@ -61,33 +60,6 @@ virtualAddr VirtualMemory::wordAlignAddr(virtualAddr address){
 	return (address & 0xFFFFFFFC);
 }
 
-void VirtualMemory::invalidateInstructionsCacheOfVirtualMemorySpace(virtualAddr address, size_t size){
-	for(int i=0; i<size; i++){
-		virtualAddr byteVirtualAddr = address + i;
-		VirtualMemoryPage* bytePage = pageTable->getPageAddr(byteVirtualAddr);
-		bytePage->invalidateInstruction(address + i);
-	}
-	/*
-	VirtualMemoryPage* pageOfWordStart = pageTable->getPageAddr(address);
-	if(pageOfWordStart->memSpaceIsInBounds(address, size)){
-		//vvvv iffy on that condition
-		if(wordAlignAddr(address) == wordAlignAddr(address + size - 1)){
-			pageOfWordStart->invalidateInstruction(address);
-		}else{
-			for(int i=0; i<size; i++){
-				virtualAddr byteVirtualAddr = address + i;
-				pageOfWordStart->invalidateInstruction(byteVirtualAddr);
-			}
-	}
-	}else{
-		for(int i=0; i<size; i++){
-			virtualAddr byteVirtualAddr = address + i;
-			VirtualMemoryPage* pageOfByte = pageTable->getPageAddr(byteVirtualAddr);
-			pageOfByte->invalidateInstruction(byteVirtualAddr);
-		}
-	}
-	*/
-}
 
 Instruction* VirtualMemory::readInstruction(virtualAddr address){
 	address = wordAlignAddr(address);
@@ -210,7 +182,15 @@ bool VirtualMemoryPage::isValidInstruction(virtualAddr address){
 		return false;
 	}else{
 		uint32_t pageOffset = calculatePageOffset(address);
-		return instructionCache[pageOffset >> WORD_ALIGN_OFFSET] != NULL;
+		Instruction* insPtr = instructionCache[pageOffset >> WORD_ALIGN_OFFSET];
+		if(insPtr == NULL){
+			return false;
+		}
+
+		instr bin = insPtr->getBin();
+		byte* byteAddr = getByteAddr(VirtualMemory::wordAlignAddr(address));
+		instr readBin = readMemAs<instr>(byteAddr);
+		return readBin == bin;
 	}
 }
 void VirtualMemoryPage::invalidateInstruction(virtualAddr address){
@@ -238,6 +218,7 @@ void VirtualMemoryPage::revalidateInstruction(virtualAddr address){
 
 	instructionCache[pageOffset >> 2] = heapInstructionPtr;
 }
+
 Instruction* VirtualMemoryPage::readInstruction(virtualAddr address){
 	if(!instructionCacheIsAllocated()){
 		allocInstructionCache();
