@@ -73,7 +73,7 @@ instr Encoder::setBitrange(instr bin, uint32_t value, unsigned int start, unsign
 	//clear bits under mask on instruction
 	instr newInstr = bin & mask;
 	//set cleanValue as cleared bits of newInstr
-	newInstr = newInstr & cleanValue;
+	newInstr = newInstr | cleanValue;
 
 	return newInstr;
 }

@@ -28,6 +28,11 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 	
+	instr test = 0x00000000;
+	uint32_t seg = 0xF;
+	instr encodedTest = Encoder::setBitrange(test, seg, 16, 12);
+
+
 	InstructionDataBank bank = InstructionDataBank();
 	Decoder d = Decoder(&bank);
 	Encoder e = Encoder(&bank, &d);
@@ -72,6 +77,8 @@ int main(){
 	instrStrArr.push_back("syscall");	//32
 
 	for(int i=0; i<instrStrArr.size(); i++){
+		InstructionData* idt = sr.getInstructionData(instrStrArr[i]);
+		cout << idt->getName() << '\n';
 		Instruction instruction = e.buildInstruction(instrStrArr[i]);
 		instr instructionBin = instruction.getBin();
 		vm.writeToVirtualMemorySpace(i * sizeof(instr), sizeof(instr), &instructionBin);

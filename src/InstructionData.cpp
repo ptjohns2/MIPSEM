@@ -34,6 +34,11 @@ InstructionData::InstructionData(int id, string name, int opcode, instr face, in
 	this->parameterTypes[2] = at3;
 	this->parameterTypes[3] = at4;
 	
+	this->parameterParenthises[0] = ap1;
+	this->parameterParenthises[1] = ap2;
+	this->parameterParenthises[2] = ap3;
+	this->parameterParenthises[3] = ap4;
+
 	this->parameterBitranges[0].first = asb1;
 	this->parameterBitranges[1].first = asb2;
 	this->parameterBitranges[2].first = asb3;

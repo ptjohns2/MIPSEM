@@ -5,7 +5,7 @@
 #include <utility>
 
 #define INSTRUCTION_DATA_HASH_TABLE_SIZE	(1009)
-#define INSTRUCTION_NUMBER_TABLE_SIZE		(64)
+#define NUMBER_OF_OPCODES					(64)
 #define INSTRUCTIONSIZE						(32)
 #define OPCODESIZE							(6)
 #define NUMBER_OF_PARAMETERS					(4)

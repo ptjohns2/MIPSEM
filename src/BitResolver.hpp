@@ -7,11 +7,6 @@
 
 #include <string>
 
-struct BRInstructionDataNode{
-		InstructionData* val;
-		BRInstructionDataNode* left;
-		BRInstructionDataNode* right;
-};
 
 class BitResolver{
 	public:
@@ -20,28 +15,16 @@ class BitResolver{
 		~BitResolver();
 		
 		//Methods
-		void addInstructionData(InstructionData* id);
 		void addInstructionDataBank(InstructionDataBank* bank);
 		InstructionData* getInstructionData(instr ins);
 		
 
 	private:
 		//Methods
-		static InstructionData* getInstructionDataFromBinarySearchTree(BRInstructionDataNode* head, instr ins);
-		static void addInstructionToBinarySearchTree(BRInstructionDataNode* &head, BRInstructionDataNode* newNode);
-		
-		static bool lessThan(instr lhs, instr rhs);
-		static bool equalTo(instr lhs, instr rhs);
-		static bool greaterThan(instr lhs, instr rhs);
-
 		static bool instrIsMatch(InstructionData* id, instr ins);
 
-		static int compareInstructionData(instr lhs, instr rhs);
-		
-		static void deleteBinarySearchTree(BRInstructionDataNode* head);
-
 		//Members
-		BRInstructionDataNode* table[INSTRUCTION_NUMBER_TABLE_SIZE];
+		vector<InstructionData*> table[NUMBER_OF_OPCODES];
 };
 
 
