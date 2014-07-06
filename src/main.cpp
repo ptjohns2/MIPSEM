@@ -28,10 +28,6 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 	
-	instr test = 0x00000000;
-	uint32_t seg = 0xF;
-	instr encodedTest = Encoder::setBitrange(test, seg, 16, 12);
-
 
 	InstructionDataBank bank = InstructionDataBank();
 	Decoder d = Decoder(&bank);
@@ -42,14 +38,7 @@ int main(){
 
 	VirtualMemory vm = VirtualMemory();
 	vm.setDecoder(&d);
-	
-	Instruction instruction1 = e.buildInstruction("addi $t0, $t0, 1");
-	//Instruction instruction1 = e.buildInstruction("beq $t0, $t1, -4");
-	instr instruction1bin = instruction1.getBin();
-	Instruction instruction2 = d.buildInstruction(instruction1bin);
-	
-	
-	int sfdjsdkfdsdfsds = 4;
+
 
 	
 	////////////////////////////////////////////////////////////////////////
@@ -61,13 +50,13 @@ int main(){
 
 	
 	vector<string> instrStrArr;
-
 	instrStrArr.push_back("addi $t1, $zero, 48");	//0
 	instrStrArr.push_back("addi	$t0, $zero, 0");	//4
 
 	instrStrArr.push_back("addi $t0, $t0, 8");	//8
 	instrStrArr.push_back("addi	$v0, $zero, 1");	//12
 	instrStrArr.push_back("add	$a0, $zero, $t0");	//16
+	
 	instrStrArr.push_back("syscall");	//20
 
 	instrStrArr.push_back("beq $t0, $t1, 1");	//24
@@ -77,25 +66,18 @@ int main(){
 	instrStrArr.push_back("syscall");	//32
 
 	for(int i=0; i<instrStrArr.size(); i++){
-		InstructionData* idt = sr.getInstructionData(instrStrArr[i]);
-		cout << idt->getName() << '\n';
+		cout << instrStrArr[i] << '\n';
 		Instruction instruction = e.buildInstruction(instrStrArr[i]);
 		instr instructionBin = instruction.getBin();
-		vm.writeToVirtualMemorySpace(i * sizeof(instr), sizeof(instr), &instructionBin);
-	}
-
-	for(int i=0; i<instrStrArr.size(); i++){
-		Instruction* instructionFromMemory = vm.readInstruction(i * 4);
-		string out = instructionFromMemory->getAsmString();
-		cout << out << '\n';
+		cout << instruction.getAsmString() << '\n';
+		vm.writeToVirtualMemorySpace(cpu.PC + i * sizeof(instr), sizeof(instr), &instructionBin);
+		Instruction* readInstruction = vm.readInstruction(cpu.PC + i * sizeof(instr));
+		cout << readInstruction->getAsmString() << "\n\n";
 	}
 
 	int asdfas = 3;
 	
 	while(true){
-		if(cpu.PC >= (4 * instrStrArr.size())){
-			getchar();
-		}
 		Instruction* instructionFromMemory = vm.readInstruction(cpu.PC);
 		cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
 		cpu.executeInstruction(instructionFromMemory);

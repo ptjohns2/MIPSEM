@@ -72,7 +72,7 @@ int InstructionData::getID()const{return id;}
 string InstructionData::getName()const{return name;}
 int InstructionData::getOpcode()const{return opcode;}
 instr InstructionData::getFace()const{return face;}
-instr InstructionData::getMask()const{return face;}
+instr InstructionData::getMask()const{return mask;}
 
 char InstructionData::getParameterType(int i)const{return parameterTypes[i];}
 
