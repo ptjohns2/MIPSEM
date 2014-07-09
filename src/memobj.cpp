@@ -6,13 +6,33 @@
 segmentHeader::segmentHeader(){
 	init();
 }
+segmentHeader::segmentHeader(segmentHeader const &obj){
+	init();
+	deepCopy(&obj);
+}
 segmentHeader::~segmentHeader(){
-	delete rawData;
+	deinit();
+}
+const segmentHeader& segmentHeader::operator=(const segmentHeader &rhs){
+	if(this != &rhs){
+		deinit();
+		deepCopy(&rhs);
+	}
+	return *this;
+}
+void segmentHeader::deepCopy(const segmentHeader* obj){
+	this->segFileSize = obj->segFileSize;
+	this->segVirtualMemoryStart = obj->segVirtualMemoryStart;
+	this->rawData = new h_byte[this->segFileSize];
+	memcpy(this->rawData, obj->rawData, this->segFileSize);
 }
 void segmentHeader::init(){
 	segFileSize = 0x0;
 	segVirtualMemoryStart = 0x0;
 	rawData = NULL;
+}
+void segmentHeader::deinit(){
+	delete rawData;
 }
 
 
@@ -24,39 +44,41 @@ memobj::memobj(){
 }
 memobj::memobj(string fileName){
 	init();
-
-	//data_offset 4 [| segnfstart 4 | segnfsize 4 | segnmemstart 4 |] raw_data x
-	ifstream file = ifstream(fileName, ios::in | ios::binary);
-	if(!file.is_open()){return;}
-	
-	//read data_offset 4
-	file.read((char*)&numSegments, sizeof(numSegments));
-
-	//read header info except h_byte* rawData (next loop)
-	for(int i=0; i<numSegments; i++){
-		segmentHeader* tmpSegmentHeader = new segmentHeader();
-		file.read((char*)&tmpSegmentHeader->segFileSize, sizeof(tmpSegmentHeader->segFileSize));
-		file.read((char*)&tmpSegmentHeader->segVirtualMemoryStart, sizeof(tmpSegmentHeader->segVirtualMemoryStart));
-		segmentHeaders.push_back(tmpSegmentHeader);
+	deserialize(fileName);
+}
+memobj::memobj(memobj const &obj){
+	init();
+	this->numSegments = obj.numSegments;
+	for(int i=0; i<obj.segmentHeaders.size(); i++){
+		segmentHeader* tmpSegmentHeader = new segmentHeader(*obj.segmentHeaders[i]);
+		this->segmentHeaders.push_back(tmpSegmentHeader);
 	}
-	//read raw data for each header
-	for(int i=0; i<numSegments; i++){
-		size_t segmentSize = segmentHeaders[i]->segFileSize;
-		char* charArray = new char[segmentSize];
-		file.read(charArray, segmentSize);
-		segmentHeaders[i]->rawData = (h_byte*)charArray;
-	}
-
-	file.close();
 }
 memobj::~memobj(){
-	for(int i=0; i<segmentHeaders.size(); i++){
-		delete segmentHeaders[i];
+	deinit();
+}
+void memobj::deepCopy(const memobj* obj){
+	this->numSegments = obj->numSegments;
+	for(int i=0; i<obj->segmentHeaders.size(); i++){
+		segmentHeader* tmpSegmentHeader = new segmentHeader(*obj->segmentHeaders[i]);
+		this->segmentHeaders.push_back(tmpSegmentHeader);
 	}
+}
+const memobj& memobj::operator=(const memobj &rhs){
+	if(this != &rhs){
+		deinit();
+		deepCopy(&rhs);
+	}
+	return *this;
 }
 void memobj::init(){
 	numSegments = 0x0;
 	segmentHeaders.clear();
+}
+void memobj::deinit(){
+	for(int i=0; i<segmentHeaders.size(); i++){
+		delete segmentHeaders[i];
+	}
 }
 
 
@@ -85,5 +107,32 @@ void memobj::serialize(string fileName){
 		file.write(rawDataPtr, segmentHeaders[i]->segFileSize);
 	}
 
+	file.close();
+}
+
+void memobj::deserialize(string fileName){
+	deinit();
+
+	//data_offset 4 [| segnfstart 4 | segnfsize 4 | segnmemstart 4 |] raw_data x
+	ifstream file = ifstream(fileName, ios::in | ios::binary);
+	if(!file.is_open()){return;}
+	
+	//read data_offset 4
+	file.read((char*)&numSegments, sizeof(numSegments));
+
+	//read header info except h_byte* rawData (next loop)
+	for(int i=0; i<numSegments; i++){
+		segmentHeader* tmpSegmentHeader = new segmentHeader();
+		file.read((char*)&tmpSegmentHeader->segFileSize, sizeof(tmpSegmentHeader->segFileSize));
+		file.read((char*)&tmpSegmentHeader->segVirtualMemoryStart, sizeof(tmpSegmentHeader->segVirtualMemoryStart));
+		segmentHeaders.push_back(tmpSegmentHeader);
+	}
+	//read raw data for each header
+	for(int i=0; i<numSegments; i++){
+		size_t segmentSize = segmentHeaders[i]->segFileSize;
+		char* charArray = new char[segmentSize];
+		file.read(charArray, segmentSize);
+		segmentHeaders[i]->rawData = (h_byte*)charArray;
+	}
 	file.close();
 }

@@ -29,21 +29,40 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 	
-	memobj mem = memobj();
-	mem.numSegments = 1;
-	segmentHeader seg = segmentHeader();
-	char str[] = "testing, testing, one, two three, 1, 2, 3!";
-	size_t memsize = strlen(str) + 1;
-	seg.segFileSize = memsize;
-	char* tmpCharPtr = new char[memsize];
-	memcpy(tmpCharPtr, &str[0], memsize);
-	seg.rawData = (h_byte*)tmpCharPtr;
 
+
+
+
+	memobj mem = memobj();
 	string fileName = "testSerialization.obj";
-	mem.segmentHeaders.push_back(&seg);
+
+	char str1[] = "=testing, testing, one, two three, 1, 2, 3!=";
+	char str2[] = "=sorry=";
+	char str3[] = "=1234567890!@#$%^&*()=";
+	vector<char*> strings;
+	strings.push_back(&str1[0]);
+	strings.push_back(&str2[0]);
+	strings.push_back(&str3[0]);
+	mem.numSegments = strings.size();
+
+	
+	for(int i=0; i<strings.size(); i++){
+		segmentHeader* seg = new segmentHeader();
+		size_t memsize = strlen(strings[i]) + 1;
+		seg->segFileSize = memsize;
+		char* tmpCharPtr = new char[memsize];
+		memcpy(tmpCharPtr, &strings[i][0], memsize);
+		seg->rawData = (h_byte*)tmpCharPtr;
+		mem.segmentHeaders.push_back(seg);
+	}
+
 	mem.serialize(fileName);
+	
 
 	memobj readMem = memobj(fileName);
+
+
+
 
 
 

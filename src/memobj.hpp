@@ -9,10 +9,14 @@ using namespace std;
 class segmentHeader{
 	public:
 		segmentHeader();
+		segmentHeader(segmentHeader const &obj);
 		~segmentHeader();
+		const segmentHeader& operator=(const segmentHeader &rhs);
+		void deepCopy(const segmentHeader* obj);
 		void init();
+		void deinit();
 
-		uint32_t segFileSize;
+		size_t segFileSize;
 		virtualAddr segVirtualMemoryStart;
 		h_byte* rawData;
 
@@ -25,10 +29,15 @@ class memobj{
 	public:
 		memobj();
 		memobj(string fileName);
+		memobj(memobj const & obj);
 		~memobj();
+		const memobj& operator=(const memobj &rhs);
+		void deepCopy(const memobj* obj);
 		void init();
+		void deinit();
 
 		void serialize(string fileName);
+		void deserialize(string fileName);
 
 
 		uint32_t numSegments;
