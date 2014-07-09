@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <string.h> // memcpy
 
-
 extern inline int32_t signExtend(uint32_t, unsigned int);
 
 extern void printbin(const void* p, int len);

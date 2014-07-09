@@ -6,6 +6,7 @@
 #include "InstructionDataBank.hpp"
 #include "StringResolver.hpp"
 
+
 class Encoder{
 	public:
 		//Constructors

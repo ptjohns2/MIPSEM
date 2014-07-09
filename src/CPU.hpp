@@ -1,7 +1,6 @@
 #ifndef __CPU_HPP__
 #define __CPU_HPP__
 
-
 #include "BitManip.hpp"
 #include "Instruction.hpp"
 #include "VirtualMemory.hpp"

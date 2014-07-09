@@ -9,6 +9,7 @@
 
 using namespace std;
 
+
 class InstructionData{
 	public:
 		InstructionData();

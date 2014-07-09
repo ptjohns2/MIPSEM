@@ -5,6 +5,7 @@
 #include "Instruction.hpp"
 #include "InstructionDataBank.hpp"
 
+
 class Decoder{
 	public:
 		//Constructors

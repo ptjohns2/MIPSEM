@@ -4,6 +4,7 @@
 #include "CPU.hpp"
 #include "Decoder.hpp"
 #include "Encoder.hpp"
+#include "memobj.hpp"
 #include "parse.hpp"
 #include "VirtualMemory.hpp"
 
@@ -28,6 +29,23 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 	
+	memobj mem = memobj();
+	mem.numSegments = 1;
+	segmentHeader seg = segmentHeader();
+	char str[] = "testing, testing, one, two three, 1, 2, 3!";
+	size_t memsize = strlen(str) + 1;
+	seg.segFileSize = memsize;
+	char* tmpCharPtr = new char[memsize];
+	memcpy(tmpCharPtr, &str[0], memsize);
+	seg.rawData = (h_byte*)tmpCharPtr;
+
+	string fileName = "testSerialization.obj";
+	mem.segmentHeaders.push_back(&seg);
+	mem.serialize(fileName);
+
+	memobj readMem = memobj(fileName);
+
+
 
 	InstructionDataBank bank = InstructionDataBank();
 	Decoder d = Decoder(&bank);
@@ -66,13 +84,9 @@ int main(){
 	instrStrArr.push_back("syscall");	//32
 
 	for(int i=0; i<instrStrArr.size(); i++){
-		cout << instrStrArr[i] << '\n';
 		Instruction instruction = e.buildInstruction(instrStrArr[i]);
 		instr instructionBin = instruction.getBin();
-		cout << instruction.getAsmString() << '\n';
 		vm.writeToVirtualMemorySpace(cpu.PC + i * sizeof(instr), sizeof(instr), &instructionBin);
-		Instruction* readInstruction = vm.readInstruction(cpu.PC + i * sizeof(instr));
-		cout << readInstruction->getAsmString() << "\n\n";
 	}
 
 	int asdfas = 3;
