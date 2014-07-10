@@ -1,7 +1,7 @@
 #ifndef __ASSEMBLER_HPP__
 #define __ASSEMBLER_HPP__
 
-#include "memobj.hpp"
+#include "MemoryMap.hpp"
 #include "VirtualMemory.hpp"
 
 #include <utility>

@@ -4,7 +4,7 @@
 #include "CPU.hpp"
 #include "Decoder.hpp"
 #include "Encoder.hpp"
-#include "memobj.hpp"
+#include "MemoryMap.hpp"
 #include "parse.hpp"
 #include "VirtualMemory.hpp"
 
@@ -33,7 +33,7 @@ int main(){
 
 
 
-	memobj mem = memobj();
+	MemoryMap mem = MemoryMap();
 	string fileName = "testSerialization.obj";
 
 	char str1[] = "=testing, testing, one, two three, 1, 2, 3!=";
@@ -43,23 +43,19 @@ int main(){
 	strings.push_back(&str1[0]);
 	strings.push_back(&str2[0]);
 	strings.push_back(&str3[0]);
-	mem.numSegments = strings.size();
-
 	
 	for(int i=0; i<strings.size(); i++){
-		segmentHeader* seg = new segmentHeader();
 		size_t memsize = strlen(strings[i]) + 1;
-		seg->segFileSize = memsize;
 		char* tmpCharPtr = new char[memsize];
 		memcpy(tmpCharPtr, &strings[i][0], memsize);
-		seg->rawData = (h_byte*)tmpCharPtr;
-		mem.segmentHeaders.push_back(seg);
+		MemorySegment* seg = new MemorySegment(memsize, 0, (h_byte*)tmpCharPtr);
+		mem.addMemorySegment(*seg);
 	}
 
 	mem.serialize(fileName);
 	
 
-	memobj readMem = memobj(fileName);
+	MemoryMap readMem = MemoryMap(fileName);
 
 
 
