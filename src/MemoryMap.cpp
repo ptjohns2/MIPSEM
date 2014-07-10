@@ -91,6 +91,9 @@ void MemoryMap::deinit(){
 	}
 }
 
+uint32_t MemoryMap::getNumSegments()const{return numSegments;}
+vector<MemorySegment*> MemoryMap::getMemorySegments()const{return memorySegments;}
+
 
 void MemoryMap::serialize(string fileName){
 	//data_offset 4 [| segnfstart 4 | segnfsize 4 | segnmemstart 4 |] raw_data x
@@ -149,8 +152,8 @@ void MemoryMap::deserialize(string fileName){
 	file.close();
 }
 
-void MemoryMap::addMemorySegment(MemorySegment memSeg){
-	MemorySegment* newMemSegPtr = new MemorySegment(memSeg);
+void MemoryMap::addMemorySegment(MemorySegment* memSeg){
+	MemorySegment* newMemSegPtr = new MemorySegment(*memSeg);
 	numSegments++;
 	memorySegments.push_back(newMemSegPtr);
 }

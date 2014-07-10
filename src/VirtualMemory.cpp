@@ -17,7 +17,51 @@ void VirtualMemory::setDecoder(Decoder* decoder){
 	VirtualMemoryPage::setDecoder(decoder);
 }
 
-h_byte* VirtualMemory::readVirtualMemorySpaceToHeap(virtualAddr address, size_t size){
+
+void VirtualMemory::serialize(string fileName){
+	readMemoryMap().serialize(fileName);
+}
+
+void VirtualMemory::writeMemoryMap(MemoryMap* memoryMap){
+	uint32_t numSegments = memoryMap->getNumSegments();
+	vector<MemorySegment*> memorySegments = memoryMap->getMemorySegments();
+	assert(numSegments == memorySegments.size());
+
+	for(int i=0; i<numSegments; i++){
+		size_t segFileSize = memorySegments[i]->getSegFileSize();
+		virtualAddr segVirtualMemoryStart = memorySegments[i]->getSegVirtualMemoryStart();
+		h_byte* rawData = memorySegments[i]->getRawData();
+		writeToVirtualMemorySpace(segVirtualMemoryStart, segFileSize, rawData);
+	}
+}
+MemoryMap VirtualMemory::readMemoryMap() const{
+	MemoryMap memoryMap = MemoryMap();
+	for(int i=0; i<NUM_PAGES_IN_PAGE_TABLE; i++){
+		if(pageTable->pageIsAllocated(i)){
+			MemorySegment memorySegment = pageTable->pageTable[i]->readMemorySegment();
+			memoryMap.addMemorySegment(&memorySegment);
+		}
+	}
+	return memoryMap;
+}
+
+void VirtualMemory::writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr){
+	VirtualMemoryPage* basePagePtr = pageTable->getPageAddr(address);
+	if(basePagePtr->memSpaceIsInBounds(address, size)){
+		//Standard read, no page fault
+		byte* byteAddr = basePagePtr->getByteAddr(address);
+		memcpy(byteAddr, ptr, size);
+	}else{
+		//Page fault, memory spread accross two pages
+		virtualAddr baseAddress = address;
+		for(int i=0; i<size; i++){
+			byte* byteAddr = getByteAddr(baseAddress + i);
+			//memcpy(byteAddr, ptr + i, 1);
+			*byteAddr = *((byte*)ptr + i);
+		}
+	}
+}
+h_byte* VirtualMemory::readVirtualMemorySpaceToHeap(virtualAddr address, size_t size) const{
 	h_byte* retVal = new byte[size];
 	VirtualMemoryPage* basePagePtr = pageTable->getPageAddr(address);
 	if(basePagePtr->memSpaceIsInBounds(address, size)){
@@ -35,23 +79,7 @@ h_byte* VirtualMemory::readVirtualMemorySpaceToHeap(virtualAddr address, size_t 
 	}
 	return retVal;
 }
-void VirtualMemory::writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr){
-	VirtualMemoryPage* basePagePtr = pageTable->getPageAddr(address);
-	if(basePagePtr->memSpaceIsInBounds(address, size)){
-		//Standard read, no page fault
-		byte* byteAddr = basePagePtr->getByteAddr(address);
-		memcpy(byteAddr, ptr, size);
-	}else{
-		//Page fault, memory spread accross two pages
-		virtualAddr baseAddress = address;
-		for(int i=0; i<size; i++){
-			byte* byteAddr = getByteAddr(baseAddress + i);
-			//memcpy(byteAddr, ptr + i, 1);
-			*byteAddr = *((byte*)ptr + i);
-		}
-	}
-}
-byte* VirtualMemory::getByteAddr(virtualAddr address){
+byte* VirtualMemory::getByteAddr(virtualAddr address) const{
 	VirtualMemoryPage* pagePtr = pageTable->getPageAddr(address);
 	byte* bytePtr = pagePtr->getByteAddr(address);
 	return bytePtr;
@@ -106,7 +134,9 @@ VirtualMemoryPage* VirtualMemoryPageTable::getPageAddr(virtualAddr address){
 	}
 	return pageTable[pageNumber];
 }
-
+bool VirtualMemoryPageTable::pageIsAllocated(uint32_t pageNumber){
+	return pageTable[pageNumber] != NULL;
+}
 
 
 
@@ -139,6 +169,13 @@ void VirtualMemoryPage::init(){
 
 Decoder* VirtualMemoryPage::decoder = NULL;
 
+MemorySegment VirtualMemoryPage::readMemorySegment(){
+	virtualAddr segVirtualMemoryStart = lowerBound;
+	size_t segFileSize = upperBound - lowerBound + 1;
+	char* rawData = new char[segFileSize];
+	memcpy(rawData, &rawMem[0], segFileSize);
+	return MemorySegment(segFileSize, segVirtualMemoryStart, (h_byte*)rawData);
+}
 uint32_t VirtualMemoryPage::calculatePageOffset(virtualAddr address){
 	address <<= (NUM_BITS_IN_VIRTUAL_ADDR - NUM_BITS_IN_PAGE_OFFSET);
 	address >>= (NUM_BITS_IN_VIRTUAL_ADDR - NUM_BITS_IN_PAGE_OFFSET);

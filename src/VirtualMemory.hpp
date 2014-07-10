@@ -5,6 +5,7 @@
 
 #include "Decoder.hpp"
 #include "Instruction.hpp"
+#include "MemoryMap.hpp"
 
 using namespace std;
 
@@ -58,9 +59,13 @@ class VirtualMemory{
 		
 		void setDecoder(Decoder* decoder);
 
-		h_byte* readVirtualMemorySpaceToHeap(virtualAddr address, size_t size);
+		void serialize(string fileName);
+		void writeMemoryMap(MemoryMap* memoryMap);
+		MemoryMap readMemoryMap() const;
+
 		void writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr);
-		byte* getByteAddr(virtualAddr address);
+		h_byte* readVirtualMemorySpaceToHeap(virtualAddr address, size_t size) const;
+		byte* getByteAddr(virtualAddr address) const;
 		
 		static virtualAddr wordAlignAddr(virtualAddr address);
 
@@ -73,6 +78,7 @@ class VirtualMemory{
 };
 
 class VirtualMemoryPageTable{
+	friend class VirtualMemory;
 	public:
 		VirtualMemoryPageTable();
 		VirtualMemoryPageTable(Decoder* decoder);
@@ -81,6 +87,7 @@ class VirtualMemoryPageTable{
 		
 		static uint32_t calculatePageNumber(virtualAddr address);
 		VirtualMemoryPage* getPageAddr(virtualAddr address);
+		bool pageIsAllocated(uint32_t pageNumber);
 		
 	private:
 		VirtualMemoryPage* pageTable[NUM_PAGES_IN_PAGE_TABLE];
@@ -94,6 +101,7 @@ class VirtualMemoryPage{
 		~VirtualMemoryPage();
 		void init();
 
+		MemorySegment readMemorySegment();
 		static uint32_t calculatePageOffset(virtualAddr address);
 		byte* getByteAddr(virtualAddr address);
 		bool memSpaceIsInBounds(virtualAddr address, size_t size);

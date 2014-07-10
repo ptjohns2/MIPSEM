@@ -29,39 +29,7 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 	
-
-
-
-
-	MemoryMap mem = MemoryMap();
-	string fileName = "testSerialization.obj";
-
-	char str1[] = "=testing, testing, one, two three, 1, 2, 3!=";
-	char str2[] = "=sorry=";
-	char str3[] = "=1234567890!@#$%^&*()=";
-	vector<char*> strings;
-	strings.push_back(&str1[0]);
-	strings.push_back(&str2[0]);
-	strings.push_back(&str3[0]);
 	
-	for(int i=0; i<strings.size(); i++){
-		size_t memsize = strlen(strings[i]) + 1;
-		char* tmpCharPtr = new char[memsize];
-		memcpy(tmpCharPtr, &strings[i][0], memsize);
-		MemorySegment* seg = new MemorySegment(memsize, 0, (h_byte*)tmpCharPtr);
-		mem.addMemorySegment(*seg);
-	}
-
-	mem.serialize(fileName);
-	
-
-	MemoryMap readMem = MemoryMap(fileName);
-
-
-
-
-
-
 	InstructionDataBank bank = InstructionDataBank();
 	Decoder d = Decoder(&bank);
 	Encoder e = Encoder(&bank, &d);
@@ -73,7 +41,41 @@ int main(){
 	vm.setDecoder(&d);
 
 
+
+
+	MemoryMap mem = MemoryMap();
+	string fileName = "testSerialization.obj";
+
+	char str1[] = "=testing, testing, one, two three, 1, 2, 3!=";
+	char str2[] = "=sorry=";
+	char str3[] = "=1234567890!@#$%^&*()=";
+	virtualAddr addresses[3] = {0, 4096, 8192};
+	vector<char*> strings;
+	strings.push_back(&str1[0]);
+	strings.push_back(&str2[0]);
+	strings.push_back(&str3[0]);
 	
+	for(int i=0; i<strings.size(); i++){
+		size_t memsize = strlen(strings[i]) + 1;
+		char* tmpCharPtr = new char[memsize];
+		memcpy(tmpCharPtr, &strings[i][0], memsize);
+		MemorySegment* seg = new MemorySegment(memsize, addresses[i], (h_byte*)tmpCharPtr);
+		mem.addMemorySegment(seg);
+	}
+
+	mem.serialize(fileName);
+	MemoryMap readMem = MemoryMap(fileName);
+	vm.writeMemoryMap(&readMem);
+	MemoryMap readMemFromVM = vm.readMemoryMap();
+	vm.writeMemoryMap(&readMemFromVM);
+	vm.serialize("serializedVM.txt");
+	MemoryMap readVMserialization = MemoryMap("serializedVM.txt");
+	VirtualMemory vm2 = VirtualMemory();
+	vm2.writeMemoryMap(&readVMserialization);
+	MemoryMap readMem2 = vm2.readMemoryMap();
+
+
+	int asdfjksdfasdkf = 1;
 	////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,9 @@
-#ifndef __MemoryMap_HPP__
-#define __MemoryMap_HPP__
+#ifndef __MEMORYMAP_HPP__
+#define __MEMORYMAP_HPP__
 
-#include "VirtualMemory.hpp"
+#include "types.hpp"
 
+#include <vector>
 
 using namespace std;
 	
@@ -20,6 +21,7 @@ class MemorySegment{
 		size_t getSegFileSize() const;
 		virtualAddr getSegVirtualMemoryStart() const;
 		h_byte* getRawData() const;
+
 		void setRawData(h_byte*);
 
 	private:
@@ -39,11 +41,15 @@ class MemoryMap{
 		void deepCopy(const MemoryMap* obj);
 		void init();
 		void deinit();
+		
+		uint32_t getNumSegments() const;
+		vector<MemorySegment*> getMemorySegments() const;
 
 		void serialize(string fileName);
 		void deserialize(string fileName);
 
-		void addMemorySegment(MemorySegment memSeg);
+		void addMemorySegment(MemorySegment* memSeg);
+
 
 	private:
 		uint32_t numSegments;
