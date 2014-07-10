@@ -51,7 +51,7 @@ void CPU::executeInstruction(Instruction* instruction){
 	int32_t a3 = instruction->getArgumentValue(3);
 	
 	//PC incrementation
-	if(!instructionData->changesPC()){
+	if(!instructionData->isJump()){
 		PC += 4;
 	}
 
@@ -528,13 +528,11 @@ inline void CPU::executeInstructionID_12(uint32_t a0, uint32_t a1, uint32_t a2, 
 inline void CPU::executeInstructionID_13(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	13	=	B	:	-.imm,	_,	_,	_		
 	PC += (signExtend(a0, 16) << 2);
-	PC += 4;
 }
 inline void CPU::executeInstructionID_14(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	14	=	BAL	:	-.imm,	_,	_,	_		
 	GPR[31] = PC + 8;
 	PC += (signExtend(a0, 16) << 2);
-	PC += 4;	
 }
 inline void CPU::executeInstructionID_15(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	15	=	BC1F	:	-.imm,	_,	_,	_		
@@ -606,21 +604,18 @@ inline void CPU::executeInstructionID_31(uint32_t a0, uint32_t a1, uint32_t a2, 
 		uint32_t PCoffset = (signExtend(a2, 16) << 2);
 		PC += PCoffset;
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_32(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	32	=	BEQL	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] == GPR[a1]){
 		PC += (signExtend(a2, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_33(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	33	=	BGEZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] >= 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_34(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	34	=	BGEZAL	:	$rs,	-.imm,	_,	_		
@@ -628,7 +623,6 @@ inline void CPU::executeInstructionID_34(uint32_t a0, uint32_t a1, uint32_t a2, 
 	if((int32_t)GPR[a0] >= 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_35(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	35	=	BGEZALL	:	$rs,	-.imm,	_,	_		
@@ -636,49 +630,42 @@ inline void CPU::executeInstructionID_35(uint32_t a0, uint32_t a1, uint32_t a2, 
 	if((int32_t)GPR[a0] >= 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_36(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	36	=	BGEZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] >= 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_37(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	37	=	BGTZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] > 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_38(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	38	=	BGTZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] > 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_39(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	39	=	BLEZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] <= 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_40(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	40	=	BLEZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] <= 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_41(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	41	=	BLTZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] < 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_42(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	42	=	BLTZAL	:	$rs,	-.imm,	_,	_		
@@ -686,7 +673,6 @@ inline void CPU::executeInstructionID_42(uint32_t a0, uint32_t a1, uint32_t a2, 
 	if((int32_t)GPR[a0] < 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_43(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	43	=	BLTZALL	:	$rs,	-.imm,	_,	_		
@@ -694,28 +680,24 @@ inline void CPU::executeInstructionID_43(uint32_t a0, uint32_t a1, uint32_t a2, 
 	if((int32_t)GPR[a0] < 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_44(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	44	=	BLTZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] < 0){
 		PC += (signExtend(a1, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_45(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	45	=	BNE	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] != GPR[a1]){
 		PC += (signExtend(a2, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_46(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	46	=	BNEL	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] != GPR[a1]){
 		PC += (signExtend(a2, 16) << 2);
 	}
-	PC += 4;
 }
 inline void CPU::executeInstructionID_47(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	47	=	BREAK	:	_,	_,	_,	_		

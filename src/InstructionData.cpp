@@ -21,7 +21,7 @@ using namespace std;
 InstructionData::InstructionData(){
 
 }
-InstructionData::InstructionData(int id, string name, int opcode, instr face, instr mask, char at1, bool ap1, int asb1, int aeb1, char at2, bool ap2, int asb2, int aeb2, char at3, bool ap3, int asb3, int aeb3, char at4, bool ap4, int asb4, int aeb4, bool normalEncoding, bool normalDecoding, bool instructionChangesPC){
+InstructionData::InstructionData(int id, string name, int opcode, instr face, instr mask, char at1, bool ap1, int asb1, int aeb1, char at2, bool ap2, int asb2, int aeb2, char at3, bool ap3, int asb3, int aeb3, char at4, bool ap4, int asb4, int aeb4, bool normalEncoding, bool normalDecoding, bool isJump, bool isBranch){
 	this->id = id;
 	this->name = name;
 
@@ -51,7 +51,8 @@ InstructionData::InstructionData(int id, string name, int opcode, instr face, in
 
 	this->normalEncoding = normalEncoding;
 	this->normalDecoding = normalDecoding;
-	this->instructionChangesPC = instructionChangesPC;
+	this->instructionIsJump = isJump;
+	this->instructionIsBranch = isBranch;
 
 	int numParameters = 0;
 	for(int i=0; i<NUMBER_OF_PARAMETERS; i++){
@@ -101,6 +102,7 @@ int InstructionData::getNumParameters()const{return numParameters;}
 
 bool InstructionData::isEncodedNormally()const{return normalEncoding;}
 bool InstructionData::isDecodedNormally()const{return normalDecoding;}
-bool InstructionData::changesPC()const{return instructionChangesPC;}
+bool InstructionData::isJump()const{return instructionIsJump;}
+bool InstructionData::isBranch()const{return instructionIsBranch;}
 
 

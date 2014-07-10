@@ -13,7 +13,7 @@ using namespace std;
 class InstructionData{
 	public:
 		InstructionData();
-		InstructionData(int id, string name, int opcode, instr face, instr mask, char at1, bool ap1, int asb1, int aeb1, char at2, bool ap2, int asb2, int aeb2, char at3, bool ap3, int asb3, int aeb3, char at4, bool ap4, int asb4, int aeb4, bool normalEncoding, bool normalDecoding, bool instructionChangesPC);
+		InstructionData(int id, string name, int opcode, instr face, instr mask, char at1, bool ap1, int asb1, int aeb1, char at2, bool ap2, int asb2, int aeb2, char at3, bool ap3, int asb3, int aeb3, char at4, bool ap4, int asb4, int aeb4, bool normalEncoding, bool normalDecoding, bool isJump, bool isBranch);
 		~InstructionData();
 		
 		int getID() const;
@@ -41,7 +41,8 @@ class InstructionData{
 
 		bool isEncodedNormally() const;
 		bool isDecodedNormally() const;
-		bool changesPC() const;
+		bool isJump() const;
+		bool isBranch() const;
 
 		
 	private:		
@@ -59,7 +60,8 @@ class InstructionData{
 
 		bool normalEncoding;
 		bool normalDecoding;
-		bool instructionChangesPC;
+		bool instructionIsJump;
+		bool instructionIsBranch;
 };
 
 
