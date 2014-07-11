@@ -2,8 +2,9 @@
 #define __STRINGRESOLVER_HPP__
 
 #include "InstructionData.hpp"
-#include "types.hpp"
 #include "InstructionDataBank.hpp"
+#include "Parser.hpp"
+#include "types.hpp"
 
 #include <string>
 #include <vector>
@@ -22,17 +23,18 @@ class StringResolver{
 	private:
 		//Methods
 		void addInstructionData(InstructionData* id);
-		static bool instructionStrIsMatch(InstructionData* id, string rightInstrStr);
+		bool instructionStrIsMatch(InstructionData* id, string rightInstrStr);
 
 		int hash(string);	
-		static string getHashableStringFromInstructionString(string instructionString);
-		static string getHashableStringFromInstructionTokens(string name, vector<string> arguments);
-		static string getHashableStringFromInstructionData(InstructionData* id);
+		string getHashableStringFromInstructionString(string instructionString);
+		string getHashableStringFromInstructionTokens(string name, vector<string> arguments);
+		string getHashableStringFromInstructionData(InstructionData* id);
 
 
 		//Members
 		std::hash<string> hasher;
 		vector<InstructionData*> table[INSTRUCTION_DATA_HASH_TABLE_SIZE];
+		Parser parser;
 };
 
 

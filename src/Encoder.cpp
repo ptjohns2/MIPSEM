@@ -1,7 +1,7 @@
 #include "Encoder.hpp"
 
 #include "Decoder.hpp"
-#include "parse.hpp"
+#include "Parser.hpp"
 
 #include <bitset>
 #include <cassert>
@@ -9,7 +9,8 @@
 #include <tuple>
 
 //	Constructors
-Encoder::Encoder(InstructionDataBank* bank, Decoder* decoder) : resolver(bank){
+Encoder::Encoder(InstructionDataBank* bank, Decoder* decoder) 
+	:	resolver(bank), parser(){
 	this->decoder = decoder;	
 }
 
@@ -24,7 +25,7 @@ Instruction Encoder::buildInstruction(string asmString){
 		return jnk;
 	}
 
-	vector<string> arguments = parse::tokenizeInstruction(asmString);
+	vector<string> arguments = Parser::tokenizeInstruction(asmString);
 	arguments.erase(arguments.begin());
 
 	instr bin;
@@ -35,26 +36,6 @@ Instruction Encoder::buildInstruction(string asmString){
 	}
 
 	return decoder->buildInstruction(bin);
-	/*
-	int32_t argumentValues[NUMBER_OF_PARAMETERS];
-	//get argument values
-	if(id->isDecodedNormally()){
-		//get argument values
-		for(int i=0; i<id->getNumParameters(); i++){
-			bitrange br = id->getParameterBitrange(i);
-			int32_t argVal = Decoder::decodeArgumentToValue(bin, id, i);
-			argumentValues[i] = argVal;
-		}
-	}else{
-		//decode abnormal instr
-		argumentValues.clear();
-		asmString = Decoder::decodeAbnormalInstruction(binString, id->getName(), parameters, id->getInstructionID(), argumentValues);
-	}
-	
-
-	Instruction instruction = Instruction(id, asmString, binString, bin, argumentValues);
-	return instruction;
-	*/
 }
 
 instr Encoder::setBitrange(instr bin, uint32_t value, unsigned int start, unsigned int end){
@@ -83,7 +64,7 @@ instr Encoder::setBitrange(instr bin, uint32_t value, bitrange br){
 
 //	private Methods
 instr Encoder::encodeArgument(instr bin, string argument, bitrange br){
-	int32_t parameterValue = parse::getArgumentValue(argument);
+	int32_t parameterValue = parser.getArgumentValue(argument);
 	instr encodedInstr = setBitrange(bin, parameterValue, br);
 	return encodedInstr;
 }
@@ -128,7 +109,7 @@ instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arg
 			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 			newInstruction = encodeArgument(newInstruction, arguments[2], id->getParameterBitrange(2));
 
-			int size = parse::getLiteralValue(arguments[3]);
+			int size = Parser::getLiteralValue(arguments[3]);
 			//negatives will be handled since only 5 lsb of binstr
 			int msbd = size - 1;
 			newInstruction = encodeArgument(newInstruction, std::to_string(msbd), id->getParameterBitrange(3));
@@ -140,8 +121,8 @@ instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arg
 			newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
 			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 
-			int pos = parse::getLiteralValue(arguments[2]);
-			int size = parse::getLiteralValue(arguments[3]);
+			int pos = Parser::getLiteralValue(arguments[2]);
+			int size = Parser::getLiteralValue(arguments[3]);
 			//negatives will be handled since only 5 lsb of binstr
 			int msb = pos + size - 1;
 		

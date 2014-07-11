@@ -1,6 +1,6 @@
 #include "Decoder.hpp"
 
-#include "parse.hpp"
+#include "Parser.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -73,10 +73,10 @@ string Decoder::decodeArgumentToMnemonic(instr ins, InstructionData* id, int par
 	string retStr;
 	if(id->parameterIsGPRegister(parameterNumber)){
 		int fieldVal = extractBitrangeUnsigned(ins, br);
-		retStr = parse::getGPRegisterName(fieldVal);
+		retStr = Parser::getGPRegisterName(fieldVal);
 	}else if(id->parameterIsFPRegister(parameterNumber)){
 		int fieldVal = extractBitrangeUnsigned(ins, br);
-		retStr = parse::getFPRegisterName(fieldVal);
+		retStr = Parser::getFPRegisterName(fieldVal);
 	}else if(id->parameterIsUnsignedLiteral(parameterNumber)){
 		int fieldVal = extractBitrangeUnsigned(ins, br);
 		retStr = std::to_string(fieldVal);

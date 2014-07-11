@@ -1,6 +1,6 @@
 #include "InstructionData.hpp"
 
-#include "parse.hpp"
+#include "Parser.hpp"
 #include "StringResolver.hpp"
 
 #include <cassert>

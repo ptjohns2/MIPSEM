@@ -1,6 +1,6 @@
 #include "StringResolver.hpp"
 
-#include "parse.hpp"
+#include "Parser.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -8,7 +8,9 @@
 #include <sstream>
 
 //	Constructors
-StringResolver::StringResolver(InstructionDataBank* bank){
+StringResolver::StringResolver(InstructionDataBank* bank)
+	:	parser()
+{
 	addInstructionDataBank(bank);
 }
 StringResolver::~StringResolver()
@@ -57,7 +59,7 @@ int StringResolver::hash(string key){
 }
 
 string StringResolver::getHashableStringFromInstructionString(string instructionString){
-	vector<string> tokens = parse::tokenizeInstruction(instructionString);
+	vector<string> tokens = Parser::tokenizeInstruction(instructionString);
 	string instructionName = tokens[0];
 	tokens.erase(tokens.begin());
 	string retStr = getHashableStringFromInstructionTokens(instructionName, tokens);
@@ -71,15 +73,15 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 	for(unsigned int i=0; i<arguments.size(); i++){
 		string tmpArg = arguments[i];
 		string tmpTokStr;
-		bool hasParentheses = parse::hasParentheses(tmpArg);
+		bool hasParentheses = Parser::hasParentheses(tmpArg);
 		if(hasParentheses){
-			tmpArg = parse::removeParentheses(tmpArg);
+			tmpArg = Parser::removeParentheses(tmpArg);
 		}
-		if(parse::argumentIsGPRegister(tmpArg)){
+		if(parser.tokenIsGPRegister(tmpArg)){
 			tmpTokStr = "g$";
-		}else if(parse::argumentIsFPRegister(tmpArg)){
+		}else if(parser.tokenIsFPRegister(tmpArg)){
 			tmpTokStr = "f$";
-		}else if(parse::tokenIsLiteral(tmpArg)){
+		}else if(parser.tokenIsLiteral(tmpArg)){
 			tmpTokStr = ".";
 		}else{
 			cout << "invalid token " << tmpArg;

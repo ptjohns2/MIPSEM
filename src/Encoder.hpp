@@ -21,14 +21,14 @@ class Encoder{
 
 	private:
 		//Methods
-		static instr encodeArgument(instr bin, string argument, bitrange br);
-		static instr encodeInstruction(InstructionData* id, vector<string> arguments);
-		static instr encodeAbnormalInstruction(InstructionData* id, vector<string> arguments);
+		instr encodeArgument(instr bin, string argument, bitrange br);
+		instr encodeInstruction(InstructionData* id, vector<string> arguments);
+		instr encodeAbnormalInstruction(InstructionData* id, vector<string> arguments);
 		
 		//Members
 		StringResolver resolver;
 		Decoder* decoder;
-
+		Parser parser;
 
 };
 

@@ -5,7 +5,7 @@
 #include "Decoder.hpp"
 #include "Encoder.hpp"
 #include "MemoryMap.hpp"
-#include "parse.hpp"
+#include "Parser.hpp"
 #include "VirtualMemory.hpp"
 
 #include <bitset>
@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
+#include <unordered_map>
 
 
 using namespace std;
@@ -29,7 +30,18 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 	
-	
+
+
+
+
+
+
+	string x = "  \t testing \t testing      \t   \t\t\t\tone, \t two, \t three, \t\t\t\t four   \t";
+	vector<string> ret = Parser::stringExplode(x);
+	vector<string> sfidjsd = Parser::stringExplodeAndSanitize(x);
+	string strer1 = Parser::removeTrailingComma("dsfsdf,");
+	string strdfsa2 = Parser::removeTrailingComma("dsfsdf");
+
 	InstructionDataBank bank = InstructionDataBank();
 	Decoder d = Decoder(&bank);
 	Encoder e = Encoder(&bank, &d);
@@ -108,9 +120,15 @@ int main(){
 
 	int asdfas = 3;
 	
+	int num = 0;
 	while(true){
+		num++;
+		if(num > 100000){
+			getchar();
+		}
+
 		Instruction* instructionFromMemory = vm.readInstruction(cpu.PC);
-		cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
+		//cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
 		cpu.executeInstruction(instructionFromMemory);
 	}
 

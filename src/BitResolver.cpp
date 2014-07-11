@@ -1,6 +1,6 @@
 #include "BitResolver.hpp"
 
-#include "parse.hpp"
+#include "Parser.hpp"
 
 #include <bitset>
 #include <cassert>

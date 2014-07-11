@@ -1,6 +1,6 @@
 #include "Assembler.hpp"
 
-#include "parse.hpp"
+#include "Parser.hpp"
 
 #include <fstream>
 
@@ -27,7 +27,7 @@ void Assembler::loadProgramFromFile(string fileName){
 	if(!file.is_open()){return;}
 	string tmpProgramLine;
 	while(getline(file, tmpProgramLine)){
-		tmpProgramLine = parse::sanitizeInstruction(tmpProgramLine);
+		tmpProgramLine = Parser::sanitizeInstruction(tmpProgramLine);
 		program.push_back(tmpProgramLine);
 	}
 }
