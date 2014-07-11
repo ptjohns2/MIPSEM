@@ -16,3 +16,18 @@ Progress:
 	Instruction decoding	-	done	
 	Virtual memory system	-	done   
 	Instruction interpretation	-	  in progress    
+   
+Example program:   
+addi 	$t1, $zero, 48	#0   
+addi	$t0, $zero, 0	#4   
+addi	$t0, $t0, 8	#8   
+addi	$v0, $zero, 1	#12   
+add	$a0, $zero, $t0	#16   
+syscall			#20   
+beq	$t0, $t1, 1	#24   
+b	-6			#28   
+addi	$a0, $zero, 999	#32   
+syscall			#36   
+   
+Example output:   
+![Alt text](/demos/program1output.png?raw=true)

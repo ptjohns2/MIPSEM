@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 
@@ -93,37 +94,11 @@ vector<string> parse::tokenizeInstruction(string str){
 	return tokensAfterParenSplit;
 }
 
-int32_t parse::binStrToSignedDecInt(string binStr){
-	bool isNeg = (binStr[0] == '1');
-	if(isNeg){
-		binStr = twosComplement(binStr);
-	}
-	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(binStr);
-	int retVal = (int)(tmpBitset.to_ulong());
-
-	if(isNeg){
-		retVal = -1 * retVal;
-	}
-	return retVal;
-}
 
 uint32_t parse::binStrToUnsignedDecInt(string binStr){
 	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(binStr);
 	uint32_t retVal = (uint32_t)(tmpBitset.to_ulong());
 	return retVal;
-}
-
-string parse::decIntToBinStr(int32_t val){
-	bool isNeg = (val < 0);
-	if(isNeg){
-		val = -1 * val;
-	}
-	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(val);
-	string binStr = tmpBitset.to_string();
-	if(isNeg){
-		binStr = twosComplement(binStr);
-	}
-	return binStr;
 }
 
 char parse::flipBit(char i){
@@ -328,6 +303,27 @@ int parse::getArgumentValue(string argument){
 	cout << "Error invalid token " << argument << '\n';
 	getchar();
 	return 0;
+}
+
+string parse::getValueDecimalLiteral(int val){
+	return std::to_string(val);
+}
+string parse::getValueHexLiteral(int val){
+	stringstream ss;
+	ss << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
+	return ss.str();
+}
+string parse::getValueBinaryLiteral(int val){
+	bool isNeg = (val < 0);
+	if(isNeg){
+		val = -1 * val;
+	}
+	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(val);
+	string binStr = tmpBitset.to_string();
+	if(isNeg){
+		binStr = twosComplement(binStr);
+	}
+	return "0b" + binStr;
 }
 
 

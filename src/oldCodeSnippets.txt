@@ -88,7 +88,7 @@
 		tmpPair.second = rand();
 		junkValues.push_back(tmpPair);
 	}
-	cout <<  "Memory range: [" << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[0].first << ", " << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[junkValues.size() - 1].first << ']' << '\n';
+	cout <<  "Memory range: [" << "0x" << std::setw(8) << std::setfill('0') << std::hex << junkValues[0].first << ", " << "0x" << std::setw(8) << std::setfill('0') << std::hex <<junkValues[junkValues.size() - 1].first << ']' << '\n';
 
 	int dkfjasdfsdf = 1;
 

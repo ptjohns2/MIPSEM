@@ -21,9 +21,7 @@ class parse{
 		static string sanitizeInstruction(string);
 		static vector<string> tokenizeInstruction(string);
 		
-		static int32_t binStrToSignedDecInt(string binStr);
 		static uint32_t binStrToUnsignedDecInt(string binStr);
-		static string decIntToBinStr(int32_t val);
 
 		static char flipBit(char i);
 		static string incBitStrByOne(string binStr);
@@ -56,6 +54,9 @@ class parse{
 
 		static int getArgumentValue(string argument);
 		
+		static string getValueDecimalLiteral(int val);
+		static string getValueHexLiteral(int val);
+		static string getValueBinaryLiteral(int val);
 
 		static bool isDecimalDigit(char);
 		static bool isHexDigit(char);
