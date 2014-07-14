@@ -19,7 +19,7 @@
 				invalidEncode |= loopPtr.getBin() != nextPtr.getBin();
 				bool invalidArgumentValues = false;
 				for(int argValTestIterator = 0; argValTestIterator<NUMBER_OF_PARAMETERS; argValTestIterator++){
-					invalidArgumentValues |= loopPtr.getArgumentValue(argValTestIterator) != nextPtr.getArgumentValue(argValTestIterator);
+					invalidArgumentValues |= loopPtr.getTokenValue(argValTestIterator) != nextPtr.getTokenValue(argValTestIterator);
 				}
 				if(invalidArgumentValues){
 					pair<Instruction, Instruction> tmp;

@@ -19,7 +19,7 @@ class Instruction{
 		InstructionData* getInstructionData() const;
 		string getAsmString() const;
 		instr getBin() const;
-		int32_t getArgumentValue(int) const;
+		int32_t getTokenValue(int) const;
 
 	private:
 		//Members

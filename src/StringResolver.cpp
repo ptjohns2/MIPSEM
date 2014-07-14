@@ -73,21 +73,21 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 	for(unsigned int i=0; i<arguments.size(); i++){
 		string tmpArg = arguments[i];
 		string tmpTokStr;
-		bool hasParentheses = Parser::hasParentheses(tmpArg);
-		if(hasParentheses){
-			tmpArg = Parser::removeParentheses(tmpArg);
+		bool isNestedByParentheses = Parser::isNestedByParentheses(tmpArg);
+		if(isNestedByParentheses){
+			tmpArg = Parser::removeNestedParentheses(tmpArg);
 		}
 		if(parser.tokenIsGPRegister(tmpArg)){
 			tmpTokStr = "g$";
 		}else if(parser.tokenIsFPRegister(tmpArg)){
 			tmpTokStr = "f$";
-		}else if(parser.tokenIsLiteral(tmpArg)){
+		}else if(parser.literals.tokenIsLiteral(tmpArg)){
 			tmpTokStr = ".";
 		}else{
 			cout << "invalid token " << tmpArg;
 			getchar();
 		}
-		if(hasParentheses){
+		if(isNestedByParentheses){
 			tmpTokStr = "(" + tmpTokStr + ")";
 		}
 		ss << tmpTokStr;

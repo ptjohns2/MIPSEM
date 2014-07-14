@@ -64,7 +64,7 @@ instr Encoder::setBitrange(instr bin, uint32_t value, bitrange br){
 
 //	private Methods
 instr Encoder::encodeArgument(instr bin, string argument, bitrange br){
-	int32_t parameterValue = parser.getArgumentValue(argument);
+	int32_t parameterValue = parser.getTokenValue(argument);
 	instr encodedInstr = setBitrange(bin, parameterValue, br);
 	return encodedInstr;
 }
@@ -109,7 +109,7 @@ instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arg
 			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 			newInstruction = encodeArgument(newInstruction, arguments[2], id->getParameterBitrange(2));
 
-			int size = Parser::getLiteralValue(arguments[3]);
+			int size = parser.literals.getLiteralValue(arguments[3]);
 			//negatives will be handled since only 5 lsb of binstr
 			int msbd = size - 1;
 			newInstruction = encodeArgument(newInstruction, std::to_string(msbd), id->getParameterBitrange(3));
@@ -121,8 +121,8 @@ instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arg
 			newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
 			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 
-			int pos = Parser::getLiteralValue(arguments[2]);
-			int size = Parser::getLiteralValue(arguments[3]);
+			int pos = parser.literals.getLiteralValue(arguments[2]);
+			int size = parser.literals.getLiteralValue(arguments[3]);
 			//negatives will be handled since only 5 lsb of binstr
 			int msb = pos + size - 1;
 		

@@ -1,8 +1,8 @@
 
-
-#include "InstructionDataBank.hpp"
+#include "Assembler.hpp"
 #include "CPU.hpp"
 #include "Decoder.hpp"
+#include "InstructionDataBank.hpp"
 #include "Encoder.hpp"
 #include "MemoryMap.hpp"
 #include "Parser.hpp"
@@ -29,62 +29,24 @@ int main(){
 	assert(sizeof(int64_t) == 8);
 
 	srand((unsigned int)time(NULL));
-	
-
-
-
-
-
-
-	string x = "  \t testing \t testing      \t   \t\t\t\tone, \t two, \t three, \t\t\t\t four   \t";
-	vector<string> ret = Parser::stringExplode(x);
-	vector<string> sfidjsd = Parser::stringExplodeAndSanitize(x);
-	string strer1 = Parser::removeTrailingComma("dsfsdf,");
-	string strdfsa2 = Parser::removeTrailingComma("dsfsdf");
 
 	InstructionDataBank bank = InstructionDataBank();
-	Decoder d = Decoder(&bank);
-	Encoder e = Encoder(&bank, &d);
-	BitResolver br = BitResolver(&bank);
-	StringResolver sr = StringResolver(&bank);
+	Decoder decoder = Decoder(&bank);
+	Encoder encoder = Encoder(&bank, &decoder);
+	BitResolver bitResolver = BitResolver(&bank);
+	StringResolver stringResolver = StringResolver(&bank);
 	CPU cpu = CPU();
-
 	VirtualMemory vm = VirtualMemory();
-	vm.setDecoder(&d);
+	vm.setDecoder(&decoder);
+	Parser parser = Parser();
 
-
-
-
-	MemoryMap mem = MemoryMap();
-	string fileName = "testSerialization.obj";
-
-	char str1[] = "=testing, testing, one, two three, 1, 2, 3!=";
-	char str2[] = "=sorry=";
-	char str3[] = "=1234567890!@#$%^&*()=";
-	virtualAddr addresses[3] = {0, 4096, 8192};
-	vector<char*> strings;
-	strings.push_back(&str1[0]);
-	strings.push_back(&str2[0]);
-	strings.push_back(&str3[0]);
-	
-	for(int i=0; i<strings.size(); i++){
-		size_t memsize = strlen(strings[i]) + 1;
-		char* tmpCharPtr = new char[memsize];
-		memcpy(tmpCharPtr, &strings[i][0], memsize);
-		MemorySegment* seg = new MemorySegment(memsize, addresses[i], (h_byte*)tmpCharPtr);
-		mem.addMemorySegment(seg);
+	fstream file("test.txt");
+	string tmpTest;
+	while(getline(file, tmpTest)){
+		int val = parser.literals.getLiteralValue(tmpTest);
+ 		cout << tmpTest << "\t" << val << '\n';
 	}
 
-	mem.serialize(fileName);
-	MemoryMap readMem = MemoryMap(fileName);
-	vm.writeMemoryMap(&readMem);
-	MemoryMap readMemFromVM = vm.readMemoryMap();
-	vm.writeMemoryMap(&readMemFromVM);
-	vm.serialize("serializedVM.txt");
-	MemoryMap readVMserialization = MemoryMap("serializedVM.txt");
-	VirtualMemory vm2 = VirtualMemory();
-	vm2.writeMemoryMap(&readVMserialization);
-	MemoryMap readMem2 = vm2.readMemoryMap();
 
 
 	int asdfjksdfasdkf = 1;
@@ -113,7 +75,7 @@ int main(){
 	instrStrArr.push_back("syscall");	//32
 
 	for(int i=0; i<instrStrArr.size(); i++){
-		Instruction instruction = e.buildInstruction(instrStrArr[i]);
+		Instruction instruction = encoder.buildInstruction(instrStrArr[i]);
 		instr instructionBin = instruction.getBin();
 		vm.writeToVirtualMemorySpace(cpu.PC + i * sizeof(instr), sizeof(instr), &instructionBin);
 	}
@@ -128,7 +90,7 @@ int main(){
 		}
 
 		Instruction* instructionFromMemory = vm.readInstruction(cpu.PC);
-		//cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
+		cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
 		cpu.executeInstruction(instructionFromMemory);
 	}
 

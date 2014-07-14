@@ -1,14 +1,16 @@
 #include "Parser.hpp"
 
-#include <bitset>
 #include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
 
 #define WHITE_SPACE_STRING (" \t")
 
-Parser::Parser(){
+Parser::Parser()
+	:	literals()
+{
 	for(int i=0; i<NUM_GP_REGISTER_NAMES; i++){
 		GPRegisterNameMap[GPRegisterNames[i]] = i;
 	}
@@ -16,7 +18,10 @@ Parser::Parser(){
 		FPRegisterNameMap[FPRegisterNames[i]] = i;
 	}
 	for(int i=0; i<NUM_DIRECTIVE_NAMES; i++){
-		DirectiveNameMap[DirectiveNames[i]] = i;
+		DirectiveMap[DirectiveNames[i]] = i;
+	}
+	for(int i=0; i<NUM_INSTRUCTION_NAMES; i++){
+		InstructionMnemonicMap[InstructionNames[i]] = i;
 	}
 }
 Parser::~Parser(){
@@ -63,22 +68,43 @@ string Parser::replaceChar(string str, char before, char after){
 	return str;
 }
 
-bool Parser::hasParentheses(string str){
+
+
+
+bool Parser::isNestedByParentheses(string str){
 	return str[0] == '(' && str[str.length()-1] == ')';
 }
-string Parser::removeParentheses(string str){
-	if(hasParentheses(str)){
-		str = str.substr(1, str.length() - 1 - 1);	//1 for each parentheses
+string Parser::removeNestedParentheses(string str){
+	if(isNestedByParentheses(str)){
+		return str.substr(1, str.length() - 1 - 1);
+	}
+	return str;
+}
+bool Parser::isNestedByApostrophes(string str){
+	return str[0] == '\'' && str[str.length()-1] == '\'';
+}
+string Parser::removedNestedApostrophes(string str){
+	if(isNestedByApostrophes(str)){
+		return str.substr(1, str.length() - 1 - 1);
+	}
+	return str;
+}
+bool Parser::isNestedByQuotes(string str){
+	return str[0] == '\"' && str[str.length()-1] == '\"';
+}
+string Parser::removedNestedQuotes(string str){
+	if(isNestedByQuotes(str)){
+		return str.substr(1, str.length() - 1 - 1);
 	}
 	return str;
 }
 
-bool Parser::hasTrailingComma(string str){
+bool Parser::isTrailedByComma(string str){
 	return str[str.length() - 1] == ',';
 }
 string Parser::removeTrailingComma(string str){
-	if(hasTrailingComma(str)){
-		str = str.substr(0, str.length() - 1);
+	if(isTrailedByComma(str)){
+		return str.substr(0, str.length() - 1);
 	}
 	return str;
 }
@@ -92,19 +118,23 @@ bool Parser::isWhiteSpace(char c){
 	return false;
 }
 
-string Parser::sanitizeInstruction(string str){
+string Parser::removeComment(string str){
 	int i = 0;
 	while(i<str.length() && str[i] != '#'){
 		if(str[i] == '\t'){str[i] = ' ';}
-		i++;
+		i++;	
 	}
-	string substr = str.substr(0, i);
-	return trim(substr);
+	return trim(str.substr(0, i));
+}
+string Parser::sanitizeProgramLine(string line){
+	line = removeComment(line);
+	vector<string> tokenList = stringExplode(line);
+	return combineTokensToString(tokenList);
 }
 
 vector<string> Parser::tokenizeInstruction(string str){
 	// NAME A1,A2,A3,A4#xxxx
-	str = sanitizeInstruction(str);
+	str = removeComment(str);
 
 	stringstream ss(str);
 
@@ -139,9 +169,7 @@ vector<string> Parser::stringExplode(string str){
 	for(int i=0; i<str.length(); i++){
 		bool isToken = false;
 		string tmpStr;
-		while(isWhiteSpace(str[i]) && i<str.length()){
-			i++;
-		}
+		while(isWhiteSpace(str[i]) && i<str.length()){i++;}
 		while(!isWhiteSpace(str[i]) && i<str.length()){
 			isToken = true;
 			tmpStr += str[i];
@@ -162,49 +190,30 @@ vector<string> Parser::stringExplodeAndSanitize(string str){
 	return ret;
 }
 
-
-uint32_t Parser::binStrToUnsignedDecInt(string binStr){
-	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(binStr);
-	uint32_t retVal = (uint32_t)(tmpBitset.to_ulong());
-	return retVal;
-}
-
-char Parser::flipBit(char i){
-	if(i == '0'){
-		return '1';
-	}else{
-		return '0';
+string Parser::extractAndRemoveFirstToken(string &str){
+	string firstToken;
+	int i = 0;
+	while(isWhiteSpace(str[i]) && i<str.length()){i++;}
+	//TODO
+	//if start of quote, " or ', skip to end of it to extract it
+	//if first raw token is instruction name, extract the rest of the full line (assume nothing can go after instruction)
+	//TODO
+	while(!isWhiteSpace(str[i]) && i<str.length()){
+		firstToken += str[i];
+		i++;
 	}
+	while(isWhiteSpace(str[i]) && i<str.length()){i++;}
+	str = str.substr(i);
+	return firstToken;
 }
 
-string Parser::incBitStrByOne(string binStr){
-	int i = binStr.length()-1;
-	char lastChar = binStr[i];
-	if(lastChar == '1'){
-		while(binStr[i] == '1'){
-			binStr[i] = '0';
-			i--;
-		}
-		binStr[i] = '1';
-	}else{
-		binStr[i] = '1';
+string Parser::combineTokensToString(vector<string> const &tokens, int from){
+	string combinedStr;
+	for(int i=from; i<tokens.size() - 1; i++){
+		combinedStr += tokens[i] + ' ';
 	}
-
-	return binStr;
-}
-
-string Parser::onesComplement(string binStr){
-	for(unsigned int i=0; i<binStr.length(); i++){
-		binStr[i] = flipBit(binStr[i]);
-	}
-	return binStr;
-}
-
-string Parser::twosComplement(string binStr){
-	binStr = onesComplement(binStr);
-	binStr = incBitStrByOne(binStr);
-
-	return binStr;
+	combinedStr += tokens[tokens.size() - 1];
+	return combinedStr;
 }
 
 
@@ -212,12 +221,16 @@ string Parser::twosComplement(string binStr){
 
 
 
-int Parser::getArgumentValue(string argument){
-	argument = removeParentheses(argument);
+
+
+
+
+int Parser::getTokenValue(string argument){
+	argument = removeNestedParentheses(argument);
 	if(tokenIsRegister(argument)){
 		return getRegisterIndex(argument);
-	}else if(tokenIsLiteral(argument)){
-		return getLiteralValue(argument);
+	}else if(literals.tokenIsLiteral(argument)){
+		return literals.getLiteralValue(argument);
 	}
 	cout << "Error invalid token " << argument << '\n';
 	getchar();
@@ -229,25 +242,6 @@ int Parser::getArgumentValue(string argument){
 bool Parser::tokenIsRegister(string token){
 	return tokenIsGPRegister(token) || tokenIsFPRegister(token);
 }
-bool Parser::tokenIsGPRegister(string token){
-	return getGPRegisterIndex(token) != -1;
-}
-bool Parser::tokenIsFPRegister(string token){
-	return getFPRegisterIndex(token) != -1;
-}
-
-
-
-string Parser::getGPRegisterName(int index){
-	assert(index >= 0 && index < 32);
-	return GPRegisterNames[index];
-}
-string Parser::getFPRegisterName(int index){
-	assert(index >= 0 && index < 32);
-	return FPRegisterNames[index];
-}
-
-
 int Parser::getRegisterIndex(string token){
 	if(tokenIsGPRegister(token)){
 		return getGPRegisterIndex(token);
@@ -259,7 +253,9 @@ int Parser::getRegisterIndex(string token){
 	return 0;
 }
 
-//TODO: memoize the get*RegisterIndex functions
+bool Parser::tokenIsGPRegister(string token){
+	return getGPRegisterIndex(token) != -1;
+}
 int Parser::getGPRegisterIndex(string token){
 	unordered_map<string, int>::iterator iter = GPRegisterNameMap.find(token);
 	if(iter != GPRegisterNameMap.end()){
@@ -268,7 +264,15 @@ int Parser::getGPRegisterIndex(string token){
 		return -1;
 	}
 }
+string Parser::getGPRegisterName(int index){
+	assert(index >= 0 && index < 32);
+	return GPRegisterNames[index];
+}
 
+
+bool Parser::tokenIsFPRegister(string token){
+	return getFPRegisterIndex(token) != -1;
+}
 int Parser::getFPRegisterIndex(string token){
 	unordered_map<string, int>::iterator iter = FPRegisterNameMap.find(token);
 	if(iter != FPRegisterNameMap.end()){
@@ -277,115 +281,46 @@ int Parser::getFPRegisterIndex(string token){
 		return -1;
 	}
 }
-
-
-
-bool Parser::tokenIsLiteral(string argument){
-	return tokenIsDecimalLiteral(argument)
-		|| tokenIsHexLiteral(argument)
-		|| tokenIsBinaryLiteral(argument);
+string Parser::getFPRegisterName(int index){
+	assert(index >= 0 && index < 32);
+	return FPRegisterNames[index];
 }
-bool Parser::tokenIsDecimalLiteral(string argument){
-	int start = 0;
-	if(argument[0] == '-'){start++;}
-	for(unsigned int i=start; i<argument.length(); i++){
-		if(!isDecimalDigit(argument[i])){return false;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool Parser::tokenIsInstructionMnemonic(string token){
+	return getInstructionMnemonicNumber(token) != -1;
+}
+int Parser::getInstructionMnemonicNumber(string token){
+	unordered_map<string, int>::iterator iter = InstructionMnemonicMap.find(token);
+	if(iter != InstructionMnemonicMap.end()){
+		return (*iter).second;
+	}else{
+		return -1;
 	}
-	return true;
 }
-bool Parser::tokenIsHexLiteral(string argument){
-	if(argument[0] != '0'){return false;}
-	if(argument[1] != 'x'){return false;}
-	if(argument.length() > 10){return false;}
-	for(unsigned int i=2; i<argument.length(); i++){
-		if(!isHexDigit(argument[i])){return false;}
-	}
-	return true;
-}
-bool Parser::tokenIsBinaryLiteral(string argument){
-	if(argument[0] != '0'){return false;}
-	if(argument[1] != 'b'){return false;}
-	if(argument.length() > 34){return false;}
-	for(unsigned int i=2; i<argument.length(); i++){
-		if(!isBinaryDigit(argument[i])){return false;}
-	}
-	return true;
-}
-
-
-int Parser::getLiteralValue(string argument){
-	if(tokenIsDecimalLiteral(argument)){
-		return getDecimalLiteralValue(argument);
-	}else if(tokenIsHexLiteral(argument)){
-		return getHexLiteralValue(argument);
-	}else if(tokenIsBinaryLiteral(argument)){
-		return getBinaryLiteralValue(argument);
-	}
-	cout << "error[int getLiteralValue(string argument)]: " << argument << " is not a valid literal value\n";
-	getchar();
-	return 0;
-}
-int Parser::getDecimalLiteralValue(string argument){
-	bool isNeg = argument[0] == '-';
-	int start = isNeg? 1 : 0;
-	int retVal = 0;
-	for(unsigned int i=start; i<argument.length(); i++){
-		retVal *= 10;
-		retVal += decimalCharToDigit(argument[i]);
-	}
-	if(isNeg){retVal *= -1;}
-	return retVal;
-}
-int Parser::getHexLiteralValue(string argument){
-	int retVal = 0;
-	for(unsigned int i=2; i<argument.length(); i++){
-		retVal <<= 4;
-		retVal |= hexCharToDigit(argument[i]);
-	}
-	return retVal;
-}
-int Parser::getBinaryLiteralValue(string argument){
-	//this instead of binStrToSigned/UnsignedDecInt(string binStr)
-	//	so it's counted as leading 0s
-	int retVal = binStrToUnsignedDecInt(argument.substr(2));
-	return retVal;
-}
-
-
-
-
-string Parser::getValueDecimalLiteral(int val){
-	return std::to_string(val);
-}
-string Parser::getValueHexLiteral(int val){
-	stringstream ss;
-	ss << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
-	return ss.str();
-}
-string Parser::getValueBinaryLiteral(int val){
-	bool isNeg = (val < 0);
-	if(isNeg){
-		val = -1 * val;
-	}
-	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(val);
-	string binStr = tmpBitset.to_string();
-	if(isNeg){
-		binStr = twosComplement(binStr);
-	}
-	return "0b" + binStr;
-}
-
-
-
-
 
 
 bool Parser::tokenIsDirective(string token){
 	return getDirectiveNumber(token) != -1;
 }
 int Parser::getDirectiveNumber(string token){
-	unordered_map<string, int>::iterator iter = DirectiveNameMap.find(token);
-	if(iter != DirectiveNameMap.end()){
+	unordered_map<string, int>::iterator iter = DirectiveMap.find(token);
+	if(iter != DirectiveMap.end()){
 		return (*iter).second;
 	}else{
 		return -1;
@@ -394,35 +329,45 @@ int Parser::getDirectiveNumber(string token){
 
 
 
+bool Parser::tokenIsLabel(string token){
+	return token[token.length() - 1] == ':';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //
 
-bool Parser::isDecimalDigit(char c){
-	return (c >= '0' && c <= '9');
-}
-bool Parser::isHexDigit(char c){
-	return (c >= '0' && c <= '9')
-		|| (c >= 'a' && c <= 'f')
-		|| (c >= 'A' && c <= 'F');
-}
-bool Parser::isBinaryDigit(char c){
-	return c == '0' || c == '1';
-}
 
-int Parser::decimalCharToDigit(char c){
-	return c - '0';
-}
-int Parser::hexCharToDigit(char c){
-	if(c >= '0' && c <= '9'){return c - '0';}
-	else if(c >= 'a' && c <= 'f'){return c - 'a' + 10;}
-	else if(c >= 'A' && c <= 'F'){return c - 'A' + 10;}
-	//error, not real hex char
-	return 0;
-}
-int Parser::binaryCharToDigit(char c){
-	return (c == '0')? 0 : 1;
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -482,3 +427,25 @@ string const Parser::DirectiveNames[] = {
 	".end_macro",
 	".eqv"
 };
+
+string const Parser::InstructionNames[] = {
+	"abs.s","abs.d","abs.ps","add","add.s","add.d","add.ps","addi",	"addiu", "addu","alnv.ps","and","andi",
+	"b","bal","bc1f","bc1f","bc1fl","bc1fl","bc1t","bc1t","bc1tl","bc1tl","bc2f","bc2f","bc2fl","bc2fl","bc2t","bc2t","bc2tl","bc2tl","beq","beql","bgez","bgezal","bgezall","bgezl","bgtz","bgtzl","blez","blezl","bltz","bltzal","bltzall","bltzl","bne","bnel","break",
+	"c.f.s","c.f.s","c.f.d","c.f.d","c.f.ps","c.f.ps","c.un.s","c.un.s","c.un.d","c.un.d","c.un.ps","c.un.ps","c.eq.s","c.eq.s","c.eq.d","c.eq.d","c.eq.ps","c.eq.ps","c.ueq.s","c.ueq.s","c.ueq.d","c.ueq.d","c.ueq.ps","c.ueq.ps","c.olt.s","c.olt.s","c.olt.d","c.olt.d","c.olt.ps","c.olt.ps","c.ult.s","c.ult.s","c.ult.d","c.ult.d","c.ult.ps","c.ult.ps","c.ole.s","c.ole.s","c.ole.d","c.ole.d","c.ole.ps","c.ole.ps","c.ule.s","c.ule.s","c.ule.d","c.ule.d","c.ule.ps","c.ule.ps","c.sf.s","c.sf.s","c.sf.d","c.sf.d","c.sf.ps","c.sf.ps","c.ngle.s","c.ngle.s","c.ngle.d","c.ngle.d","c.ngle.ps","c.ngle.ps","c.seq.s","c.seq.s","c.seq.d","c.seq.d","c.seq.ps","c.seq.ps","c.ngl.s","c.ngl.s","c.ngl.d","c.ngl.d","c.ngl.ps","c.ngl.ps","c.lt.s","c.lt.s","c.lt.d","c.lt.d","c.lt.ps","c.lt.ps","c.nge.s","c.nge.s","c.nge.d","c.nge.d","c.nge.ps","c.nge.ps","c.le.s","c.le.s","c.le.d","c.le.d","c.le.ps","c.le.ps","c.ngt.s","c.ngt.s","c.ngt.d","c.ngt.d","c.ngt.ps","c.ngt.ps","cache","cachee","ceil.l.s","ceil.l.d","ceil.w.s","ceil.w.d","cfc1","cfc2","clo","clz","cop2","ctc1","ctc2","cvt.d.s","cvt.d.w","cvt.d.l","cvt.l.s","cvt.l.d","cvt.ps.s","cvt.s.d","cvt.s.w","cvt.s.l","cvt.s.pl","cvt.s.pl","cvt.w.s","cvt.w.d",
+	"deret","di","div","div.s","div.d","divu",
+	"ehb","ei","eret","ext",
+	"floor.l.s","floor.l.d","floor.w.s","floor.w.d",
+	"ins",
+	"j","jal","jalr","jalr","jalr.hb","jalr.hb","jalx","jr","jr.hb",
+	"lb","lbe","lbu","lbue","ldc1","ldc2","ldxc1","lh","lhe","lhu","lhue","ll","lle","lui","luxc1","lw","lwc1","lwc2","lwe","lwl","lwle","lwr","lwre","lwxc1",
+	"madd","madd.s","madd.d","madd.ps","maddu","mfc0","mfc0","mfc1","mfc2","mfc2","mfhc1","mfhc2","mfhc2","mfhi","mflo","mov.s","mov.d","mov.ps","movf","movf.s","movf.d","movf.ps","movn","movn.s","movn.d","movn.ps","movt","movt.s","movt.d","movt.ps","movz","movz.s","movz.d","movz.ps","msub","msub.s","msub.d","msub.ps","msubu","mtc0","mtc0","mtc1","mtc2","mtc2","mthc1","mthc2","mthc2","mthi","mtlo","mul","mul.s","mul.d","mul.ps","mult","multu",
+	"neg.s","neg.d","neg.ps","nmadd.s","nmadd.d","nmadd.ps","nmsub.s","nmsub.d","nmsub.ps","nop","nor",
+	"or","ori",
+	"pause","pll.ps","plu.ps","pref","prefe","prefx","pul.ps","puu.ps",
+	"rdhwr","rdpgpr","recip.s","recip.d","rotr","rotrv","round.l.s","round.l.d","round.w.s","round.w.d","rsqrt.s","rsqrt.d",
+	"sb","sbe","sc","sce","sdbbp","sdc1","sdc2","sdxc1","seb","seh","sh","she","sll","sllv","slt","slti","sltiu","sltu","sqrt.s","sqrt.d","sra","srav","srl","srlv","ssnop","sub","sub.s","sub.d","sub.ps","subu","suxc1","sw","swc1","swc2","swe","swl","swle","swr","swre","swxc1","sync","sync","synci","syscall",
+	"teq","teqi","tge","tgei","tgeiu","tgeu","tlbinv","tlbinvf","tlbp","tlbr","tlbwi","tlbwr","tlt","tlti","tltiu","tltu","tne","tnei","trunc.l.s","trunc.l.d","trunc.w.s","trunc.w.d",
+	"wait","wrpgpr","wsbh",
+	"xor","xori"
+};
+

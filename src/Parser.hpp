@@ -1,7 +1,8 @@
-#ifndef __ParseR_HPP__
-#define __ParseR_HPP__
+#ifndef __PARSER_HPP__
+#define __PARSER_HPP__
 
 #include "types.hpp"
+#include "Literals.hpp"
 
 #include <string>
 #include <vector>
@@ -21,83 +22,80 @@ class Parser{
 		static string trim(string);
 		static string replaceChar(string str, char before, char after);
 
-		static bool hasParentheses(string);
-		static string removeParentheses(string);
+		static bool isNestedByParentheses(string);
+		static string removeNestedParentheses(string);
+		static bool isNestedByApostrophes(string);
+		static string removedNestedApostrophes(string);
+		static bool isNestedByQuotes(string);
+		static string removedNestedQuotes(string);
 
-		static bool hasTrailingComma(string);
+		static bool isTrailedByComma(string);
 		static string removeTrailingComma(string);
 
 		static bool isWhiteSpace(char);
-		static string sanitizeInstruction(string);
+		static string removeComment(string);
+		static string sanitizeProgramLine(string);
 		static vector<string> tokenizeInstruction(string);
 		static vector<string> stringExplode(string);
 		static vector<string> stringExplodeAndSanitize(string);
+		static string extractAndRemoveFirstToken(string&);
 
-		static uint32_t binStrToUnsignedDecInt(string binStr);
+		static string combineTokensToString(vector<string> const &tokens, int from = 0);
 
-		static char flipBit(char i);
-		static string incBitStrByOne(string binStr);
-		static string onesComplement(string binStr);
-		static string twosComplement(string binStr);
 
+
+		
+		
+
+		int getTokenValue(string);
+
+
+		bool tokenIsRegister(string);
+		int getRegisterIndex(string);
+
+			bool tokenIsGPRegister(string);
+			int getGPRegisterIndex(string);
+			static string getGPRegisterName(int);
+
+			bool tokenIsFPRegister(string);
+			int getFPRegisterIndex(string);
+			static string getFPRegisterName(int);
+
+
+
+
+
+
+		bool tokenIsInstructionMnemonic(string);
+		int getInstructionMnemonicNumber(string);
+
+		bool tokenIsDirective(string);
+		int getDirectiveNumber(string);
+
+		static bool tokenIsLabel(string);
+		static string getLabelName(string);
 		
 
 
 
-		int getArgumentValue(string argument);
 
-
-		bool tokenIsRegister(string token);
-		bool tokenIsGPRegister(string token);
-		bool tokenIsFPRegister(string token);
-
-		static string getGPRegisterName(int index);
-		static string getFPRegisterName(int index);
-
-		int getRegisterIndex(string token);
-		int getGPRegisterIndex(string token);
-		int getFPRegisterIndex(string token);
-
-
-		static bool tokenIsLiteral(string argument);
-		static bool tokenIsDecimalLiteral(string argument);
-		static bool tokenIsHexLiteral(string argument);
-		static bool tokenIsBinaryLiteral(string argument);
-
-		static int getLiteralValue(string argument);
-		static int getDecimalLiteralValue(string argument);
-		static int getHexLiteralValue(string argument);
-		static int getBinaryLiteralValue(string argument);
-
-		static string getValueDecimalLiteral(int val);
-		static string getValueHexLiteral(int val);
-		static string getValueBinaryLiteral(int val);
-
-
-		bool tokenIsDirective(string token);
-		int getDirectiveNumber(string token);
-
-
-
-		static bool isDecimalDigit(char);
-		static bool isHexDigit(char);
-		static bool isBinaryDigit(char);
-		
-		static int decimalCharToDigit(char);
-		static int hexCharToDigit(char);
-		static int binaryCharToDigit(char);
 
 
 		//Members
-		#define NUM_GP_REGISTER_NAMES 64
-		#define NUM_FP_REGISTER_NAMES 32
-		#define NUM_DIRECTIVE_NAMES 20
+		Literals literals;
+		#define NUM_GP_REGISTER_NAMES	64
+		#define NUM_FP_REGISTER_NAMES	32
+		#define NUM_DIRECTIVE_NAMES		20
+		#define NUM_INSTRUCTION_NAMES	377
 		static string const GPRegisterNames[];
 		static string const FPRegisterNames[];
 		static string const DirectiveNames[];
+		static string const InstructionNames[];
 		unordered_map<string, int> GPRegisterNameMap;
 		unordered_map<string, int> FPRegisterNameMap;
-		unordered_map<string, int> DirectiveNameMap;
+		unordered_map<string, int> DirectiveMap;
+		unordered_map<string, int> InstructionMnemonicMap;
+		
 
 
 	private:

@@ -1,5 +1,5 @@
-#ifndef __ASSEMBLER_HPP__
-#define __ASSEMBLER_HPP__
+#ifndef __ENCODER_HPP__
+#define __ENCODER_HPP__
 
 #include "Decoder.hpp"
 #include "Instruction.hpp"
