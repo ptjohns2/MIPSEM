@@ -39,14 +39,19 @@ int main(){
 	VirtualMemory vm = VirtualMemory();
 	vm.setDecoder(&decoder);
 	Parser parser = Parser();
-
+	/*
 	fstream file("test.txt");
 	string tmpTest;
 	while(getline(file, tmpTest)){
 		int val = parser.literals.getLiteralValue(tmpTest);
  		cout << tmpTest << "\t" << val << '\n';
 	}
+	*/
+	fstream file("strtest.txt");
+	string tmpStr;
+	getline(file, tmpStr);
 
+	string adsjcf = parser.literals.getStringLiteralValue(tmpStr);
 
 
 	int asdfjksdfasdkf = 1;

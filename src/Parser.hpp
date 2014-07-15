@@ -25,9 +25,9 @@ class Parser{
 		static bool isNestedByParentheses(string);
 		static string removeNestedParentheses(string);
 		static bool isNestedByApostrophes(string);
-		static string removedNestedApostrophes(string);
+		static string removeNestedApostrophes(string);
 		static bool isNestedByQuotes(string);
-		static string removedNestedQuotes(string);
+		static string removeNestedQuotes(string);
 
 		static bool isTrailedByComma(string);
 		static string removeTrailingComma(string);

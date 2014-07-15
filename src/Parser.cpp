@@ -83,7 +83,7 @@ string Parser::removeNestedParentheses(string str){
 bool Parser::isNestedByApostrophes(string str){
 	return str[0] == '\'' && str[str.length()-1] == '\'';
 }
-string Parser::removedNestedApostrophes(string str){
+string Parser::removeNestedApostrophes(string str){
 	if(isNestedByApostrophes(str)){
 		return str.substr(1, str.length() - 1 - 1);
 	}
@@ -92,7 +92,7 @@ string Parser::removedNestedApostrophes(string str){
 bool Parser::isNestedByQuotes(string str){
 	return str[0] == '\"' && str[str.length()-1] == '\"';
 }
-string Parser::removedNestedQuotes(string str){
+string Parser::removeNestedQuotes(string str){
 	if(isNestedByQuotes(str)){
 		return str.substr(1, str.length() - 1 - 1);
 	}

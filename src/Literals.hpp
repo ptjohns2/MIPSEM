@@ -68,6 +68,12 @@ class Literals{
 		char getCharLiteralValue(string);
 		string getCharLiteralString(char);
 
+		bool tokenIsStringLiteral(string);
+		bool tokenIsRawStringLiteral(string);
+		string getRawStringLiteralValue(string);
+		string getStringLiteralValue(string);
+		string getStringLiteralString(string);
+
 		
 		#define NUM_CHARACTERS			256
 		char EscapableCharacters[NUM_CHARACTERS];	//careful don't modify - can't be const

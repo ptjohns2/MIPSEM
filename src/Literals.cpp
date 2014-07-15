@@ -10,7 +10,7 @@
 
 Literals::Literals(){
 	for(int i=0; i<NUM_CHARACTERS; i++){
-		EscapableCharacters[i] = i;
+		EscapableCharacters[i] = 0;
 	}
 	EscapableCharacters['a'] = '\a';
 	EscapableCharacters['b'] = '\b';
@@ -352,11 +352,15 @@ bool Literals::tokenIsCharLiteral(string token){
 	if(token.length() < 3){return false;}
 	if(token.length() > ESCAPED_RAW_CHAR_LITERAL_MAX_LENGTH + 2){return false;}
 	if(!Parser::isNestedByApostrophes(token)){return false;}
-	return tokenIsRawCharLiteral(Parser::removedNestedApostrophes(token));
+	return tokenIsRawCharLiteral(Parser::removeNestedApostrophes(token));
 }
 bool Literals::tokenIsRawCharLiteral(string token){
 	if(token.length() == 1){
-		return true;
+		if(token[0] == '\''){
+			return false;
+		}else{
+			return true;
+		}
 	}
 	else if(tokenIsRawEscapedCharLiteral(token)){
 		return true;
@@ -432,7 +436,7 @@ char Literals::getRawEscapedCharLiteralValue(string token){
 	}
 }
 char Literals::getCharLiteralValue(string token){
-	return getRawCharLiteralValue(Parser::removedNestedApostrophes(token));
+	return getRawCharLiteralValue(Parser::removeNestedApostrophes(token));
 }
 string Literals::getCharLiteralString(char){
 	//TODO
@@ -441,3 +445,62 @@ string Literals::getCharLiteralString(char){
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool Literals::tokenIsStringLiteral(string token){
+	if(token.length() < 2){return false;}
+	if(!Parser::isNestedByQuotes(token)){return false;}
+	return tokenIsRawStringLiteral(Parser::removeNestedQuotes(token));
+}
+bool Literals::tokenIsRawStringLiteral(string token){
+	//TODO check if "" thing is okay etc
+	//if(token == ""){return true;}
+	for(int i=0; i<token.length(); i++){
+		if(token[i] == '"' && token[i-1] != '\\'){return false;}
+	}
+	return true;
+}
+string Literals::getRawStringLiteralValue(string token){
+	if(token == ""){return "";}
+	string newString;
+	for(int i=0; i<token.length(); i++){
+		if(token[i] == '\\'){
+			int max = ESCAPED_RAW_CHAR_LITERAL_MAX_LENGTH;
+			int min = ESCAPED_RAW_CHAR_LITERAL_MIN_LENGTH;
+			int len = max;
+			bool ledByEscapedCharLiteral = false;
+			for(; len >= min; len--){
+				string testEscapedCharLiteral = token.substr(i, len);
+				if(tokenIsRawEscapedCharLiteral(testEscapedCharLiteral)){
+					ledByEscapedCharLiteral = true;
+					newString += getRawEscapedCharLiteralValue(testEscapedCharLiteral);
+					i += len - 1; //-1 to take into account i++ loop
+					break;
+				}
+			}
+			if(!ledByEscapedCharLiteral){newString += '\\';}
+		}else{
+			newString += token[i];
+		}
+	}
+	return newString;
+}
+string Literals::getStringLiteralValue(string token){
+	return getRawStringLiteralValue(Parser::removeNestedQuotes(token));
+}
+string Literals::getStringLiteralString(string token){
+	return '"' + token + '"';
+}
