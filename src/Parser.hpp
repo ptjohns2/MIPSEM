@@ -74,6 +74,7 @@ class Parser{
 
 		bool tokenIsDirective(string);
 		int getDirectiveNumber(string);
+		string getDirectiveName(int);
 
 		static bool tokenIsLabel(string);
 		static string getLabelName(string);

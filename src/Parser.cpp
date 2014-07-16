@@ -368,6 +368,9 @@ int Parser::getDirectiveNumber(string token){
 		return -1;
 	}
 }
+string Parser::getDirectiveName(int num){
+	return DirectiveNames[num];
+}
 
 
 

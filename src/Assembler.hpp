@@ -23,18 +23,18 @@ class Assembler{
 
 		void loadProgramFromFile(string fileName);
 
-	private:
+	//private:
 		void addLabelAddress(string, virtualAddr);
 		virtualAddr getLabelAddress(string);
 
 		void applyDirective(string);
 
 		void convertRawProgramToMemoryMappedProgram();
-
-		void assignUnassignedLabels();
+		void assignUnassignedLabelsAndAddToMemoryMappedProgram();
 		void alignSegmentTop();
 		void incrementSegmentTop(virtualAddr);
 		virtualAddr getCurrentMemoryLocation();
+		void applyLiteralTokenList(vector<string> const &tokens, string currentLine);
 		
 
 		Parser parser;
@@ -53,7 +53,7 @@ class Assembler{
 		}DIRECTIVE;
 
 		typedef enum {
-			ACTION_INIT = 0, ACTION_MEMWRITE_INTEGRAL, ACTION_MEMWRITE_STRING, ACTION_ALIGN, ACTION_SPACE, ACTION_INSTRUCTION_ENCODE
+			ACTION_INIT = 0, ACTION_DECLARE_SEGMENT, ACTION_MEMWRITE_INTEGRAL, ACTION_MEMWRITE_STRING, ACTION_ALIGN, ACTION_SPACE, ACTION_INSTRUCTION_ENCODE
 		}ACTION;
 		
 		virtualAddr memorySegmentTopArray[NUMBER_OF_MEMORY_SEGMENTS];
