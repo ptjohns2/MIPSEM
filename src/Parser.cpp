@@ -230,19 +230,22 @@ string Parser::extractFirstToken(string str){
 	}
 	return firstToken;
 }
-string Parser::extractAndRemoveFirstToken(string &str){
+bool Parser::extractAndRemoveFirstToken(string &src, string &token){
+	token = "";
+	if(src == ""){
+		return false;
+	}
 	//mirror extractFirstToken
-	string firstToken;
 	int i = 0;
-	while(isWhiteSpace(str[i]) && i<str.length()){i++;}
-	while(!isWhiteSpace(str[i]) && i<str.length()){
-		firstToken += str[i];
+	while(isWhiteSpace(src[i]) && i<src.length()){i++;}
+	while(!isWhiteSpace(src[i]) && i<src.length()){
+		token += src[i];
 		i++;
 	}
-	while(isWhiteSpace(str[i]) && i<str.length()){i++;}
-	str = str.substr(i);
-	return firstToken;
+	while(isWhiteSpace(src[i]) && i<src.length()){i++;}
+	src = src.substr(i);
 }
+
 
 
 

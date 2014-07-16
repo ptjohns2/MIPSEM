@@ -27,11 +27,14 @@ class Assembler{
 		void addLabelAddress(string, virtualAddr);
 		virtualAddr getLabelAddress(string);
 
-		void applyDirective(string, string);
+		void applyDirective(string);
 
 		void convertRawProgramToMemoryMappedProgram();
 
-
+		void assignUnassignedLabels();
+		void alignSegmentTop();
+		void incrementSegmentTop(virtualAddr);
+		virtualAddr getCurrentMemoryLocation();
 		
 
 		Parser parser;
@@ -50,7 +53,7 @@ class Assembler{
 		}DIRECTIVE;
 
 		typedef enum {
-			INIT = 0, MEMWRITE, MEMALIGN, ALLOC
+			ACTION_INIT = 0, ACTION_MEMWRITE_INTEGRAL, ACTION_MEMWRITE_STRING, ACTION_ALIGN, ACTION_SPACE, ACTION_INSTRUCTION_ENCODE
 		}ACTION;
 		
 		virtualAddr memorySegmentTopArray[NUMBER_OF_MEMORY_SEGMENTS];
@@ -69,13 +72,14 @@ class Assembler{
 		VirtualMemory memory;
 
 		vector<string> program;
-		uint32_t programLineNumber;
 
 		vector<pair<virtualAddr, string>> memoryMappedProgram;
-		vector<string> globalLabelNames;
+		vector<string> labelsToAssign;
 		vector<string> labelNames;
-		unordered_map<string, virtualAddr> globalLabelMap;
 		unordered_map<string, virtualAddr> labelMap;
+
+		vector<string> globalLabelNames;
+		unordered_map<string, virtualAddr> globalLabelMap;
 
 
 };

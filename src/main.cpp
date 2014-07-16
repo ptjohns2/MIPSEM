@@ -40,10 +40,15 @@ int main(){
 	vm.setDecoder(&decoder);
 	Parser parser = Parser();
 
-	string adsf = "' '   token1, token2, ',', ' ', token5, 1345, 4.45, token3, ' ', ',', 4   ";
-	vector<string> tokens = parser.collectableLiteralListExplode(adsf);
+	string literalList = "' '   token1, token2, ',', ' ', token5, 1345, 4.45, token3, ' ', ',', 4   ";
+	string tokenList = " token1   \t token2      token3 \t ";
+	//vector<string> tokens = parser.collectableLiteralListExplode(adsf);
 
-
+	vector<string> tokens;
+	string tmpToken;
+	while(parser.extractAndRemoveFirstToken(tokenList, tmpToken)){
+		tokens.push_back(tmpToken);
+	}
 
 
 

@@ -40,7 +40,8 @@ class Parser{
 		static vector<string> collectableLiteralListExplode(string);
 
 		static string extractFirstToken(string);
-		static string extractAndRemoveFirstToken(string&);
+		static bool extractAndRemoveFirstToken(string &src, string &token);
+
 
 		static string combineTokensToString(vector<string> const &tokens, int from = 0);
 
