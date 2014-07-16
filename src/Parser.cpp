@@ -6,7 +6,7 @@
 #include <sstream>
 #include <stdlib.h>
 
-#define WHITE_SPACE_STRING (" \t")
+#define WHITE_SPACE_STRING (" \t\n")
 
 Parser::Parser()
 	:	literals()
@@ -128,8 +128,8 @@ string Parser::removeComment(string str){
 }
 string Parser::sanitizeProgramLine(string line){
 	line = removeComment(line);
-	vector<string> tokenList = stringExplode(line);
-	return combineTokensToString(tokenList);
+	//others?
+	return line;
 }
 
 vector<string> Parser::tokenizeInstruction(string str){
@@ -182,22 +182,59 @@ vector<string> Parser::stringExplode(string str){
 	return ret;
 }
 
-vector<string> Parser::stringExplodeAndSanitize(string str){
-	vector<string> ret = stringExplode(str);
-	for(int i=0; i<ret.size(); i++){
-		ret[i] = removeTrailingComma(ret[i]);
+
+vector<string> Parser::collectableLiteralListExplode(string str){
+	vector<string> ret;
+	for(int i=0; i<str.length(); i++){
+		bool isToken = false;
+		string tmpStr;
+		while(isWhiteSpace(str[i]) && i<str.length()){i++;}
+		while(i<str.length()){
+			//COND1 whitespace and not ' ' char literal
+			if(isWhiteSpace(str[i])){
+				if(str[i-1] == '\'' && str[i+1] == '\''){
+					//do nothing
+				}else{
+					break;
+				}
+			}
+			//COND2 comma and not ',' char literal
+			if(str[i] == ','){
+				if(str[i-1] == '\'' && str[i+1] == '\''){
+					//do nothing;
+				}else{
+					break;
+				}
+			}
+
+			isToken = true;
+			tmpStr += str[i];
+			i++;
+		}
+		if(isToken){
+			ret.push_back(tmpStr);
+		}
 	}
 	return ret;
 }
 
-string Parser::extractAndRemoveFirstToken(string &str){
+//TODO: test these, haven't yet because incomplete code in other sections
+string Parser::extractFirstToken(string str){
+	//mirror extractAndRemoveFirstToken
 	string firstToken;
 	int i = 0;
 	while(isWhiteSpace(str[i]) && i<str.length()){i++;}
-	//TODO
-	//if start of quote, " or ', skip to end of it to extract it
-	//if first raw token is instruction name, extract the rest of the full line (assume nothing can go after instruction)
-	//TODO
+	while(!isWhiteSpace(str[i]) && i<str.length()){
+		firstToken += str[i];
+		i++;
+	}
+	return firstToken;
+}
+string Parser::extractAndRemoveFirstToken(string &str){
+	//mirror extractFirstToken
+	string firstToken;
+	int i = 0;
+	while(isWhiteSpace(str[i]) && i<str.length()){i++;}
 	while(!isWhiteSpace(str[i]) && i<str.length()){
 		firstToken += str[i];
 		i++;
@@ -206,6 +243,8 @@ string Parser::extractAndRemoveFirstToken(string &str){
 	str = str.substr(i);
 	return firstToken;
 }
+
+
 
 string Parser::combineTokensToString(vector<string> const &tokens, int from){
 	string combinedStr;

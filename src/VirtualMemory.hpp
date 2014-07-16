@@ -25,6 +25,7 @@ using namespace std;
 
 #define POWER_OF_TWO(power)			((power == 0)? 0 : (1 << power))
 
+#define NUMBER_OF_MEMORY_SEGMENTS	(4)
 #define MEMSEG_LIMIT_KSPACE			(0xFFFFFFFF)
 #define MEMSEG_LIMIT_KDATA			(0xFFFEFFFF)
 #define MEMSEG_BASE_KDATA			(0x90000000)
@@ -56,6 +57,8 @@ class VirtualMemory{
 		VirtualMemory();
 		~VirtualMemory();
 		void init();
+		void deinit();
+		void reset();
 		
 		void setDecoder(Decoder* decoder);
 

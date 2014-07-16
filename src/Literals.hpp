@@ -34,7 +34,7 @@ class Literals{
 		static int getHexDigitValue(char);
 		static int getHexLiteralValue(string);
 		static int getRawHexLiteralValue(string);
-		static string getHexLiteralString(int val);
+		static string getHexLiteralString(int);
 
 		static bool tokenIsBinaryLiteral(string);
 		static bool isBinaryDigit(char);
@@ -57,7 +57,7 @@ class Literals{
 		static int getRawOctalLiteralValue(string);
 		static int getOctalLiteralValue(string);
 		static string getOctalLiteralString(int);
-			
+		
 		#define ESCAPED_RAW_CHAR_LITERAL_MIN_LENGTH 2
 		#define ESCAPED_RAW_CHAR_LITERAL_MAX_LENGTH 4
 		bool tokenIsCharLiteral(string);

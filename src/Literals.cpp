@@ -347,7 +347,6 @@ string Literals::getOctalLiteralString(int val){
 
 
 
-
 bool Literals::tokenIsCharLiteral(string token){
 	if(token.length() < 3){return false;}
 	if(token.length() > ESCAPED_RAW_CHAR_LITERAL_MAX_LENGTH + 2){return false;}
@@ -467,7 +466,8 @@ bool Literals::tokenIsStringLiteral(string token){
 }
 bool Literals::tokenIsRawStringLiteral(string token){
 	//TODO check if "" thing is okay etc
-	//if(token == ""){return true;}
+	if(token == ""){return true;}
+	if(token[0] == '"'){return false;}
 	for(int i=0; i<token.length(); i++){
 		if(token[i] == '"' && token[i-1] != '\\'){return false;}
 	}
@@ -481,17 +481,17 @@ string Literals::getRawStringLiteralValue(string token){
 			int max = ESCAPED_RAW_CHAR_LITERAL_MAX_LENGTH;
 			int min = ESCAPED_RAW_CHAR_LITERAL_MIN_LENGTH;
 			int len = max;
-			bool ledByEscapedCharLiteral = false;
+			bool leadByEscapedCharLiteral = false;
 			for(; len >= min; len--){
 				string testEscapedCharLiteral = token.substr(i, len);
 				if(tokenIsRawEscapedCharLiteral(testEscapedCharLiteral)){
-					ledByEscapedCharLiteral = true;
+					leadByEscapedCharLiteral = true;
 					newString += getRawEscapedCharLiteralValue(testEscapedCharLiteral);
 					i += len - 1; //-1 to take into account i++ loop
 					break;
 				}
 			}
-			if(!ledByEscapedCharLiteral){newString += '\\';}
+			if(!leadByEscapedCharLiteral){newString += '\\';}
 		}else{
 			newString += token[i];
 		}
@@ -504,3 +504,10 @@ string Literals::getStringLiteralValue(string token){
 string Literals::getStringLiteralString(string token){
 	return '"' + token + '"';
 }
+
+
+
+
+
+
+

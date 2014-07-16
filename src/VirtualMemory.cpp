@@ -12,6 +12,13 @@ VirtualMemory::~VirtualMemory(){
 void VirtualMemory::init(){
 	this->pageTable = new VirtualMemoryPageTable();
 }
+void VirtualMemory::deinit(){
+	delete this->pageTable;
+}
+void VirtualMemory::reset(){
+	delete this->pageTable;
+	this->pageTable = new VirtualMemoryPageTable();
+}
 
 void VirtualMemory::setDecoder(Decoder* decoder){
 	VirtualMemoryPage::setDecoder(decoder);

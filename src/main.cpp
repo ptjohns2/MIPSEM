@@ -39,22 +39,22 @@ int main(){
 	VirtualMemory vm = VirtualMemory();
 	vm.setDecoder(&decoder);
 	Parser parser = Parser();
-	/*
-	fstream file("test.txt");
-	string tmpTest;
-	while(getline(file, tmpTest)){
-		int val = parser.literals.getLiteralValue(tmpTest);
- 		cout << tmpTest << "\t" << val << '\n';
-	}
-	*/
-	fstream file("strtest.txt");
-	string tmpStr;
-	getline(file, tmpStr);
 
-	string adsjcf = parser.literals.getStringLiteralValue(tmpStr);
+	string adsf = "' '   token1, token2, ',', ' ', token5, 1345, 4.45, token3, ' ', ',', 4   ";
+	vector<string> tokens = parser.collectableLiteralListExplode(adsf);
 
 
-	int asdfjksdfasdkf = 1;
+
+
+
+
+
+
+
+
+	int asdfasdfasdfasdf = 1;
+
+
 	////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////

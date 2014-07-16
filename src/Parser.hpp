@@ -37,7 +37,9 @@ class Parser{
 		static string sanitizeProgramLine(string);
 		static vector<string> tokenizeInstruction(string);
 		static vector<string> stringExplode(string);
-		static vector<string> stringExplodeAndSanitize(string);
+		static vector<string> collectableLiteralListExplode(string);
+
+		static string extractFirstToken(string);
 		static string extractAndRemoveFirstToken(string&);
 
 		static string combineTokensToString(vector<string> const &tokens, int from = 0);
