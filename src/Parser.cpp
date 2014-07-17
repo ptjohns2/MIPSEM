@@ -1,5 +1,6 @@
 #include "Parser.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <iomanip>
 #include <iostream>
@@ -21,7 +22,13 @@ Parser::Parser()
 		DirectiveMap[DirectiveNames[i]] = i;
 	}
 	for(int i=0; i<NUM_INSTRUCTION_NAMES; i++){
-		InstructionMnemonicMap[InstructionNames[i]] = i;
+		InstructionMnemonicMap[InstructionMnemonics[i]] = i;
+	}
+	for(int i=0; i<NUM_BRANCH_INSTRUCTION_NAMES; i++){
+		BranchInstructionMnemonicMap[BranchInstructionMnemonics[i]] = i;
+	}
+	for(int i=0; i<NUM_JUMP_INSTRUCTION_NAMES; i++){
+		JumpInstructionMnemonicMap[JumpInstructionMnemonics[i]] = i;
 	}
 }
 Parser::~Parser(){
@@ -30,6 +37,15 @@ Parser::~Parser(){
 
 
 //	public Methods
+
+string Parser::toLower(string str){
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+	return str;
+}
+string Parser::toUpper(string str){
+	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+	return str;
+}
 
 string Parser::trimFront(string str){
 	if(str == ""){return "";}
@@ -162,6 +178,19 @@ vector<string> Parser::tokenizeInstruction(string str){
 	}
 	
 	return tokensAfterParenSplit;
+}
+string Parser::combineInstructionTokens(vector<string> const& tokens){
+	string instructionStr = tokens[0];
+	if(tokens.size() > 1){
+		instructionStr += '\t';
+	}
+	for(int i=1; i<tokens.size(); i++){
+		instructionStr += tokens[i];
+		if(i+1 < tokens.size()){
+			instructionStr += ", ";
+		}
+	}
+	return instructionStr;
 }
 
 vector<string> Parser::stringExplode(string str){
@@ -355,6 +384,28 @@ int Parser::getInstructionMnemonicNumber(string token){
 		return -1;
 	}
 }
+bool Parser::tokenIsBranchInstructionMnemonic(string token){
+	return getBranchInstructionMnemonicNumber(token) != -1;
+}
+int Parser::getBranchInstructionMnemonicNumber(string token){
+	unordered_map<string, int>::iterator iter = BranchInstructionMnemonicMap.find(token);
+	if(iter != BranchInstructionMnemonicMap.end()){
+		return (*iter).second;
+	}else{
+		return -1;
+	}
+}
+bool Parser::tokenIsJumpInstructionMnemonic(string token){
+	return getJumpInstructionMnemonicNumber(token) != -1;
+}
+int Parser::getJumpInstructionMnemonicNumber(string token){
+	unordered_map<string, int>::iterator iter = JumpInstructionMnemonicMap.find(token);
+	if(iter != JumpInstructionMnemonicMap.end()){
+		return (*iter).second;
+	}else{
+		return -1;
+	}
+}
 
 
 bool Parser::tokenIsDirective(string token){
@@ -379,6 +430,9 @@ bool Parser::tokenIsLabel(string token){
 		if(isWhiteSpace(token[i])){return false;}
 	}
 	return token[token.length() - 1] == ':';
+}
+string Parser::getLabelName(string token){
+	return token.substr(0, token.length() - 1);
 }
 
 
@@ -476,7 +530,7 @@ string const Parser::DirectiveNames[] = {
 	".eqv",
 };
 
-string const Parser::InstructionNames[] = {
+string const Parser::InstructionMnemonics[] = {
 	"abs.s","abs.d","abs.ps","add","add.s","add.d","add.ps","addi",	"addiu", "addu","alnv.ps","and","andi",
 	"b","bal","bc1f","bc1f","bc1fl","bc1fl","bc1t","bc1t","bc1tl","bc1tl","bc2f","bc2f","bc2fl","bc2fl","bc2t","bc2t","bc2tl","bc2tl","beq","beql","bgez","bgezal","bgezall","bgezl","bgtz","bgtzl","blez","blezl","bltz","bltzal","bltzall","bltzl","bne","bnel","break",
 	"c.f.s","c.f.s","c.f.d","c.f.d","c.f.ps","c.f.ps","c.un.s","c.un.s","c.un.d","c.un.d","c.un.ps","c.un.ps","c.eq.s","c.eq.s","c.eq.d","c.eq.d","c.eq.ps","c.eq.ps","c.ueq.s","c.ueq.s","c.ueq.d","c.ueq.d","c.ueq.ps","c.ueq.ps","c.olt.s","c.olt.s","c.olt.d","c.olt.d","c.olt.ps","c.olt.ps","c.ult.s","c.ult.s","c.ult.d","c.ult.d","c.ult.ps","c.ult.ps","c.ole.s","c.ole.s","c.ole.d","c.ole.d","c.ole.ps","c.ole.ps","c.ule.s","c.ule.s","c.ule.d","c.ule.d","c.ule.ps","c.ule.ps","c.sf.s","c.sf.s","c.sf.d","c.sf.d","c.sf.ps","c.sf.ps","c.ngle.s","c.ngle.s","c.ngle.d","c.ngle.d","c.ngle.ps","c.ngle.ps","c.seq.s","c.seq.s","c.seq.d","c.seq.d","c.seq.ps","c.seq.ps","c.ngl.s","c.ngl.s","c.ngl.d","c.ngl.d","c.ngl.ps","c.ngl.ps","c.lt.s","c.lt.s","c.lt.d","c.lt.d","c.lt.ps","c.lt.ps","c.nge.s","c.nge.s","c.nge.d","c.nge.d","c.nge.ps","c.nge.ps","c.le.s","c.le.s","c.le.d","c.le.d","c.le.ps","c.le.ps","c.ngt.s","c.ngt.s","c.ngt.d","c.ngt.d","c.ngt.ps","c.ngt.ps","cache","cachee","ceil.l.s","ceil.l.d","ceil.w.s","ceil.w.d","cfc1","cfc2","clo","clz","cop2","ctc1","ctc2","cvt.d.s","cvt.d.w","cvt.d.l","cvt.l.s","cvt.l.d","cvt.ps.s","cvt.s.d","cvt.s.w","cvt.s.l","cvt.s.pl","cvt.s.pl","cvt.w.s","cvt.w.d",
@@ -497,3 +551,37 @@ string const Parser::InstructionNames[] = {
 	"xor","xori"
 };
 
+string const Parser::BranchInstructionMnemonics[] = {
+	"b",
+	"bal",
+	"bc1f",
+	"bc1fl",
+	"bc1t",
+	"bc1tl",
+	"bc2f",
+	"bc2fl",
+	"bc2t",
+	"bc2tl",
+	"beq",
+	"beql",
+	"bgez",
+	"bgezal",
+	"bgezall",
+	"bgezl",
+	"bgtz",
+	"bgtzl",
+	"blez",
+	"blezl",
+	"bltz",
+	"bltzal",
+	"bltzall",
+	"bltzl",
+	"bne",
+	"bnel"
+};
+
+string const Parser::JumpInstructionMnemonics[] = {
+	"j",
+	"jal",
+	"jalx"
+};

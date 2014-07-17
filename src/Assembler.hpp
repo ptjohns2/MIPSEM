@@ -58,18 +58,30 @@ class Assembler{
 		void loadProgramFromFile(string fileName);
 
 	//private:
+		//Memory alignment
+		bool tokenIsInLabelDB(string);
 		void addLabelAddress(string, virtualAddr);
 		virtualAddr getLabelAddress(string);
 
 		void applyDirective(string);
 
-		void convertRawProgramToMemoryMappedProgram();
-		void assignUnassignedLabelsAndAddToMemoryMappedProgram();
+		void alignRawProgram();
+		void flushLabelBuffer();
+
 		void alignSegmentTop();
 		void incrementSegmentTop(virtualAddr);
 		virtualAddr getCurrentMemoryLocation();
-		void applyLiteralTokenList(vector<string> const &tokens, string currentLine);
-		void writeMemoryMappedProgramToDisk(string fileName);
+
+		void alignLiteralTokenList(vector<string> const &tokens, string currentLine);
+		void writeAlignedRawProgramToDisk(string fileName);
+
+		//Preprocessing
+		void replaceLabels();
+
+		//VirtualMemory mapping
+
+
+
 
 		Parser parser;
 		
@@ -86,7 +98,7 @@ class Assembler{
 
 		vector<string> program;
 
-		vector<ProgramAtom> memoryMappedProgram;
+		vector<ProgramAtom> alignedProgram;
 		vector<string> labelsToAssign;
 		vector<string> labelNames;
 		unordered_map<string, virtualAddr> labelMap;

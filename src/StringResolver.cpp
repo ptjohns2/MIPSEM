@@ -94,7 +94,7 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 	}
 
 	string tmpHashable = ss.str();
-	std::transform(tmpHashable.begin(), tmpHashable.end(), tmpHashable.begin(), ::tolower);
+	tmpHashable = parser.toLower(tmpHashable);
 	return tmpHashable;
 }
 
@@ -119,7 +119,7 @@ string StringResolver::getHashableStringFromInstructionData(InstructionData* id)
 	}
 
 	string tmpHashable = ss.str();
-	std::transform(tmpHashable.begin(), tmpHashable.end(), tmpHashable.begin(), ::tolower);
+	tmpHashable = parser.toLower(tmpHashable);
 	return tmpHashable;
 }
 

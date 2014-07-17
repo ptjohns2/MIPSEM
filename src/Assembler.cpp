@@ -41,7 +41,7 @@ void Assembler::globalReset(){
 void Assembler::localReset(){
 	memory.reset();
 	program.clear();
-	memoryMappedProgram.clear();
+	alignedProgram.clear();
 	labelNames.clear();
 	labelMap.clear();
 }
@@ -63,7 +63,9 @@ void Assembler::loadProgramFromFile(string fileName){
 
 
 
-
+bool Assembler::tokenIsInLabelDB(string token){
+	return getLabelAddress(token) != -1;
+}
 void Assembler::addLabelAddress(string label, virtualAddr addr){
 	labelMap[label] = addr;
 	labelNames.push_back(label);
@@ -73,8 +75,6 @@ virtualAddr Assembler::getLabelAddress(string label){
 	if(iter != labelMap.end()){
 		return (*iter).second;
 	}else{
-		cout << "error LabelDB::get(string label) @" << label << '\n';
-		getchar();
 		return -1;
 	}
 }
@@ -175,7 +175,7 @@ void Assembler::applyDirective(string directive){
 }
 
 
-void Assembler::convertRawProgramToMemoryMappedProgram(){
+void Assembler::alignRawProgram(){
 	for(int lineNum=0; lineNum<program.size(); lineNum++){
 		string line = program[lineNum];
 
@@ -183,7 +183,8 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 		while(parser.tokenIsDirective(token) || parser.tokenIsLabel(token)){
 			parser.extractAndRemoveFirstToken(line, token);
 			if(parser.tokenIsLabel(token)){
-				labelsToAssign.push_back(token);
+				string labelName = parser.getLabelName(token);
+				labelsToAssign.push_back(labelName);
 			}else if(parser.tokenIsDirective(token)){
 				applyDirective(token);
 			}
@@ -210,7 +211,7 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 					atom.addr = addr;
 					atom.token = mappedProgramString;
 					atom.type = currentMemorySegment;
-					memoryMappedProgram.push_back(atom);
+					alignedProgram.push_back(atom);
 					switch(currentMemorySegment){
 						case DIRECTIVE_DATA:
 							currentAction = ACTION_INIT;
@@ -230,16 +231,16 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 			case ACTION_MEMWRITE_INTEGRAL:
 				{
 					alignSegmentTop();
-					assignUnassignedLabelsAndAddToMemoryMappedProgram();
+					flushLabelBuffer();
 
 					vector<string> literalTokens = parser.collectableLiteralListExplode(line);
-					applyLiteralTokenList(literalTokens, line);
+					alignLiteralTokenList(literalTokens, line);
 					currentAction = ACTION_INIT;
 				}
 				break;
 			case ACTION_MEMWRITE_STRING:
 				{
-					assignUnassignedLabelsAndAddToMemoryMappedProgram();
+					flushLabelBuffer();
 					int i=0;
 					while(line[i] != '"'){i++;}
 					string stringLiteral = line.substr(i);
@@ -249,7 +250,7 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 					atom.addr = getCurrentMemoryLocation();
 					atom.token = mappedProgramString;
 					atom.type = currentValueTypeSpecifier;
-					memoryMappedProgram.push_back(atom);
+					alignedProgram.push_back(atom);
 					
 					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTE;
 					segmentIncrementSize += (currentValueTypeSpecifier == DIRECTIVE_ASCIIZ)? 1 : 0;
@@ -270,7 +271,7 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 				{
 					currentByteAlignment = SIZE_BYTE;
 					alignSegmentTop();
-					assignUnassignedLabelsAndAddToMemoryMappedProgram();
+					flushLabelBuffer();
 
 					parser.extractAndRemoveFirstToken(line, token);
 					uint32_t spaceSize = parser.literals.getLiteralValue(token);
@@ -278,7 +279,7 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 					atom.token = parser.literals.getDecimalLiteralString(spaceSize);
 					atom.addr = getCurrentMemoryLocation();
 					atom.type = DIRECTIVE_SPACE;
-					memoryMappedProgram.push_back(atom);
+					alignedProgram.push_back(atom);
 
 					incrementSegmentTop(spaceSize);
 					currentAction = ACTION_INIT;
@@ -288,12 +289,12 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 				{
 					currentByteAlignment = SIZE_WORD;
 					alignSegmentTop();
-					assignUnassignedLabelsAndAddToMemoryMappedProgram();
+					flushLabelBuffer();
 
 					atom.addr = getCurrentMemoryLocation();
 					atom.token = line;	//instruction full line
 					atom.type = DIRECTIVE_INSTRUCTION;
-					memoryMappedProgram.push_back(atom);
+					alignedProgram.push_back(atom);
 
 					incrementSegmentTop(SIZE_WORD);
 				}
@@ -309,15 +310,17 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 
 
 
-void Assembler::assignUnassignedLabelsAndAddToMemoryMappedProgram(){
+void Assembler::flushLabelBuffer(){
 	for(int i=0; i<labelsToAssign.size(); i++){
 		virtualAddr addr = memorySegmentTopArray[currentMemorySegment];
 		addLabelAddress(labelsToAssign[i], addr);
+
 		ProgramAtom atom;
 		atom.addr = addr;
 		atom.token = labelsToAssign[i];
 		atom.type = DIRECTIVE_LABEL;
-		memoryMappedProgram.push_back(atom);
+
+		alignedProgram.push_back(atom);
 	}
 	labelsToAssign.clear();
 }
@@ -336,7 +339,7 @@ virtualAddr Assembler::getCurrentMemoryLocation(){
 
 
 
-void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, string currentLine){
+void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, string currentLine){
 	virtualAddr memorySegmentTopIncrementationSize = 0;
 	for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
 		//init string to ".datatype	|[insert literals here]"
@@ -397,7 +400,7 @@ void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, strin
 		atom.addr = addr;
 		atom.token = mappedProgramString;
 		atom.type = currentValueTypeSpecifier;
-		memoryMappedProgram.push_back(atom);
+		alignedProgram.push_back(atom);
 		incrementSegmentTop(memorySegmentTopIncrementationSize);
 		if(terminateLine){break;} //exit for loop
 	}
@@ -407,17 +410,17 @@ void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, strin
 
 
 
-void Assembler::writeMemoryMappedProgramToDisk(string fileName){
+void Assembler::writeAlignedRawProgramToDisk(string fileName){
 	ofstream file = ofstream(fileName);
 	if(!file.is_open()){return;}
-	for(int i=0; i<memoryMappedProgram.size(); i++){
-		ProgramAtom atom = memoryMappedProgram[i];
+	for(int i=0; i<alignedProgram.size(); i++){
+		ProgramAtom atom = alignedProgram[i];
 		DIRECTIVE type = atom.type;
 		bool tokenIsSegmentName = type <= DIRECTIVE_KTEXT;
 		bool tokenIsLabel = type == DIRECTIVE_LABEL;
 		bool tokenIsInstruction = type == DIRECTIVE_INSTRUCTION;
 		if(tokenIsLabel){
-			file << atom.token;
+			file << atom.token << ':';
 			file << '\n';
 			continue;
 		}else if(tokenIsSegmentName){
@@ -437,4 +440,61 @@ void Assembler::writeMemoryMappedProgramToDisk(string fileName){
 	}
 
 	file.close();
+}
+
+
+
+//Preprocessing
+
+void Assembler::replaceLabels(){
+	for(int i=0; i<alignedProgram.size(); i++){
+		ProgramAtom atom = alignedProgram[i];
+		if(atom.type == DIRECTIVE_INSTRUCTION){
+		//Modified replacement
+			string mnemonic = parser.extractFirstToken(atom.token);
+			mnemonic = parser.toLower(mnemonic);
+			bool isBranch = parser.tokenIsBranchInstructionMnemonic(mnemonic);
+			bool isJump = parser.tokenIsJumpInstructionMnemonic(mnemonic);
+			vector<string> instructionTokens = parser.tokenizeInstruction(atom.token);
+			if(isBranch || isJump){
+				string lastToken = instructionTokens[instructionTokens.size() - 1];
+				virtualAddr labelAddr = getLabelAddress(lastToken);
+				virtualAddr instructionAddr = atom.addr;
+				virtualAddr immediateVal;
+				if(isBranch){
+					immediateVal = (labelAddr - (instructionAddr + 4)) >> 2;
+				}else if(isJump){
+					//virtualAddr immediateVal = (labelAddr - (instructionAddr & 0x0FFFFFFF)) >> 2;
+					immediateVal = (labelAddr >> 2) & 0x3FFFFFF;
+
+				}
+				string immediateHexString = parser.literals.getHexLiteralString(immediateVal);
+				instructionTokens[instructionTokens.size() - 1] = immediateHexString;
+				string newInstructionString = parser.combineInstructionTokens(instructionTokens);
+				alignedProgram[i].token = newInstructionString;
+			}else{
+				//Standard text replacement
+				for(int labelNum=0; labelNum<labelNames.size(); labelNum++){
+					instructionTokens.clear();
+					instructionTokens = parser.tokenizeInstruction(alignedProgram[i].token);
+					bool labelWasReplaced = false;
+					for(int tokenNum = 1; tokenNum < instructionTokens.size(); tokenNum++){
+						if(tokenIsInLabelDB(instructionTokens[tokenNum])){
+							string instructionToken = instructionTokens[tokenNum];
+							virtualAddr labelAddress = getLabelAddress(instructionToken);
+							string immediateHexString = parser.literals.getHexLiteralString(labelAddress);
+							instructionTokens[tokenNum] = immediateHexString;
+							labelWasReplaced = true;
+						}
+					}
+					if(labelWasReplaced){
+						string newInstructionString = parser.combineInstructionTokens(instructionTokens);
+						alignedProgram[i].token = newInstructionString;
+					}
+				}
+			}
+		}else{
+
+		}
+	}
 }

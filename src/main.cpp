@@ -41,12 +41,15 @@ int main(){
 	Parser parser = Parser();
 	Assembler assembler = Assembler();
 
-
 	assembler.loadProgramFromFile("prime-1.s");
-	assembler.convertRawProgramToMemoryMappedProgram();
-	assembler.writeMemoryMappedProgramToDisk("writtenObj.txt");
-
-
+	assembler.alignRawProgram();
+	assembler.writeAlignedRawProgramToDisk("writtenObj.txt");
+	
+	assembler.globalReset();
+	assembler.loadProgramFromFile("prime-1.s");
+	assembler.alignRawProgram();
+	assembler.replaceLabels();
+	assembler.writeAlignedRawProgramToDisk("writtenObjProcessed.txt");
 
 
 
@@ -80,14 +83,13 @@ int main(){
 	instrStrArr.push_back("addi $a0, $zero, 9999");	//28
 	instrStrArr.push_back("syscall");	//32
 
+
 	for(int i=0; i<instrStrArr.size(); i++){
 		Instruction instruction = encoder.buildInstruction(instrStrArr[i]);
 		instr instructionBin = instruction.getBin();
 		vm.writeToVirtualMemorySpace(cpu.PC + i * sizeof(instr), sizeof(instr), &instructionBin);
 	}
 
-	int asdfas = 3;
-	
 	int num = 0;
 	while(true){
 		num++;

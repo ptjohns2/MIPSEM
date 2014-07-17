@@ -17,6 +17,9 @@ class Parser{
 		~Parser();
 		
 		//Methods
+		static string toLower(string);
+		static string toUpper(string);
+
 		static string trimFront(string);
 		static string trimEnd(string);
 		static string trim(string);
@@ -36,6 +39,7 @@ class Parser{
 		static string removeComment(string);
 		static string sanitizeProgramLine(string);
 		static vector<string> tokenizeInstruction(string);
+		static string combineInstructionTokens(vector<string> const&);
 		static vector<string> stringExplode(string);
 		static vector<string> collectableLiteralListExplode(string);
 
@@ -70,7 +74,11 @@ class Parser{
 
 
 		bool tokenIsInstructionMnemonic(string);
+		bool tokenIsBranchInstructionMnemonic(string);
+		bool tokenIsJumpInstructionMnemonic(string);
 		int getInstructionMnemonicNumber(string);
+		int getBranchInstructionMnemonicNumber(string);
+		int getJumpInstructionMnemonicNumber(string);
 
 		bool tokenIsDirective(string);
 		int getDirectiveNumber(string);
@@ -87,18 +95,24 @@ class Parser{
 
 		//Members
 		Literals literals;
-		#define NUM_GP_REGISTER_NAMES	64
-		#define NUM_FP_REGISTER_NAMES	32
-		#define NUM_DIRECTIVE_NAMES		20
-		#define NUM_INSTRUCTION_NAMES	377
+		#define NUM_GP_REGISTER_NAMES			64
+		#define NUM_FP_REGISTER_NAMES			32
+		#define NUM_DIRECTIVE_NAMES				20
+		#define NUM_INSTRUCTION_NAMES			377
+		#define NUM_BRANCH_INSTRUCTION_NAMES	26
+		#define NUM_JUMP_INSTRUCTION_NAMES		3
 		static string const GPRegisterNames[];
 		static string const FPRegisterNames[];
 		static string const DirectiveNames[];
-		static string const InstructionNames[];
+		static string const InstructionMnemonics[];
+		static string const BranchInstructionMnemonics[];
+		static string const JumpInstructionMnemonics[];
 		unordered_map<string, int> GPRegisterNameMap;
 		unordered_map<string, int> FPRegisterNameMap;
 		unordered_map<string, int> DirectiveMap;
 		unordered_map<string, int> InstructionMnemonicMap;
+		unordered_map<string, int> BranchInstructionMnemonicMap;
+		unordered_map<string, int> JumpInstructionMnemonicMap;
 		
 
 
