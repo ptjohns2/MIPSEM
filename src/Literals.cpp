@@ -23,6 +23,49 @@ Literals::Literals(){
 	EscapableCharacters['\''] = '\'';
 	EscapableCharacters['"'] = '"';
 	EscapableCharacters['?'] = '?';
+
+	//StandardCharacterStringRepresentations
+	StandardCharacterStringRepresentations[0] = "\\0";
+	StandardCharacterStringRepresentations[1] = "\\x1";
+	StandardCharacterStringRepresentations[2] = "\\x2";
+	StandardCharacterStringRepresentations[3] = "\\x3";
+	StandardCharacterStringRepresentations[4] = "\\x4";
+	StandardCharacterStringRepresentations[5] = "\\x5";
+	StandardCharacterStringRepresentations[6] = "\\x6";
+	StandardCharacterStringRepresentations[7] = "\\a";
+	StandardCharacterStringRepresentations[8] = "\\b";
+	StandardCharacterStringRepresentations[9] = "\\t";
+	StandardCharacterStringRepresentations[10] = "\\n";
+	StandardCharacterStringRepresentations[11] = "\\v";
+	StandardCharacterStringRepresentations[12] = "\\f";
+	StandardCharacterStringRepresentations[13] = "\\r";
+	StandardCharacterStringRepresentations[14] = "\\xE";
+	StandardCharacterStringRepresentations[15] = "\\xF";
+	StandardCharacterStringRepresentations[16] = "\\x10";
+	StandardCharacterStringRepresentations[17] = "\\x11";
+	StandardCharacterStringRepresentations[18] = "\\x12";
+	StandardCharacterStringRepresentations[19] = "\\x13";
+	StandardCharacterStringRepresentations[20] = "\\x14";
+	StandardCharacterStringRepresentations[21] = "\\x15";
+	StandardCharacterStringRepresentations[22] = "\\x16";
+	StandardCharacterStringRepresentations[23] = "\\x17";
+	StandardCharacterStringRepresentations[24] = "\\x18";
+	StandardCharacterStringRepresentations[25] = "\\x19";
+	StandardCharacterStringRepresentations[26] = "\\x1A";
+	StandardCharacterStringRepresentations[27] = "\\x1B";
+	StandardCharacterStringRepresentations[28] = "\\x1C";
+	StandardCharacterStringRepresentations[29] = "\\x1D";
+	StandardCharacterStringRepresentations[30] = "\\x1E";
+	StandardCharacterStringRepresentations[31] = "\\x1F";
+	for(unsigned int i = ' '; i<NUM_CHARACTERS; i++){
+		string tmp;
+		tmp += (char)i;
+		StandardCharacterStringRepresentations[i] = tmp;
+	}
+	StandardCharacterStringRepresentations['\\'] = "\\\\";
+	StandardCharacterStringRepresentations['\''] = "\\'";
+	StandardCharacterStringRepresentations['"'] = "\\\"";
+	StandardCharacterStringRepresentations[127] = "\\x7F";
 }
 Literals::~Literals(){
 
@@ -437,10 +480,11 @@ char Literals::getRawEscapedCharLiteralValue(string token){
 char Literals::getCharLiteralValue(string token){
 	return getRawCharLiteralValue(Parser::removeNestedApostrophes(token));
 }
-string Literals::getCharLiteralString(char){
-	//TODO
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	return "TODO: string Literals::getCharLiteralString(char)";
+string Literals::getRawCharLiteralString(char c){
+	return StandardCharacterStringRepresentations[c];
+}
+string Literals::getCharLiteralString(char c){
+	return "'" + StandardCharacterStringRepresentations[c] + "'";
 }
 
 
@@ -501,8 +545,15 @@ string Literals::getRawStringLiteralValue(string token){
 string Literals::getStringLiteralValue(string token){
 	return getRawStringLiteralValue(Parser::removeNestedQuotes(token));
 }
+string Literals::getRawStringLiteralString(string token){
+	string newStr;
+	for(int i=0; i<token.length(); i++){
+		newStr += getRawCharLiteralString(token[i]);
+	}
+	return newStr;
+}
 string Literals::getStringLiteralString(string token){
-	return '"' + token + '"';
+	return '"' + getRawStringLiteralString(token) + '"';
 }
 
 

@@ -195,7 +195,7 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 			continue; //if programLine is all consumed, skip to next
 		}
 		//consume literal token
-		pair<virtualAddr, string> tmpMemoryMapPair;
+		ProgramAtom atom;
 		string mappedProgramString;
 		switch(currentAction){
 			case ACTION_INIT:
@@ -207,9 +207,10 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 				{
 					virtualAddr addr = getCurrentMemoryLocation();
 					mappedProgramString = parser.getDirectiveName(currentMemorySegment);
-					tmpMemoryMapPair.first = addr;
-					tmpMemoryMapPair.second = mappedProgramString;
-					memoryMappedProgram.push_back(tmpMemoryMapPair);
+					atom.addr = addr;
+					atom.token = mappedProgramString;
+					atom.type = currentMemorySegment;
+					memoryMappedProgram.push_back(atom);
 					switch(currentMemorySegment){
 						case DIRECTIVE_DATA:
 							currentAction = ACTION_INIT;
@@ -244,13 +245,16 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 					string stringLiteral = line.substr(i);
 					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
 
-					mappedProgramString = parser.getDirectiveName(currentValueTypeSpecifier) + '\t';
-					mappedProgramString += parser.literals.getStringLiteralString(rawString);
-					tmpMemoryMapPair.first = getCurrentMemoryLocation();
-					tmpMemoryMapPair.second = mappedProgramString;
-					memoryMappedProgram.push_back(tmpMemoryMapPair);
-				
-					incrementSegmentTop(rawString.length() * SIZE_BYTE);
+					mappedProgramString = parser.literals.getStringLiteralString(rawString);
+					atom.addr = getCurrentMemoryLocation();
+					atom.token = mappedProgramString;
+					atom.type = currentValueTypeSpecifier;
+					memoryMappedProgram.push_back(atom);
+					
+					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTE;
+					segmentIncrementSize += (currentValueTypeSpecifier == DIRECTIVE_ASCIIZ)? 1 : 0;
+
+					incrementSegmentTop(segmentIncrementSize);
 					currentAction = ACTION_INIT;
 				}
 				break;
@@ -265,9 +269,17 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 			case ACTION_SPACE:
 				{
 					currentByteAlignment = SIZE_BYTE;
+					alignSegmentTop();
 					assignUnassignedLabelsAndAddToMemoryMappedProgram();
+
 					parser.extractAndRemoveFirstToken(line, token);
 					uint32_t spaceSize = parser.literals.getLiteralValue(token);
+
+					atom.token = parser.literals.getDecimalLiteralString(spaceSize);
+					atom.addr = getCurrentMemoryLocation();
+					atom.type = DIRECTIVE_SPACE;
+					memoryMappedProgram.push_back(atom);
+
 					incrementSegmentTop(spaceSize);
 					currentAction = ACTION_INIT;
 				}
@@ -278,9 +290,11 @@ void Assembler::convertRawProgramToMemoryMappedProgram(){
 					alignSegmentTop();
 					assignUnassignedLabelsAndAddToMemoryMappedProgram();
 
-					tmpMemoryMapPair.first = getCurrentMemoryLocation();
-					tmpMemoryMapPair.second = line;	//instruction full line
-					memoryMappedProgram.push_back(tmpMemoryMapPair);
+					atom.addr = getCurrentMemoryLocation();
+					atom.token = line;	//instruction full line
+					atom.type = DIRECTIVE_INSTRUCTION;
+					memoryMappedProgram.push_back(atom);
+
 					incrementSegmentTop(SIZE_WORD);
 				}
 				break;
@@ -299,10 +313,11 @@ void Assembler::assignUnassignedLabelsAndAddToMemoryMappedProgram(){
 	for(int i=0; i<labelsToAssign.size(); i++){
 		virtualAddr addr = memorySegmentTopArray[currentMemorySegment];
 		addLabelAddress(labelsToAssign[i], addr);
-		pair<virtualAddr, string> pair;
-		pair.first = addr;
-		pair.second = labelsToAssign[i];
-		memoryMappedProgram.push_back(pair);
+		ProgramAtom atom;
+		atom.addr = addr;
+		atom.token = labelsToAssign[i];
+		atom.type = DIRECTIVE_LABEL;
+		memoryMappedProgram.push_back(atom);
 	}
 	labelsToAssign.clear();
 }
@@ -325,7 +340,7 @@ void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, strin
 	virtualAddr memorySegmentTopIncrementationSize = 0;
 	for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
 		//init string to ".datatype	|[insert literals here]"
-		string mappedProgramString = parser.getDirectiveName(currentValueTypeSpecifier) + '\t';
+		string mappedProgramString;
 
 		string currentLiteralToken = literalTokens[tokenNum];
 		bool terminateLine = false;
@@ -335,14 +350,14 @@ void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, strin
 					memorySegmentTopIncrementationSize = SIZE_BYTE;
 					char val = parser.literals.getLiteralValue(currentLiteralToken);
 
-					mappedProgramString += parser.literals.getCharLiteralString(val);
+					mappedProgramString = parser.literals.getCharLiteralString(val);
 				}
 				break;
 			case DIRECTIVE_HALF:
 				{
 					memorySegmentTopIncrementationSize = SIZE_HALF;
 					uint16_t val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString += parser.literals.getDecimalLiteralString(val);
+					mappedProgramString = parser.literals.getDecimalLiteralString(val);
 				}
 				break;
 			case DIRECTIVE_WORD:
@@ -356,21 +371,21 @@ void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, strin
 						break;
 					}
 					uint32_t val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString += parser.literals.getDecimalLiteralString(val);
+					mappedProgramString = parser.literals.getDecimalLiteralString(val);
 				}
 				break;
 			case DIRECTIVE_FLOAT:
 				{
 					memorySegmentTopIncrementationSize = SIZE_FLOAT;
 					float val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString += parser.literals.getFloatLiteralString(val);
+					mappedProgramString = parser.literals.getFloatLiteralString(val);
 				}
 				break;
 			case DIRECTIVE_DOUBLE:
 				{
 					memorySegmentTopIncrementationSize = SIZE_DOUBLE;
 					double val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString += parser.literals.getFloatLiteralString(val);
+					mappedProgramString = parser.literals.getFloatLiteralString(val);
 				}
 				break;
 			default:
@@ -378,13 +393,48 @@ void Assembler::applyLiteralTokenList(vector<string> const &literalTokens, strin
 				break;
 		}
 		virtualAddr addr = getCurrentMemoryLocation();
-		pair<virtualAddr, string> pair;
-		pair.first = addr;
-		pair.second = mappedProgramString;
-		memoryMappedProgram.push_back(pair);
+		ProgramAtom atom;
+		atom.addr = addr;
+		atom.token = mappedProgramString;
+		atom.type = currentValueTypeSpecifier;
+		memoryMappedProgram.push_back(atom);
 		incrementSegmentTop(memorySegmentTopIncrementationSize);
 		if(terminateLine){break;} //exit for loop
 	}
 
 
+}
+
+
+
+void Assembler::writeMemoryMappedProgramToDisk(string fileName){
+	ofstream file = ofstream(fileName);
+	if(!file.is_open()){return;}
+	for(int i=0; i<memoryMappedProgram.size(); i++){
+		ProgramAtom atom = memoryMappedProgram[i];
+		DIRECTIVE type = atom.type;
+		bool tokenIsSegmentName = type <= DIRECTIVE_KTEXT;
+		bool tokenIsLabel = type == DIRECTIVE_LABEL;
+		bool tokenIsInstruction = type == DIRECTIVE_INSTRUCTION;
+		if(tokenIsLabel){
+			file << atom.token;
+			file << '\n';
+			continue;
+		}else if(tokenIsSegmentName){
+			file << '\n';
+			file << parser.getDirectiveName(type);
+			file << '\n';
+			file << '\n';
+			continue;
+		}else{
+			file << parser.literals.getHexLiteralString(atom.addr);
+			file << ':';
+			file << '\t';
+			if(!tokenIsInstruction){file << parser.getDirectiveName(type) << '\t';}
+			file << atom.token;
+			file << '\n';
+		}
+	}
+
+	file.close();
 }

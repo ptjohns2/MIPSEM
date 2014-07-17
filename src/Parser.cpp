@@ -375,6 +375,9 @@ string Parser::getDirectiveName(int num){
 
 
 bool Parser::tokenIsLabel(string token){
+	for(int i=0; i<token.length(); i++){
+		if(isWhiteSpace(token[i])){return false;}
+	}
 	return token[token.length() - 1] == ':';
 }
 
@@ -470,7 +473,7 @@ string const Parser::DirectiveNames[] = {
 	".set",
 	".macro",
 	".end_macro",
-	".eqv"
+	".eqv",
 };
 
 string const Parser::InstructionNames[] = {

@@ -44,7 +44,7 @@ int main(){
 
 	assembler.loadProgramFromFile("prime-1.s");
 	assembler.convertRawProgramToMemoryMappedProgram();
-
+	assembler.writeMemoryMappedProgramToDisk("writtenObj.txt");
 
 
 
