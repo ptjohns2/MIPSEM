@@ -40,17 +40,43 @@ int main(){
 	vm.setDecoder(&decoder);
 	Parser parser = Parser();
 	Assembler assembler = Assembler();
+	assembler.setEncoder(&encoder);
 
+	/*
 	assembler.loadProgramFromFile("prime-1.s");
 	assembler.alignRawProgram();
 	assembler.writeAlignedRawProgramToDisk("writtenObj.txt");
 	
-	assembler.globalReset();
+	assembler.reset();
 	assembler.loadProgramFromFile("prime-1.s");
 	assembler.alignRawProgram();
 	assembler.replaceLabels();
 	assembler.writeAlignedRawProgramToDisk("writtenObjProcessed.txt");
+	*/
+	assembler.loadProgramFromFile("program1.txt");
+	assembler.alignRawProgram();
+	assembler.writeAlignedRawProgramToDisk("program1Obj.txt");
 
+	
+	assembler.reset();
+	assembler.loadProgramFromFile("program1.txt");
+	assembler.alignRawProgram();
+	assembler.replaceLabels();
+	assembler.writeAlignedRawProgramToDisk("program1ProcessedObj.txt");
+	assembler.naiveNoDirectives();
+	cpu.MEM = assembler.virtualMemory;
+	
+	int naivenum = 0;
+	while(true){
+		naivenum++;
+		if(naivenum > 100000){
+			getchar();
+		}
+
+		Instruction* instructionFromMemory = cpu.MEM.readInstruction(cpu.PC);
+		cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
+		cpu.executeInstruction(instructionFromMemory);
+	}
 
 
 

@@ -1,5 +1,6 @@
 #include "Assembler.hpp"
 
+#include "BitManip.hpp"
 #include "Parser.hpp"
 
 #include <iostream>
@@ -8,7 +9,7 @@
 
 
 Assembler::Assembler()
-	:	memory(), parser()
+	:	virtualMemory(), parser()
 {
 	init();
 }
@@ -30,20 +31,21 @@ void Assembler::init(){
 void Assembler::deinit(){
 
 }
-void Assembler::globalReset(){
-	localReset();
-
-	memset(&memorySegmentTopArray[0], 0, sizeof(virtualAddr) * NUMBER_OF_MEMORY_SEGMENTS);
+void Assembler::reset(){
+	virtualMemory.reset();
+	program.clear();
+	alignedProgram.clear();
+	labelsToAssign.clear();
+	labelNames.clear();
+	labelMap.clear();
 
 	globalLabelNames.clear();
 	globalLabelMap.clear();
+
+	init();
 }
-void Assembler::localReset(){
-	memory.reset();
-	program.clear();
-	alignedProgram.clear();
-	labelNames.clear();
-	labelMap.clear();
+void Assembler::setEncoder(Encoder* encoder){
+	this->encoder = encoder;
 }
 
 
@@ -245,6 +247,9 @@ void Assembler::alignRawProgram(){
 					while(line[i] != '"'){i++;}
 					string stringLiteral = line.substr(i);
 					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
+					if(currentValueTypeSpecifier == DIRECTIVE_ASCIIZ){
+						rawString += '\0';
+					}
 
 					mappedProgramString = parser.literals.getStringLiteralString(rawString);
 					atom.addr = getCurrentMemoryLocation();
@@ -253,7 +258,6 @@ void Assembler::alignRawProgram(){
 					alignedProgram.push_back(atom);
 					
 					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTE;
-					segmentIncrementSize += (currentValueTypeSpecifier == DIRECTIVE_ASCIIZ)? 1 : 0;
 
 					incrementSegmentTop(segmentIncrementSize);
 					currentAction = ACTION_INIT;
@@ -462,14 +466,15 @@ void Assembler::replaceLabels(){
 				virtualAddr instructionAddr = atom.addr;
 				virtualAddr immediateVal;
 				if(isBranch){
-					immediateVal = (labelAddr - (instructionAddr + 4)) >> 2;
+					int32_t offset = labelAddr - instructionAddr - 4;	//pc still increments by 4 on branches
+					offset >>= 2;
+					immediateVal = (virtualAddr)offset;
 				}else if(isJump){
-					//virtualAddr immediateVal = (labelAddr - (instructionAddr & 0x0FFFFFFF)) >> 2;
-					immediateVal = (labelAddr >> 2) & 0x3FFFFFF;
-
+					immediateVal = (labelAddr & 0x0FFFFFFF) >> 2;
 				}
-				string immediateHexString = parser.literals.getHexLiteralString(immediateVal);
-				instructionTokens[instructionTokens.size() - 1] = immediateHexString;
+				//TODO:
+				string immediateString = parser.literals.getHexLiteralString(immediateVal);
+				instructionTokens[instructionTokens.size() - 1] = immediateString;
 				string newInstructionString = parser.combineInstructionTokens(instructionTokens);
 				alignedProgram[i].token = newInstructionString;
 			}else{
@@ -496,5 +501,17 @@ void Assembler::replaceLabels(){
 		}else{
 
 		}
+	}
+}
+
+
+
+
+//VirtualMemory mapping
+void Assembler::naiveNoDirectives(){
+	for(int i=0; i<alignedProgram.size(); i++){
+		Instruction instruction = encoder->buildInstruction(alignedProgram[i].token);
+		instr bin = instruction.getBin();
+		virtualMemory.writeToVirtualMemorySpace(alignedProgram[i].addr, sizeof(bin), &bin);
 	}
 }

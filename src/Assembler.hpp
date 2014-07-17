@@ -1,6 +1,7 @@
 #ifndef __ASSEMBLER_HPP__
 #define __ASSEMBLER_HPP__
 
+#include "Encoder.hpp"
 #include "MemoryMap.hpp"
 #include "Parser.hpp"
 #include "VirtualMemory.hpp"
@@ -51,8 +52,8 @@ class Assembler{
 		~Assembler();
 		void init();
 		void deinit();
-		void globalReset();
-		void localReset();
+		void reset();
+		void setEncoder(Encoder*);
 
 
 		void loadProgramFromFile(string fileName);
@@ -79,11 +80,12 @@ class Assembler{
 		void replaceLabels();
 
 		//VirtualMemory mapping
-
+		void naiveNoDirectives();
 
 
 
 		Parser parser;
+		Encoder* encoder;
 		
 		
 		virtualAddr memorySegmentTopArray[NUMBER_OF_MEMORY_SEGMENTS];
@@ -94,7 +96,7 @@ class Assembler{
 		uint32_t currentByteAlignment;
 
 
-		VirtualMemory memory;
+		VirtualMemory virtualMemory;
 
 		vector<string> program;
 

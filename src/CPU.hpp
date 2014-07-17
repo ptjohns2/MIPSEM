@@ -10,7 +10,6 @@ class CPU{
 	public:
 		CPU();
 		~CPU();
-
 		void executeInstructionAtPC();
 		void executeInstruction(Instruction* instruction);
 
