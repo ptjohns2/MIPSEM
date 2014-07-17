@@ -18,20 +18,20 @@
 5. Object file assembly from .asm sources	-	in progress
 6. Instruction emulation from memory	-	  in progress    
    
-###Example program:   
-.text
-addi	$t1, $zero, 48
-addi	$t0, $zero, 0
-loopstart:
-addi	$t0, $t0, 8
-addi	$v0, $zero, 1
-add	$a0, $zero, $t0
-syscall	
-beq	$t0, $t1, loopend
-j	loopstart
-loopend:
-addi	$a0, $zero, 9999	
-syscall						   
-
+###Example program:      
+.text   
+addi	$t1, $zero, 48   
+addi	$t0, $zero, 0   
+loopstart:   
+addi	$t0, $t0, 8   
+addi	$v0, $zero, 1   
+add	$a0, $zero, $t0   
+syscall	   
+beq	$t0, $t1, loopend   
+j	loopstart   
+loopend:    
+addi	$a0, $zero, 9999	   
+syscall				   		   
+   
 ###Example output:   
 ![Alt text](/demos/program1output.png?raw=true)
