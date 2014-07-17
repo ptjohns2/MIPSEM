@@ -66,6 +66,7 @@ class VirtualMemory{
 		void writeMemoryMap(MemoryMap* memoryMap);
 		MemoryMap readMemoryMap() const;
 
+
 		void writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr);
 		h_byte* readVirtualMemorySpaceToHeap(virtualAddr address, size_t size) const;
 		byte* getByteAddr(virtualAddr address) const;
@@ -74,6 +75,18 @@ class VirtualMemory{
 
 		//InstructionCache functions
 		Instruction* readInstruction(virtualAddr address);
+
+		//Template functions
+		
+		template<typename datatype> 
+		datatype readPOD(virtualAddr addr){
+			h_byte* bytePtr = readVirtualMemorySpaceToHeap(addr, sizeof(datatype));
+			datatype val = *bytePtr;
+			delete bytePtr;
+			return val;
+		}
+
+
 
 	private:
 		VirtualMemoryPageTable* pageTable;

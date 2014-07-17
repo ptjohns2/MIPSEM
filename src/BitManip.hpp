@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h> // memcpy
 
-extern inline int32_t signExtend(uint32_t, unsigned int);
+extern inline int32_t signExtend(uint32_t, size_t);
 
 extern void printbin(const void* p, int len);
 
@@ -20,7 +20,7 @@ datatype readMemAs(void* ptr){
 	memcpy(&x, ptr, sizeof(datatype));
 	return x;
 }
-template int8_t	readMemAs<int8_t>	(void* ptr);
+template int8_t		readMemAs<int8_t>	(void* ptr);
 template uint8_t	readMemAs<uint8_t>	(void* ptr);
 template int16_t	readMemAs<int16_t>	(void* ptr);
 template uint16_t	readMemAs<uint16_t>	(void* ptr);

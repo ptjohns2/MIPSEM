@@ -6,7 +6,10 @@
 
 #define INSTRUCTION_DATA_HASH_TABLE_SIZE	(1009)
 #define NUMBER_OF_OPCODES					(64)
-#define INSTRUCTIONSIZE						(32)
+#define WORDSIZE							(32)
+#define INSTRUCTIONSIZE						(WORDSIZE)
+#define HWORDSIZE							(WORDSIZE / 2)
+#define BYTESIZE							(8)
 #define OPCODESIZE							(6)
 #define NUMBER_OF_PARAMETERS					(4)
 #define NUMBER_OF_INSTRUCTIONS				(377)

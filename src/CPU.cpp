@@ -1333,11 +1333,11 @@ inline void CPU::executeInstructionID_193(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_194(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	194	=	LB	:	$rt,	-.imm,	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<byte>(a1 + GPR[a2]);
 }
 inline void CPU::executeInstructionID_195(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	195	=	LBE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<byte>(a1 + GPR[a2]);
 }
 inline void CPU::executeInstructionID_196(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	196	=	LBU	:	$rt,	-.imm,	($rs),	_		

@@ -510,8 +510,14 @@ void Assembler::replaceLabels(){
 //VirtualMemory mapping
 void Assembler::naiveNoDirectives(){
 	for(int i=0; i<alignedProgram.size(); i++){
-		Instruction instruction = encoder->buildInstruction(alignedProgram[i].token);
-		instr bin = instruction.getBin();
-		virtualMemory.writeToVirtualMemorySpace(alignedProgram[i].addr, sizeof(bin), &bin);
+		if(alignedProgram[i].type == DIRECTIVE_INSTRUCTION){
+			Instruction instruction = encoder->buildInstruction(alignedProgram[i].token);
+		
+			virtualAddr addr = alignedProgram[i].addr;
+			instr bin = instruction.getBin();
+			size_t size = sizeof(bin);
+
+			virtualMemory.writeToVirtualMemorySpace(addr, size, &bin);
+		}
 	}
 }

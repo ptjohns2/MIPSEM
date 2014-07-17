@@ -14,7 +14,7 @@ using namespace std;
 
 
 #define SIZE_BYTE (1)
-#define SIZE_WORD (8)
+#define SIZE_WORD (4 * SIZE_BYTE)
 #define SIZE_HALF (SIZE_WORD / 2)
 #define SIZE_FLOAT (SIZE_WORD)
 #define SIZE_DOUBLE (2 * SIZE_FLOAT)
