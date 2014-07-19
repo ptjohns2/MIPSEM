@@ -41,10 +41,12 @@ int main(){
 	Parser parser = Parser();
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
-
+	
+	//string programName = "";
+	string programName = "prime-2.s";
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";
-	string programName = "prime-1.txt";
+	//string programName = "prime-1.txt";
 	//string programName = "testProgram2.txt";
 	assembler.loadProgramFromFile(programName);
 	assembler.replaceEqv();

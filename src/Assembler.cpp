@@ -482,7 +482,7 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 //Post-processing
 void Assembler::replaceEqv(){
 	vector<pair<string, string>> eqvDB;
-	for(int programLine=0; programLine<program.size(); programLine++){
+	for(int programLine=0; programLine<program.size(); programLine++){		
 		string line = program[programLine];
 		string token;
 		parser.extractAndRemoveFirstToken(line, token);
@@ -494,8 +494,8 @@ void Assembler::replaceEqv(){
 			eqvDB.push_back(eqvAtom);
 		}
 
-		for(int laterProgramLines = programLine + 1; laterProgramLines<program.size(); laterProgramLines++){
-			string line = program[laterProgramLines];
+		for(int laterProgramLine = programLine + 1; laterProgramLine<program.size(); laterProgramLine++){
+			string line = program[laterProgramLine];
 			string token = parser.extractFirstToken(line);
 
 			string immuneFront;
@@ -526,7 +526,7 @@ void Assembler::replaceEqv(){
 			}
 			if(largestMatchingEqv != NULL){
 				replacedBack = parser.replace(replacedBack, largestMatchingEqv->first, largestMatchingEqv->second);
-				program[laterProgramLines] = immuneFront + replacedBack;
+				program[laterProgramLine] = immuneFront + replacedBack;
 			}
 		}
 	}
@@ -623,7 +623,10 @@ void Assembler::pseudoInstructionReplace(){
 					case 8:
 						{
 							//move
-
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string line1 = "add\t" + registerName1 + ", " + registerName2 + ", $zero";
+							alignedProgram[i].token = line1;
 						}
 						break;
 					case 9:

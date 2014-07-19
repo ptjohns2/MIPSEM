@@ -1326,7 +1326,7 @@ inline void CPU::executeInstructionID_191(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_192(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	192	=	JR	:	$rs,	_,	_,	_		
-	
+	PC = GPR[a0];
 }
 inline void CPU::executeInstructionID_193(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	193	=	JR.HB	:	$rs,	_,	_,	_		
