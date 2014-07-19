@@ -42,8 +42,10 @@ int main(){
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
 	
-	//string programName = "";
-	string programName = "prime-2.s";
+
+
+	string programName = "recursiontest.txt";
+	//string programName = "prime-2.s";
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";
 	//string programName = "prime-1.txt";
@@ -58,66 +60,10 @@ int main(){
 	assembler.mapAlignedProgramToVirtualMemory();
 	cpu.MEM = assembler.virtualMemory;
 	
-	int naivenum = 0;
-	while(true){
-		naivenum++;
-		if(naivenum > 100000){
-			getchar();
-		}
-
-		Instruction* instructionFromMemory = cpu.MEM.readInstruction(cpu.PC);
-		cout << "\nPC = " << parser.literals.getHexLiteralString(cpu.PC) << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
-		cpu.executeInstruction(instructionFromMemory);
-	}
+	cpu.run();
 
 
 
-
-	int asdfasdfasdfasdf = 1;
-
-
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-
-	
-	vector<string> instrStrArr;
-	instrStrArr.push_back("addi $t1, $zero, 48");	//0
-	instrStrArr.push_back("addi	$t0, $zero, 0");	//4
-
-	instrStrArr.push_back("addi $t0, $t0, 8");	//8
-	instrStrArr.push_back("addi	$v0, $zero, 1");	//12
-	instrStrArr.push_back("add	$a0, $zero, $t0");	//16
-	
-	instrStrArr.push_back("syscall");	//20
-
-	instrStrArr.push_back("beq $t0, $t1, 1");	//24
-	instrStrArr.push_back("b -6");
-
-	instrStrArr.push_back("addi $a0, $zero, 9999");	//28
-	instrStrArr.push_back("syscall");	//32
-
-
-	for(int i=0; i<instrStrArr.size(); i++){
-		Instruction instruction = encoder.buildInstruction(instrStrArr[i]);
-		instr instructionBin = instruction.getBin();
-		vm.writeToVirtualMemorySpace(cpu.PC + i * sizeof(instr), sizeof(instr), &instructionBin);
-	}
-
-	int num = 0;
-	while(true){
-		num++;
-		if(num > 100000){
-			getchar();
-		}
-
-		Instruction* instructionFromMemory = vm.readInstruction(cpu.PC);
-		cout << "\nPC = " << cpu.PC << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
-		cpu.executeInstruction(instructionFromMemory);
-	}
 
 	
 

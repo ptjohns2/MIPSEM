@@ -85,9 +85,10 @@ void Assembler::pseudoInstructionPad(){
 		}
 		int numLinesToInsert = parser.getPseudoInstructionNumberOfLinesToInsert(token);
 		for(int numInsertedLines = 0; numInsertedLines < numLinesToInsert; numInsertedLines++){
+			programLineNumber++;
 			program.insert(program.begin() + programLineNumber, line);
 		}
-		programLineNumber += numLinesToInsert;
+		//programLineNumber += numLinesToInsert + 1;
 	}
 }
 
@@ -534,7 +535,7 @@ void Assembler::replaceEqv(){
 
 
 void Assembler::pseudoInstructionReplace(){
-	for(int i=0; i<alignedProgram.size(); i++){
+	for(int i=0; i<program.size(); i++){
 		ProgramAtom atom = alignedProgram[i];
 		string line = atom.token;
 		if(atom.type == DIRECTIVE_INSTRUCTION){

@@ -3,6 +3,7 @@
 
 #include "BitManip.hpp"
 #include "Instruction.hpp"
+#include "Parser.hpp"
 #include "VirtualMemory.hpp"
 
 
@@ -10,6 +11,7 @@ class CPU{
 	public:
 		CPU();
 		~CPU();
+		void run();
 		void executeInstructionAtPC();
 		void executeInstruction(Instruction* instruction);
 
@@ -32,6 +34,7 @@ class CPU{
 		VirtualMemory MEM;
 		bool exitProgram;
 
+		Parser parser;
 
 	private:
 

@@ -14,6 +14,7 @@ void VirtualMemory::init(){
 }
 void VirtualMemory::deinit(){
 	delete this->pageTable;
+	this->pageTable = NULL;
 }
 void VirtualMemory::reset(){
 	delete this->pageTable;
@@ -121,6 +122,7 @@ VirtualMemoryPageTable::VirtualMemoryPageTable(){
 VirtualMemoryPageTable::~VirtualMemoryPageTable(){
 	for(int i=0; i<NUM_PAGES_IN_PAGE_TABLE; i++){
 		delete pageTable[i];
+		pageTable[i] = NULL;
 	}
 }
 void VirtualMemoryPageTable::init(){
@@ -175,6 +177,9 @@ void VirtualMemoryPage::init(){
 	}
 	instructionCache = NULL;
 }
+void VirtualMemoryPage::deinit(){
+	deallocInstructionCache();
+}
 
 Decoder* VirtualMemoryPage::decoder = NULL;
 
@@ -207,15 +212,18 @@ bool VirtualMemoryPage::instructionCacheIsAllocated(){
 	return instructionCache != NULL;
 }
 void VirtualMemoryPage::allocInstructionCache(){
-	instructionCache = new Instruction*[NUM_WORDS_IN_PAGE];
-	for(int i=0; i<NUM_WORDS_IN_PAGE; i++){
-		instructionCache[i] = NULL;
+	if(!instructionCacheIsAllocated()){
+		instructionCache = new Instruction*[NUM_WORDS_IN_PAGE];
+		for(int i=0; i<NUM_WORDS_IN_PAGE; i++){
+			instructionCache[i] = NULL;
+		}
 	}
 }
 void VirtualMemoryPage::deallocInstructionCache(){
 	if(!instructionCache == NULL){
 		for(int i=0; i<NUM_WORDS_IN_PAGE; i++){
 			delete instructionCache[i];
+			instructionCache[i] = NULL;
 		}
 	}
 	delete[] instructionCache;

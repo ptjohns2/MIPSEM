@@ -123,6 +123,7 @@ class VirtualMemoryPage{
 		VirtualMemoryPage(uint32_t pageNumber);
 		~VirtualMemoryPage();
 		void init();
+		void deinit();
 
 		MemorySegment readMemorySegment();
 		static uint32_t calculatePageOffset(virtualAddr address);

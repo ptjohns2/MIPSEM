@@ -23,7 +23,9 @@ typedef enum {
 
 
 //	Constructors
-CPU::CPU(){
+CPU::CPU()
+	:	parser()
+{
 	for(int i=0; i<32; i++){
 		GPR[i] = 0x0;
 		FPR[i] = 0x0;
@@ -33,12 +35,19 @@ CPU::CPU(){
 	PC = MEMPTR_PC;
 	HI = 0;
 	LO = 0;
+	exitProgram = false;
 }
 
 CPU::~CPU(){}
 
+void CPU::run(){
+	while(!exitProgram){
+		executeInstructionAtPC();
+	}
+}
 void CPU::executeInstructionAtPC(){
 	Instruction* instructionFromMemory = MEM.readInstruction(PC);
+	//cout << "\nPC = " << parser.literals.getHexLiteralString(PC) << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
 	executeInstruction(instructionFromMemory);
 }
 void CPU::executeInstruction(Instruction* instruction){
@@ -1302,7 +1311,8 @@ inline void CPU::executeInstructionID_185(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_186(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	186	=	JAL	:	+.addr,	_,	_,	_		
-	
+	GPR[$ra] = PC + 4;
+	PC = (PC & 0xF0000000) | (a0 << 2);
 }
 inline void CPU::executeInstructionID_187(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	187	=	JALR	:	$rs,	_,	_,	_		
