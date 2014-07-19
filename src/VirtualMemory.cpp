@@ -128,6 +128,8 @@ void VirtualMemoryPageTable::init(){
 	for(int i=0; i<NUM_PAGES_IN_PAGE_TABLE; i++){
 		pageTable[i] = NULL;
 	}
+	pageDataStart = getPageAddr(MEMSEG_BASE_DATA);
+	pageTextStart = getPageAddr(MEMSEG_BASE_TEXT);
 }
 
 uint32_t VirtualMemoryPageTable::calculatePageNumber(virtualAddr address){

@@ -22,10 +22,10 @@
 #define MEMORY_SECTION_DYNAMIC_DATA			(0x10008000)
 #define MEMORY_SECTION_STACK				(0x7ffffffc)
 
-typedef uint32_t instr;
-typedef unsigned char byte;
-typedef byte h_byte;	//denoting pointer to heap
-typedef uint32_t virtualAddr;
+typedef uint32_t		instr;
+typedef unsigned char	byte;
+typedef byte			h_byte;	//denoting pointer to heap
+typedef uint32_t		virtualAddr;
 
 
 typedef std::pair<int,int> bitrange;

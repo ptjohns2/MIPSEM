@@ -81,9 +81,14 @@ class VirtualMemory{
 		template<typename datatype> 
 		datatype readPOD(virtualAddr addr){
 			h_byte* bytePtr = readVirtualMemorySpaceToHeap(addr, sizeof(datatype));
-			datatype val = *bytePtr;
+			datatype val = readMemAs<datatype>(bytePtr);
 			delete bytePtr;
 			return val;
+		}
+
+		template<typename datatype>
+		void writePOD(virtualAddr addr, datatype val){
+			writeToVirtualMemorySpace(addr, sizeof(val), &val);
 		}
 
 
@@ -106,6 +111,8 @@ class VirtualMemoryPageTable{
 		bool pageIsAllocated(uint32_t pageNumber);
 		
 	private:
+		VirtualMemoryPage* pageDataStart;
+		VirtualMemoryPage* pageTextStart;
 		VirtualMemoryPage* pageTable[NUM_PAGES_IN_PAGE_TABLE];
 
 };

@@ -59,6 +59,9 @@ class Assembler{
 		void loadProgramFromFile(string fileName);
 
 	//private:
+		//Pre-processing
+		void pseudoInstructionPad();
+
 		//Memory alignment
 		bool tokenIsInLabelDB(string);
 		void addLabelAddress(string, virtualAddr);
@@ -76,11 +79,12 @@ class Assembler{
 		void alignLiteralTokenList(vector<string> const &tokens, string currentLine);
 		void writeAlignedRawProgramToDisk(string fileName);
 
-		//Preprocessing
+		//Post-processing
+		void pseudoInstructionReplace();
 		void replaceLabels();
 
 		//VirtualMemory mapping
-		void naiveNoDirectives();
+		void mapAlignedProgramToVirtualMemory();
 
 
 

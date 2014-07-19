@@ -22,13 +22,16 @@ Parser::Parser()
 		DirectiveMap[DirectiveNames[i]] = i;
 	}
 	for(int i=0; i<NUM_INSTRUCTION_NAMES; i++){
-		InstructionMnemonicMap[InstructionMnemonics[i]] = i;
+		InstructionNameMap[InstructionNames[i]] = i;
 	}
 	for(int i=0; i<NUM_BRANCH_INSTRUCTION_NAMES; i++){
-		BranchInstructionMnemonicMap[BranchInstructionMnemonics[i]] = i;
+		BranchInstructionNameMap[BranchInstructionNames[i]] = i;
 	}
 	for(int i=0; i<NUM_JUMP_INSTRUCTION_NAMES; i++){
-		JumpInstructionMnemonicMap[JumpInstructionMnemonics[i]] = i;
+		JumpInstructionNameMap[JumpInstructionNames[i]] = i;
+	}
+	for(int i=0; i<NUM_PSEUDO_INSTRUCTION_NAMES; i++){
+		PseudoInstructionNameMap[PseudoInstructionNamesAndNumberOfLinesToInsert[i].first] = i;
 	}
 }
 Parser::~Parser(){
@@ -247,7 +250,7 @@ vector<string> Parser::collectableLiteralListExplode(string str){
 	return ret;
 }
 
-//TODO: test these, haven't yet because incomplete code in other sections
+
 string Parser::extractFirstToken(string str){
 	//mirror extractAndRemoveFirstToken
 	string firstToken;
@@ -373,38 +376,54 @@ string Parser::getFPRegisterName(int index){
 
 
 
-bool Parser::tokenIsInstructionMnemonic(string token){
-	return getInstructionMnemonicNumber(token) != -1;
+bool Parser::tokenIsInstructionName(string token){
+	return getInstructionNameNumber(token) != -1;
 }
-int Parser::getInstructionMnemonicNumber(string token){
-	unordered_map<string, int>::iterator iter = InstructionMnemonicMap.find(token);
-	if(iter != InstructionMnemonicMap.end()){
+int Parser::getInstructionNameNumber(string token){
+	unordered_map<string, int>::iterator iter = InstructionNameMap.find(token);
+	if(iter != InstructionNameMap.end()){
 		return (*iter).second;
 	}else{
 		return -1;
 	}
 }
-bool Parser::tokenIsBranchInstructionMnemonic(string token){
-	return getBranchInstructionMnemonicNumber(token) != -1;
+bool Parser::tokenIsBranchInstructionName(string token){
+	return getBranchInstructionNameNumber(token) != -1;
 }
-int Parser::getBranchInstructionMnemonicNumber(string token){
-	unordered_map<string, int>::iterator iter = BranchInstructionMnemonicMap.find(token);
-	if(iter != BranchInstructionMnemonicMap.end()){
+int Parser::getBranchInstructionNameNumber(string token){
+	unordered_map<string, int>::iterator iter = BranchInstructionNameMap.find(token);
+	if(iter != BranchInstructionNameMap.end()){
 		return (*iter).second;
 	}else{
 		return -1;
 	}
 }
-bool Parser::tokenIsJumpInstructionMnemonic(string token){
-	return getJumpInstructionMnemonicNumber(token) != -1;
+bool Parser::tokenIsJumpInstructionName(string token){
+	return getJumpInstructionNameNumber(token) != -1;
 }
-int Parser::getJumpInstructionMnemonicNumber(string token){
-	unordered_map<string, int>::iterator iter = JumpInstructionMnemonicMap.find(token);
-	if(iter != JumpInstructionMnemonicMap.end()){
+int Parser::getJumpInstructionNameNumber(string token){
+	unordered_map<string, int>::iterator iter = JumpInstructionNameMap.find(token);
+	if(iter != JumpInstructionNameMap.end()){
 		return (*iter).second;
 	}else{
 		return -1;
 	}
+}
+bool Parser::tokenIsPseudoInstructionName(string token){
+	return getPseudoInstructionNameNumber(token) != -1;
+}
+int Parser::getPseudoInstructionNameNumber(string token){
+	unordered_map<string, int>::iterator iter = PseudoInstructionNameMap.find(token);
+	if(iter != PseudoInstructionNameMap.end()){
+		return (*iter).second;
+	}else{
+		return -1;
+	}
+}
+int Parser::getPseudoInstructionNumberOfLinesToInsert(string token){
+	if(!tokenIsPseudoInstructionName(token)){return -1;}
+	int num = getPseudoInstructionNameNumber(token);
+	return PseudoInstructionNamesAndNumberOfLinesToInsert[num].second;
 }
 
 
@@ -530,7 +549,7 @@ string const Parser::DirectiveNames[] = {
 	".eqv",
 };
 
-string const Parser::InstructionMnemonics[] = {
+string const Parser::InstructionNames[] = {
 	"abs.s","abs.d","abs.ps","add","add.s","add.d","add.ps","addi",	"addiu", "addu","alnv.ps","and","andi",
 	"b","bal","bc1f","bc1f","bc1fl","bc1fl","bc1t","bc1t","bc1tl","bc1tl","bc2f","bc2f","bc2fl","bc2fl","bc2t","bc2t","bc2tl","bc2tl","beq","beql","bgez","bgezal","bgezall","bgezl","bgtz","bgtzl","blez","blezl","bltz","bltzal","bltzall","bltzl","bne","bnel","break",
 	"c.f.s","c.f.s","c.f.d","c.f.d","c.f.ps","c.f.ps","c.un.s","c.un.s","c.un.d","c.un.d","c.un.ps","c.un.ps","c.eq.s","c.eq.s","c.eq.d","c.eq.d","c.eq.ps","c.eq.ps","c.ueq.s","c.ueq.s","c.ueq.d","c.ueq.d","c.ueq.ps","c.ueq.ps","c.olt.s","c.olt.s","c.olt.d","c.olt.d","c.olt.ps","c.olt.ps","c.ult.s","c.ult.s","c.ult.d","c.ult.d","c.ult.ps","c.ult.ps","c.ole.s","c.ole.s","c.ole.d","c.ole.d","c.ole.ps","c.ole.ps","c.ule.s","c.ule.s","c.ule.d","c.ule.d","c.ule.ps","c.ule.ps","c.sf.s","c.sf.s","c.sf.d","c.sf.d","c.sf.ps","c.sf.ps","c.ngle.s","c.ngle.s","c.ngle.d","c.ngle.d","c.ngle.ps","c.ngle.ps","c.seq.s","c.seq.s","c.seq.d","c.seq.d","c.seq.ps","c.seq.ps","c.ngl.s","c.ngl.s","c.ngl.d","c.ngl.d","c.ngl.ps","c.ngl.ps","c.lt.s","c.lt.s","c.lt.d","c.lt.d","c.lt.ps","c.lt.ps","c.nge.s","c.nge.s","c.nge.d","c.nge.d","c.nge.ps","c.nge.ps","c.le.s","c.le.s","c.le.d","c.le.d","c.le.ps","c.le.ps","c.ngt.s","c.ngt.s","c.ngt.d","c.ngt.d","c.ngt.ps","c.ngt.ps","cache","cachee","ceil.l.s","ceil.l.d","ceil.w.s","ceil.w.d","cfc1","cfc2","clo","clz","cop2","ctc1","ctc2","cvt.d.s","cvt.d.w","cvt.d.l","cvt.l.s","cvt.l.d","cvt.ps.s","cvt.s.d","cvt.s.w","cvt.s.l","cvt.s.pl","cvt.s.pl","cvt.w.s","cvt.w.d",
@@ -551,7 +570,7 @@ string const Parser::InstructionMnemonics[] = {
 	"xor","xori"
 };
 
-string const Parser::BranchInstructionMnemonics[] = {
+string const Parser::BranchInstructionNames[] = {
 	"b",
 	"bal",
 	"bc1f",
@@ -580,8 +599,29 @@ string const Parser::BranchInstructionMnemonics[] = {
 	"bnel"
 };
 
-string const Parser::JumpInstructionMnemonics[] = {
+string const Parser::JumpInstructionNames[] = {
 	"j",
 	"jal",
 	"jalx"
+};
+
+pair<string, int> const Parser::PseudoInstructionNamesAndNumberOfLinesToInsert[] = {
+	make_pair("bge", 1),
+	make_pair("bgt", 1),
+	make_pair("ble", 1),
+	make_pair("blt", 1),
+	make_pair("clear", 0),
+	make_pair("div", 1),
+	make_pair("la", 1),
+	make_pair("li", 1),
+	make_pair("move", 0),
+	make_pair("mul", 1),
+	make_pair("neg", 0),
+	make_pair("not", 0),
+	make_pair("push", 1),
+	make_pair("pop", 1),
+	make_pair("peak", 0),
+	make_pair("rem", 1),
+	make_pair("sge", 1),
+	make_pair("sgt", 1),
 };

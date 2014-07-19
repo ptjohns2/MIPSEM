@@ -73,12 +73,19 @@ class Parser{
 
 
 
-		bool tokenIsInstructionMnemonic(string);
-		bool tokenIsBranchInstructionMnemonic(string);
-		bool tokenIsJumpInstructionMnemonic(string);
-		int getInstructionMnemonicNumber(string);
-		int getBranchInstructionMnemonicNumber(string);
-		int getJumpInstructionMnemonicNumber(string);
+		bool tokenIsInstructionName(string);
+		int getInstructionNameNumber(string);
+
+		bool tokenIsBranchInstructionName(string);
+		int getBranchInstructionNameNumber(string);
+
+		bool tokenIsJumpInstructionName(string);
+		int getJumpInstructionNameNumber(string);
+
+		bool tokenIsPseudoInstructionName(string);
+		int getPseudoInstructionNameNumber(string);
+		int getPseudoInstructionNumberOfLinesToInsert(string);
+
 
 		bool tokenIsDirective(string);
 		int getDirectiveNumber(string);
@@ -95,25 +102,34 @@ class Parser{
 
 		//Members
 		Literals literals;
+
 		#define NUM_GP_REGISTER_NAMES			64
-		#define NUM_FP_REGISTER_NAMES			32
-		#define NUM_DIRECTIVE_NAMES				20
-		#define NUM_INSTRUCTION_NAMES			377
-		#define NUM_BRANCH_INSTRUCTION_NAMES	26
-		#define NUM_JUMP_INSTRUCTION_NAMES		3
 		static string const GPRegisterNames[];
-		static string const FPRegisterNames[];
-		static string const DirectiveNames[];
-		static string const InstructionMnemonics[];
-		static string const BranchInstructionMnemonics[];
-		static string const JumpInstructionMnemonics[];
 		unordered_map<string, int> GPRegisterNameMap;
+
+		#define NUM_FP_REGISTER_NAMES			32
+		static string const FPRegisterNames[];
 		unordered_map<string, int> FPRegisterNameMap;
+
+		#define NUM_DIRECTIVE_NAMES				20
+		static string const DirectiveNames[];
 		unordered_map<string, int> DirectiveMap;
-		unordered_map<string, int> InstructionMnemonicMap;
-		unordered_map<string, int> BranchInstructionMnemonicMap;
-		unordered_map<string, int> JumpInstructionMnemonicMap;
-		
+
+		#define NUM_INSTRUCTION_NAMES			377
+		static string const InstructionNames[];
+		unordered_map<string, int> InstructionNameMap;
+
+		#define NUM_BRANCH_INSTRUCTION_NAMES	26
+		static string const BranchInstructionNames[];
+		unordered_map<string, int> BranchInstructionNameMap;
+
+		#define NUM_JUMP_INSTRUCTION_NAMES		3
+		static string const JumpInstructionNames[];
+		unordered_map<string, int> JumpInstructionNameMap;
+
+		#define NUM_PSEUDO_INSTRUCTION_NAMES	18
+		static pair<string, int> const PseudoInstructionNamesAndNumberOfLinesToInsert[];
+		unordered_map<string, int> PseudoInstructionNameMap;
 
 
 	private:

@@ -30,6 +30,7 @@ class CPU{
 		int32_t LO;
 
 		VirtualMemory MEM;
+		bool exitProgram;
 
 
 	private:

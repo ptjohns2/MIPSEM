@@ -438,7 +438,7 @@ void CPU::executeInstruction(Instruction* instruction){
 	
 
 	//make sure $zero stays 0
-	GPR[0] = 0;
+	GPR[$zero] = 0;
 }
 
 
@@ -531,7 +531,8 @@ inline void CPU::executeInstructionID_13(uint32_t a0, uint32_t a1, uint32_t a2, 
 }
 inline void CPU::executeInstructionID_14(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	14	=	BAL	:	-.imm,	_,	_,	_		
-	GPR[31] = PC + 8;
+	//TOD: +4 or 8?
+	GPR[31] = PC + 4;
 	PC += (signExtend(a0, 16) << 2);
 }
 inline void CPU::executeInstructionID_15(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1333,23 +1334,29 @@ inline void CPU::executeInstructionID_193(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_194(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	194	=	LB	:	$rt,	-.imm,	($rs),	_		
-	GPR[a0] = MEM.readPOD<byte>(a1 + GPR[a2]);
+	GPR[a0] = MEM.readPOD<byte>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_195(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	195	=	LBE	:	$rt,	-.[15,7],	($rs),	_		
-	GPR[a0] = MEM.readPOD<byte>(a1 + GPR[a2]);
+	GPR[a0] = MEM.readPOD<byte>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_196(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	196	=	LBU	:	$rt,	-.imm,	($rs),	_		
-	
+	byte val = MEM.readPOD<byte>(GPR[a2] + a1);
+	uint32_t wordVal = (uint32_t)(val);
+	int32_t signedWordVal = (int32_t)(wordVal);
+	GPR[a0] = signedWordVal;
 }
 inline void CPU::executeInstructionID_197(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	197	=	LBUE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	byte val = MEM.readPOD<byte>(GPR[a2] + a1);
+	uint32_t wordVal = (uint32_t)(val);
+	int32_t signedWordVal = (int32_t)(wordVal);
+	GPR[a0] = signedWordVal;
 }
 inline void CPU::executeInstructionID_198(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	198	=	LDC1	:	$ft,	-.imm,	($fmt),	_		
-	
+	FPR[a0] = MEM.readPOD<float>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_199(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	199	=	LDC2	:	$rt,	-.imm,	($rs),	_		
@@ -1357,23 +1364,28 @@ inline void CPU::executeInstructionID_199(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_200(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	200	=	LDXC1	:	$fd,	g$[20,16],	(g$[25,21]),	_		
-	
+	regStoreDouble(MEM.readPOD<double>(GPR[a1] + GPR[a2]), a0);
 }
 inline void CPU::executeInstructionID_201(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	201	=	LH	:	$rt,	-.imm,	($rs),	_		
-	
+	int16_t val = MEM.readPOD<int16_t>(GPR[a2] + a1);
+	GPR[a0] = (int32_t)(val);
 }
 inline void CPU::executeInstructionID_202(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	202	=	LHE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<int16_t>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_203(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	203	=	LHU	:	$rt,	-.imm,	($rs),	_		
-	
+	uint16_t val = MEM.readPOD<uint16_t>(GPR[a2] + a1);
+	uint32_t wordVal = (uint32_t)(val);
+	GPR[a0] = (int32_t)(wordVal);
 }
 inline void CPU::executeInstructionID_204(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	204	=	LHUE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	uint16_t val = MEM.readPOD<uint16_t>(GPR[a2] + a1);
+	uint32_t wordVal = (uint32_t)(val);
+	GPR[a0] = (int32_t)(wordVal);
 }
 inline void CPU::executeInstructionID_205(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	205	=	LL	:	$rt,	-.imm,	($rs),	_		
@@ -1384,20 +1396,22 @@ inline void CPU::executeInstructionID_206(uint32_t a0, uint32_t a1, uint32_t a2,
 	
 }
 inline void CPU::executeInstructionID_207(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
-	//	207	=	LUI	:	$rt,	-.imm,	_,	_		
-	
+	//	207	=	LUI	:	$rt,	-.imm,	_,	_
+	int32_t shiftedVal = a1 << (NUM_BITS_IN_WORD / 2);
+	GPR[a0] = shiftedVal;
 }
 inline void CPU::executeInstructionID_208(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	208	=	LUXC1	:	$fd,	g$[20,16],	(g$[25,21]),	_		
-	
+	virtualAddr addr = (GPR[a1] + GPR[a2]) & 0xFFFFFFFF8;
+	regStoreDouble(MEM.readPOD<double>(addr), a0);
 }
 inline void CPU::executeInstructionID_209(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	209	=	LW	:	$rt,	-.imm,	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<int32_t>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_210(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	210	=	LWC1	:	$ft,	-.imm,	($fmt),	_		
-	
+	FPR[a0] = MEM.readPOD<float>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_211(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	211	=	LWC2	:	$ft,	-.imm,	($fmt),	_		
@@ -1405,7 +1419,7 @@ inline void CPU::executeInstructionID_211(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_212(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	212	=	LWE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<int32_t>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_213(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	213	=	LWL	:	$rt,	-.imm,	($rs),	_		
@@ -1920,7 +1934,7 @@ inline void CPU::executeInstructionID_336(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_337(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	337	=	SW	:	$rt,	-.imm,	($rs),	_		
-	
+	MEM.writePOD<int32_t>(GPR[a2] + a1, GPR[a0]);
 }
 inline void CPU::executeInstructionID_338(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	338	=	SWC1	:	$ft,	-.imm,	($fmt),	_		
@@ -1972,56 +1986,111 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 	int tmpInt;
 	float tmpFloat;
 	double tmpDouble;
+	string tmpString;
 
-	switch(GPR[2]){
+	switch(GPR[$v0]){
 		case 1:
-			cout << GPR[4];
+			//print integer	1	$a0 = integer to print	
+			cout << GPR[$a0];
 			break;
 		case 2:
+			//print float	2	$f12 = float to print
 			cout << FPR[12];
 			break;
 		case 3:
+			//print double	3	$f12 = double to print
 			cout << regReadDouble(12);
 			break;
 		case 4:
-			
+			//print string	4	$a0 = address of null-terminated string to print		
+			tmpInt = 0;
+			do{
+				tmpChar = MEM.readPOD<char>(GPR[$a0] + tmpInt);
+				tmpInt++;
+				tmpString += tmpChar;
+			}while(tmpChar != '\0');
+			cout << tmpString;
 			break;
 		case 5:
+			//read integer	5		=======>	$v0 contains integer read
+			//TODO: getline
+			cin.clear();
 			cin >> tmpInt;
-			GPR[2] = tmpInt;
+			GPR[$v0] = tmpInt;
 			break;
 		case 6:
+			//read float	6		=======>	$f0 contains float read
+			//TODO: getline
 			cin >> tmpFloat;
 			FPR[0] = tmpFloat;
 			break;
 		case 7:
+			//read double	7		=======>	$f0 contains double read
+			//TODO: getline
 			cin >> tmpDouble;
 			FPR[0] = tmpDouble;
 			break;
 		case 8:
-
+			//read string	8	$a0 = address of input buffer	=======>	See note below table
+			//					$a1 = maximum number of characters to read		
+			//TODO: getline
+			cin >> tmpString;
+			tmpString += '\0';
+			MEM.writeToVirtualMemorySpace(GPR[$a0], tmpString.length(), (void*)tmpString.c_str());
 			break;
 		case 9:
+			//sbrk (allocate heap memory)	9	$a0 = number of bytes to allocate	=======>	$v0 contains address of allocated memory
+
 
 			break;
 		case 10:
+			//exit (terminate execution)	10		=======>	terminates execution of program
+			exitProgram = true;
 
 			break;
 		case 11:
+			//print character	11	$a0 = character to print	=======>	See note below table
+
+
 			putchar((char)GPR[4]);
 			break;
 		case 12:
+			//read character	12		=======>	$v0 contains character read
+
+
 			tmpChar = getchar();
 			GPR[4] = (int32_t)tmpChar;
 			break;
 		case 13:
+			//open file	13	$a0 = address of null-terminated string containing filename	=======>	$v0 contains file descriptor (negative if error). See note below table
+			//				$a1 = flags		
+			//				$a2 = mode		
+
 
 			break;
 		case 14:
+			//read from file	14	$a0 = file descriptor	=======>	$v0 contains number of characters read (0 if end-of-file, negative if error). See note below table
+			//						$a1 = address of input buffer		
+			//						$a2 = maximum number of characters to read		
+
 
 			break;
 		case 15:
+			//write to file	15	$a0 = file descriptor	=======>	$v0 contains number of characters written (negative if error). See note below table
+			//					$a1 = address of output buffer		
+			//					$a2 = number of characters to write		
+
 			
+			break;
+		case 16:
+			//close file	16	$a0 = file descriptor		
+
+
+			break;
+		case 17:
+			//exit2 (terminate with value)	17	$a0 = termination result	=======>	See note below table
+
+
 			break;
 		default:
 

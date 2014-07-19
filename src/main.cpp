@@ -42,28 +42,17 @@ int main(){
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
 
-	/*
-	assembler.loadProgramFromFile("prime-1.s");
+	//string programName = "primes.txt";
+	//string programName = "myTest.txt";
+	string programName = "pseudoprimes.txt";
+	//string programName = "testProgram2.txt";
+	assembler.loadProgramFromFile(programName);
+	assembler.pseudoInstructionPad();
 	assembler.alignRawProgram();
-	assembler.writeAlignedRawProgramToDisk("writtenObj.txt");
-	
-	assembler.reset();
-	assembler.loadProgramFromFile("prime-1.s");
-	assembler.alignRawProgram();
+	assembler.pseudoInstructionReplace();
 	assembler.replaceLabels();
-	assembler.writeAlignedRawProgramToDisk("writtenObjProcessed.txt");
-	*/
-	assembler.loadProgramFromFile("program1.txt");
-	assembler.alignRawProgram();
-	assembler.writeAlignedRawProgramToDisk("program1Obj.txt");
-
-	
-	assembler.reset();
-	assembler.loadProgramFromFile("program1.txt");
-	assembler.alignRawProgram();
-	assembler.replaceLabels();
-	assembler.writeAlignedRawProgramToDisk("program1ProcessedObj.txt");
-	assembler.naiveNoDirectives();
+	assembler.writeAlignedRawProgramToDisk(programName + ".obj.txt");
+	assembler.mapAlignedProgramToVirtualMemory();
 	cpu.MEM = assembler.virtualMemory;
 	
 	int naivenum = 0;
@@ -77,7 +66,6 @@ int main(){
 		cout << "\nPC = " << parser.literals.getHexLiteralString(cpu.PC) << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
 		cpu.executeInstruction(instructionFromMemory);
 	}
-
 
 
 

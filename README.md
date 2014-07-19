@@ -6,7 +6,7 @@
   
 ####Implements numerous data structures for optimization such as:     
 	-Hash table based instruction encoding and decoding    
-	-Decoded instruction cache for less interpretation    overhead within the virtual CPU   
+	-Decoded instruction cache for less interpretation overhead within the virtual CPU   
 	-Lazily allocated 32-bit addressable virtual memory system and instruction cache   
    
    

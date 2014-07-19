@@ -237,8 +237,8 @@ int Literals::getRawHexLiteralValue(string token){
 }
 string Literals::getHexLiteralString(int val){
 	stringstream ss;
-	ss << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
-	return Parser::toUpper(ss.str());
+	ss  << std::setw(8) << std::setfill('0') << std::hex << val;
+	return "0x" + Parser::toUpper(ss.str());
 }
 
 

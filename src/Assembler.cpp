@@ -65,6 +65,36 @@ void Assembler::loadProgramFromFile(string fileName){
 
 
 
+//Pre-processing
+
+void Assembler::pseudoInstructionPad(){	
+	for(int programLineNumber=0; programLineNumber<program.size(); programLineNumber++){
+		string line = program[programLineNumber];
+
+		string token = parser.extractFirstToken(line);
+		if(parser.tokenIsLabel(token)){
+			parser.extractAndRemoveFirstToken(line, token);
+		}
+		token = parser.toLower(parser.extractFirstToken(line));
+		int pseudoInstructionNumber = 0;
+		if(parser.tokenIsPseudoInstructionName(token)){
+			pseudoInstructionNumber = parser.getPseudoInstructionNameNumber(token);
+		}else{
+			continue;
+		}
+		int numLinesToInsert = parser.getPseudoInstructionNumberOfLinesToInsert(token);
+		for(int numInsertedLines = 0; numInsertedLines < numLinesToInsert; numInsertedLines++){
+			program.insert(program.begin() + programLineNumber, line);
+		}
+		programLineNumber += numLinesToInsert;
+	}
+}
+
+
+
+
+
+
 bool Assembler::tokenIsInLabelDB(string token){
 	return getLabelAddress(token) != -1;
 }
@@ -247,17 +277,17 @@ void Assembler::alignRawProgram(){
 					while(line[i] != '"'){i++;}
 					string stringLiteral = line.substr(i);
 					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
-					if(currentValueTypeSpecifier == DIRECTIVE_ASCIIZ){
-						rawString += '\0';
-					}
 
-					mappedProgramString = parser.literals.getStringLiteralString(rawString);
+					mappedProgramString = parser.literals.getRawStringLiteralValue(rawString);
 					atom.addr = getCurrentMemoryLocation();
 					atom.token = mappedProgramString;
 					atom.type = currentValueTypeSpecifier;
 					alignedProgram.push_back(atom);
 					
 					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTE;
+					if(currentValueTypeSpecifier == DIRECTIVE_ASCIIZ){
+						segmentIncrementSize+=2;
+					}
 
 					incrementSegmentTop(segmentIncrementSize);
 					currentAction = ACTION_INIT;
@@ -371,7 +401,7 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 				{
 					//Standard literal value + instructions addon
 					memorySegmentTopIncrementationSize = SIZE_WORD;
-					if(parser.tokenIsInstructionMnemonic(currentLiteralToken)){
+					if(parser.tokenIsInstructionName(currentLiteralToken)){
 						//Add instruction
 						mappedProgramString = currentLine;
 						terminateLine = true;
@@ -448,7 +478,163 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 
 
 
-//Preprocessing
+//Post-processing
+
+void Assembler::pseudoInstructionReplace(){
+	for(int i=0; i<alignedProgram.size(); i++){
+		ProgramAtom atom = alignedProgram[i];
+		string line = atom.token;
+		if(atom.type == DIRECTIVE_INSTRUCTION){
+			string mnemonic = parser.extractFirstToken(atom.token);
+			mnemonic = parser.toLower(mnemonic);
+			if(parser.tokenIsPseudoInstructionName(mnemonic)){
+				int pseudoInstructionNumber = parser.getPseudoInstructionNameNumber(mnemonic);
+				int numInsertedLines = parser.getPseudoInstructionNumberOfLinesToInsert(mnemonic);
+				vector<string> tokenizedInstruction = parser.tokenizeInstruction(line);
+				switch(pseudoInstructionNumber){
+					case 0:
+						{
+							//bge
+
+						}
+						break;
+					case 1:
+						{
+							//bgt
+
+						}
+						break;
+					case 2:
+						{
+							//ble
+
+						}
+						break;
+					case 3:
+						{
+							//blt
+
+						}
+						break;
+					case 4:
+						{
+							//clear
+
+						}
+						break;
+					case 5:
+						{
+							//div
+
+						}
+						break;
+					case 6:
+						{
+							//la
+							string labelName = tokenizedInstruction[2];
+							virtualAddr labelAddr = getLabelAddress(labelName);
+							virtualAddr msb = labelAddr >> (NUM_BITS_IN_VIRTUAL_ADDR / 2);
+							virtualAddr lsb = labelAddr & 0x0000FFFF;
+							string msbHex = parser.literals.getHexLiteralString(msb);
+							string lsbHex = parser.literals.getHexLiteralString(lsb);
+							string registerName = tokenizedInstruction[1];
+							string line1 = "lui\t" + registerName + ", " + msbHex;
+							string line2 = "ori\t" + registerName + ", " + registerName + ", " + lsbHex;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
+						}
+						break;
+					case 7:
+						{
+							//li
+							string immediateString = tokenizedInstruction[2];
+							uint32_t immediateVal = parser.literals.getLiteralValue(immediateString);
+							virtualAddr msb = immediateVal >> (NUM_BITS_IN_WORD / 2);
+							virtualAddr lsb = immediateVal & 0x0000FFFF;
+							string msbHex = parser.literals.getHexLiteralString(msb);
+							string lsbHex = parser.literals.getHexLiteralString(lsb);
+							string registerName = tokenizedInstruction[1];
+							string line1 = "lui\t" + registerName + ", " + msbHex;
+							string line2 = "ori\t" + registerName + ", " + registerName + ", " + lsbHex;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
+
+						}
+						break;
+					case 8:
+						{
+							//move
+
+						}
+						break;
+					case 9:
+						{
+							//mul
+
+						}
+						break;
+					case 10:
+						{
+							//neg
+
+						}
+						break;
+					case 11:
+						{
+							//not
+
+						}
+						break;
+					case 12:
+						{
+							//push
+
+						}
+						break;
+					case 13:
+						{
+							//pop
+
+						}
+						break;
+					case 14:
+						{
+							//peak
+
+						}
+						break;
+					case 15:
+						{
+							//rem
+
+						}
+						break;
+					case 16:
+						{
+							//sge
+
+						}
+						break;
+					case 17:
+						{
+							//sgt
+
+						}
+						break;
+					default:
+
+						break;
+				}
+				i += numInsertedLines;
+			}else{
+
+			}
+		}else{
+
+		}
+	}
+}
+
 
 void Assembler::replaceLabels(){
 	for(int i=0; i<alignedProgram.size(); i++){
@@ -457,8 +643,8 @@ void Assembler::replaceLabels(){
 		//Modified replacement
 			string mnemonic = parser.extractFirstToken(atom.token);
 			mnemonic = parser.toLower(mnemonic);
-			bool isBranch = parser.tokenIsBranchInstructionMnemonic(mnemonic);
-			bool isJump = parser.tokenIsJumpInstructionMnemonic(mnemonic);
+			bool isBranch = parser.tokenIsBranchInstructionName(mnemonic);
+			bool isJump = parser.tokenIsJumpInstructionName(mnemonic);
 			vector<string> instructionTokens = parser.tokenizeInstruction(atom.token);
 			if(isBranch || isJump){
 				string lastToken = instructionTokens[instructionTokens.size() - 1];
@@ -472,7 +658,6 @@ void Assembler::replaceLabels(){
 				}else if(isJump){
 					immediateVal = (labelAddr & 0x0FFFFFFF) >> 2;
 				}
-				//TODO:
 				string immediateString = parser.literals.getHexLiteralString(immediateVal);
 				instructionTokens[instructionTokens.size() - 1] = immediateString;
 				string newInstructionString = parser.combineInstructionTokens(instructionTokens);
@@ -508,16 +693,111 @@ void Assembler::replaceLabels(){
 
 
 //VirtualMemory mapping
-void Assembler::naiveNoDirectives(){
+void Assembler::mapAlignedProgramToVirtualMemory(){
 	for(int i=0; i<alignedProgram.size(); i++){
-		if(alignedProgram[i].type == DIRECTIVE_INSTRUCTION){
-			Instruction instruction = encoder->buildInstruction(alignedProgram[i].token);
-		
-			virtualAddr addr = alignedProgram[i].addr;
-			instr bin = instruction.getBin();
-			size_t size = sizeof(bin);
+		ProgramAtom atom = alignedProgram[i];
+		virtualAddr tokenAddr = atom.addr;
+		switch(alignedProgram[i].type){
+			case DIRECTIVE_DATA:
+				{
+					//do nothing
+				}
+				break;
+			case DIRECTIVE_TEXT:
+				{
+					//do nothing
+				}
+				break;
+			case DIRECTIVE_KDATA:
+				{
+					//do nothing
+				}
+				break;
+			case DIRECTIVE_KTEXT:
+				{
+					//do nothing
+				}
+				break;
+			case DIRECTIVE_BYTE:
+				{
+					char val = parser.literals.getLiteralValue(atom.token);
+					size_t size = sizeof(val);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+				}
+				break;
+			case DIRECTIVE_HALF:
+				{
+					int16_t val = parser.literals.getLiteralValue(atom.token);
+					size_t size = sizeof(val);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+				}
+				break;
+			case DIRECTIVE_WORD:
+				{
+					int32_t val = parser.literals.getLiteralValue(atom.token);
+					size_t size = sizeof(val);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+				}
+				break;
+			case DIRECTIVE_FLOAT:
+				{
+					float val = parser.literals.getLiteralValue(atom.token);
+					size_t size = sizeof(val);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+				}
+				break;
+			case DIRECTIVE_DOUBLE:
+				{
+					double val = parser.literals.getLiteralValue(atom.token);
+					size_t size = sizeof(val);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+				}
+				break;
+			case DIRECTIVE_ASCII:
+				{
+					string val = parser.literals.getRawStringLiteralValue(atom.token);
+					size_t size = val.length();
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, (void*)val.c_str());
+				}
+				break;
+			case DIRECTIVE_ASCIIZ:
+				{
+					string val = parser.literals.getRawStringLiteralValue(atom.token);
+					size_t size = val.length();
+					char nullTerm = '\0';
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, (void*)val.c_str());
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr + size, sizeof(nullTerm), &nullTerm);
+				}
+				break;
+			case DIRECTIVE_SPACE:
+				{
+					size_t size = parser.literals.getLiteralValue(atom.token);
+					char* emptySpace = new char[size];
+					memset(emptySpace, 0, size);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, emptySpace);
+					delete emptySpace;
+				}
+				break;
+			case DIRECTIVE_LABEL:
+				{
+					//do nothing
+				}
+				break;
+			case DIRECTIVE_INSTRUCTION:
+				{
+					Instruction instruction = encoder->buildInstruction(atom.token);
+					instr bin = instruction.getBin();
+					size_t size = sizeof(bin);
 
-			virtualMemory.writeToVirtualMemorySpace(addr, size, &bin);
+					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &bin);
+				}
+				break;
+			default:
+				{
+					cout << "Error [void mapAlignedProgramToVirtualMemory()] invalid DIRECTIVE_%TYPE%";
+					getchar();
+				}
+				break;
 		}
 	}
 }
