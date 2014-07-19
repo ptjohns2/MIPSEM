@@ -60,6 +60,7 @@ class Assembler{
 
 	//private:
 		//Pre-processing
+		void replaceEqv();
 		void pseudoInstructionPad();
 
 		//Memory alignment

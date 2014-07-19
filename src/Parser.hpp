@@ -19,6 +19,10 @@ class Parser{
 		//Methods
 		static string toLower(string);
 		static string toUpper(string);
+		
+		static int indexOf(string _str, string target);
+		static int indexOf(string _str, string target, int fromIndex);
+		static string replace(string _str, string target, string replacement);
 
 		static string trimFront(string);
 		static string trimEnd(string);

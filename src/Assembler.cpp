@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <tuple>
 
 
 
@@ -233,7 +234,7 @@ void Assembler::alignRawProgram(){
 		switch(currentAction){
 			case ACTION_INIT:
 				{
-				cout << "Error Assembler::converRawProgramToMemoryMappedProgram ACTION_INIT executed";
+				//cout << "Error Assembler::converRawProgramToMemoryMappedProgram ACTION_INIT executed\n";
 				}
 				break;
 			case ACTION_DECLARE_SEGMENT:
@@ -479,6 +480,44 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 
 
 //Post-processing
+void Assembler::replaceEqv(){
+	vector<pair<string, string>> eqvDB;
+	for(int programLine=0; programLine<program.size(); programLine++){
+		string line = program[programLine];
+		string token;
+		parser.extractAndRemoveFirstToken(line, token);
+		if(token == ".eqv"){
+			string eqvName;
+			parser.extractAndRemoveFirstToken(line, eqvName);
+			string eqvValue = parser.trim(line);
+			pair<string, string> eqvAtom = make_pair(eqvName, eqvValue);
+			eqvDB.push_back(eqvAtom);
+		}
+	}
+	for(int programLine=0; programLine<program.size(); programLine++){
+		string line = program[programLine];
+		string token = parser.extractFirstToken(line);
+		if(token == ".eqv"){continue;}
+
+		pair<string, string>* largestMatchingEqv = NULL;
+		for(int i=0; i<eqvDB.size(); i++){
+			if(parser.indexOf(program[programLine], eqvDB[i].first) != -1){
+				if(largestMatchingEqv == NULL){
+					largestMatchingEqv = &eqvDB[i];
+				}else{
+					if(largestMatchingEqv->first.length() < eqvDB[i].first.length()){
+						largestMatchingEqv = &eqvDB[i];
+					}
+				}
+			}
+		}
+		if(largestMatchingEqv != NULL){
+			program[programLine] = parser.replace(program[programLine], largestMatchingEqv->first, largestMatchingEqv->second);
+		}
+	}
+	int asdfjkasdkfjsd  = 1;
+}
+
 
 void Assembler::pseudoInstructionReplace(){
 	for(int i=0; i<alignedProgram.size(); i++){

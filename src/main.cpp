@@ -47,6 +47,7 @@ int main(){
 	string programName = "prime-1.txt";
 	//string programName = "testProgram2.txt";
 	assembler.loadProgramFromFile(programName);
+	assembler.replaceEqv();
 	assembler.pseudoInstructionPad();
 	assembler.alignRawProgram();
 	assembler.pseudoInstructionReplace();

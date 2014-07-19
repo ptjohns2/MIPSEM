@@ -50,6 +50,35 @@ string Parser::toUpper(string str){
 	return str;
 }
 
+
+int Parser::indexOf(string _str, string substr){
+	return indexOf(_str, substr, 0);
+}
+int Parser::indexOf(string _str, string substr, int fromIndex){
+	if(_str.length() < substr.length()){return -1;}
+	for(int i=fromIndex; i<_str.length()-substr.length() + 1; i++){
+		int numCharMatches = 0;
+		for(int j=0; j<substr.length(); j++){
+			if(!(substr[j] == _str[i+j])){break;}
+			numCharMatches++;
+		}
+		if(numCharMatches == substr.length()){return i;}
+	}
+	return -1;
+}
+
+string Parser::replace(string _str, string target, string replacement){
+	int firstIndex = indexOf(_str, target);
+	if(firstIndex == -1){
+		return _str;
+	}
+
+	string front = (firstIndex == 0)? "" : _str.substr(0, firstIndex);
+	string end = _str.substr(firstIndex + target.length());
+
+	return front + replacement + replace(end, target, replacement);
+}
+
 string Parser::trimFront(string str){
 	if(str == ""){return "";}
 	int len = str.length();
