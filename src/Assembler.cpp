@@ -495,7 +495,13 @@ void Assembler::pseudoInstructionReplace(){
 					case 0:
 						{
 							//bge
-
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string labelName = tokenizedInstruction[3];
+							string line1 = "slt\t$at, " + registerName1 + ", " + registerName2;
+							string line2 = "beq\t$at, $zero, " + labelName;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
 						}
 						break;
 					case 1:

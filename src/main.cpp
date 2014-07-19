@@ -44,7 +44,7 @@ int main(){
 
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";
-	string programName = "pseudoprimes.txt";
+	string programName = "prime-1.txt";
 	//string programName = "testProgram2.txt";
 	assembler.loadProgramFromFile(programName);
 	assembler.pseudoInstructionPad();
