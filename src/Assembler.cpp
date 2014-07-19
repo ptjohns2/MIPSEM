@@ -493,29 +493,43 @@ void Assembler::replaceEqv(){
 			pair<string, string> eqvAtom = make_pair(eqvName, eqvValue);
 			eqvDB.push_back(eqvAtom);
 		}
-	}
-	for(int programLine=0; programLine<program.size(); programLine++){
-		string line = program[programLine];
-		string token = parser.extractFirstToken(line);
-		if(token == ".eqv"){continue;}
 
-		pair<string, string>* largestMatchingEqv = NULL;
-		for(int i=0; i<eqvDB.size(); i++){
-			if(parser.indexOf(program[programLine], eqvDB[i].first) != -1){
-				if(largestMatchingEqv == NULL){
-					largestMatchingEqv = &eqvDB[i];
-				}else{
-					if(largestMatchingEqv->first.length() < eqvDB[i].first.length()){
+		for(int laterProgramLines = programLine + 1; laterProgramLines<program.size(); laterProgramLines++){
+			string line = program[laterProgramLines];
+			string token = parser.extractFirstToken(line);
+
+			string immuneFront;
+			string replacedBack;
+			if(token == ".eqv"){
+				parser.extractAndRemoveFirstToken(line, immuneFront);
+				immuneFront += '\t';
+				string nextToken;
+				parser.extractAndRemoveFirstToken(line, nextToken);
+				immuneFront += nextToken + '\t';
+				replacedBack = line;
+			}else{
+				immuneFront = "";
+				replacedBack = line;
+			}
+
+			pair<string, string>* largestMatchingEqv = NULL;
+			for(int i=0; i<eqvDB.size(); i++){
+				if(parser.indexOf(line, eqvDB[i].first) != -1){
+					if(largestMatchingEqv == NULL){
 						largestMatchingEqv = &eqvDB[i];
+					}else{
+						if(largestMatchingEqv->first.length() < eqvDB[i].first.length()){
+							largestMatchingEqv = &eqvDB[i];
+						}
 					}
 				}
 			}
-		}
-		if(largestMatchingEqv != NULL){
-			program[programLine] = parser.replace(program[programLine], largestMatchingEqv->first, largestMatchingEqv->second);
+			if(largestMatchingEqv != NULL){
+				replacedBack = parser.replace(replacedBack, largestMatchingEqv->first, largestMatchingEqv->second);
+				program[laterProgramLines] = immuneFront + replacedBack;
+			}
 		}
 	}
-	int asdfjkasdkfjsd  = 1;
 }
 
 
