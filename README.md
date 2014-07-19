@@ -15,8 +15,9 @@
 2. Instruction decoding	-	*stable*     
 3. Virtual memory system	-	*stable*     
 4. Object file disk serialization	-	*stable*     
-5. Object file assembly from .asm sources	-	in progress
-6. Instruction emulation from memory	-	  in progress    
+5. Object file assembly from .asm sources	-	*stable*   
+6. Instruction emulation from memory	-	  nearly complete for most commonly used instructions    
+7. Pseudoinstruction replacement	-	in progress   
    
 ###Example program:      
 .text   
