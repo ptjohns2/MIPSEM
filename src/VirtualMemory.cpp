@@ -28,10 +28,15 @@ void VirtualMemory::setDecoder(Decoder* decoder){
 
 
 void VirtualMemory::serialize(string fileName){
-	readMemoryMap().serialize(fileName);
+	exportMemoryMap().serialize(fileName);
+}
+void VirtualMemory::deserialize(string fileName){
+	MemoryMap map;
+	map.deserialize(fileName);
+	importMemoryMap(&map);
 }
 
-void VirtualMemory::writeMemoryMap(MemoryMap* memoryMap){
+void VirtualMemory::importMemoryMap(MemoryMap* memoryMap){
 	uint32_t numSegments = memoryMap->getNumSegments();
 	vector<MemorySegment*> memorySegments = memoryMap->getMemorySegments();
 	assert(numSegments == memorySegments.size());
@@ -43,7 +48,7 @@ void VirtualMemory::writeMemoryMap(MemoryMap* memoryMap){
 		writeToVirtualMemorySpace(segVirtualMemoryStart, segFileSize, rawData);
 	}
 }
-MemoryMap VirtualMemory::readMemoryMap() const{
+MemoryMap VirtualMemory::exportMemoryMap() const{
 	MemoryMap memoryMap = MemoryMap();
 	for(int i=0; i<NUM_PAGES_IN_PAGE_TABLE; i++){
 		if(pageTable->pageIsAllocated(i)){

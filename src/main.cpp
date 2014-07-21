@@ -45,12 +45,12 @@ int main(){
 
 	
 	//string programName = "macrotest.txt";
-	string programName = "labeltest.txt";
+	//string programName = "labeltest.txt";
 	//string programName = "recursiontest.txt";
 	//string programName = "prime-2.s";
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";
-	//string programName = "prime-1.txt";
+	string programName = "prime-1.txt";
 	//string programName = "testProgram2.txt";
 	assembler.loadProgramFromFile(programName);
 	assembler.splitLabels();
@@ -63,7 +63,10 @@ int main(){
 	assembler.replaceLabels();
 	assembler.writeAlignedRawProgramToDisk(programName + ".obj.txt");
 	assembler.mapAlignedProgramToVirtualMemory();
-	cpu.MEM = assembler.virtualMemory;
+
+	string objectFileName = "tmpObject.obj";
+	assembler.virtualMemory.serialize(objectFileName);
+	cpu.MEM.deserialize(objectFileName);
 	
 	cpu.run();
 

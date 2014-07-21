@@ -631,7 +631,7 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 
 //Post-processing
 void Assembler::pseudoInstructionReplace(){
-	for(int i=0; i<program.size(); i++){
+	for(int i=0; i<alignedProgram.size(); i++){
 		ProgramAtom atom = alignedProgram[i];
 		string line = atom.token;
 		if(atom.type == DIRECTIVE_INSTRUCTION){

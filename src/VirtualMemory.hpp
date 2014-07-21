@@ -63,8 +63,9 @@ class VirtualMemory{
 		void setDecoder(Decoder* decoder);
 
 		void serialize(string fileName);
-		void writeMemoryMap(MemoryMap* memoryMap);
-		MemoryMap readMemoryMap() const;
+		void deserialize(string fileName);
+		MemoryMap exportMemoryMap() const;
+		void importMemoryMap(MemoryMap* memoryMap);
 
 
 		void writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr);
