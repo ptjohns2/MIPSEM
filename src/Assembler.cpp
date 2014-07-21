@@ -6,8 +6,64 @@
 #include <iostream>
 #include <fstream>
 #include <tuple>
+#include <sstream>
+
+MacroAtom::MacroAtom(){
+
+}
+MacroAtom::MacroAtom(vector<string> definition){
+	string token;
+	//extract name
+	string header = definition[0];
+	Parser::extractAndRemoveFirstToken(header, token);
+	stringstream ss = stringstream(header);
+	getline(ss, this->name, '(');
+	string parameterList;
+	getline(ss, parameterList, ')');
+	ss = stringstream(parameterList);
+	while(getline(ss, token, ',')){
+		this->parameters.push_back(token);
+	}
+	for(int i=1; i<definition.size()-1; i++){
+		this->body.push_back(definition[i]);
+	}
+}
+MacroAtom::~MacroAtom(){
+
+}
+void MacroAtom::init(){
+
+}
+void MacroAtom::deinit(){
+
+}
+
+vector<string> MacroAtom::buildMacro(vector<string> const &arguments){
+	vector<string> replacedBody;
+	for(int lineNum=0; lineNum<body.size(); lineNum++){
+		string line = body[lineNum];
+		for(int argNum=0; argNum<parameters.size(); argNum++){
+			line = Parser::replace(line, parameters[argNum], arguments[argNum]);
+		}
+		replacedBody.push_back(line);
+	}
+	return replacedBody;
+}
+vector<string> MacroAtom::buildMacro(string programLine){
+	string jnk, argument;
+	stringstream ss(programLine);
+	getline(ss, jnk, '(');
+	string parameterList;
+	getline(ss, parameterList, ')');
+	return buildMacro(Parser::collectableLiteralListExplode(parameterList));
+}
 
 
+
+
+
+
+///////////////////////////
 
 Assembler::Assembler()
 	:	virtualMemory(), parser()
@@ -67,6 +123,100 @@ void Assembler::loadProgramFromFile(string fileName){
 
 
 //Pre-processing
+
+//Post-processing
+
+void Assembler::splitLabels(){
+	for(int programLine=0; programLine<program.size(); programLine++){
+		string line = program[programLine];
+		string token = parser.extractFirstToken(line);
+		vector<string> labels;
+		while(token != ""){
+			if(!parser.tokenIsLabel(token)){break;}
+			parser.extractAndRemoveFirstToken(line, token);
+			program.insert(program.begin() + programLine, token);
+			programLine++;
+			token = parser.extractFirstToken(line);
+		}
+		if(line == ""){
+			program.erase(program.begin() + programLine);
+			programLine--;
+		}else{
+			program[programLine] = line;
+		}
+	}
+}
+void Assembler::replaceEqv(){
+	for(int programLine=0; programLine<program.size(); programLine++){		
+		string line = program[programLine];
+		string token;
+		parser.extractAndRemoveFirstToken(line, token);
+		if(token == ".eqv"){
+			string eqvName;
+			parser.extractAndRemoveFirstToken(line, eqvName);
+			string eqvValue = parser.trim(line);
+			pair<string, string> eqvAtom = make_pair(eqvName, eqvValue);
+			eqvDB.push_back(eqvAtom);
+		}
+
+		for(int laterProgramLine = programLine + 1; laterProgramLine<program.size(); laterProgramLine++){
+			string line = program[laterProgramLine];
+			string token = parser.extractFirstToken(line);
+
+			string immuneFront;
+			string replacedBack;
+			if(token == ".eqv"){
+				parser.extractAndRemoveFirstToken(line, immuneFront);
+				immuneFront += '\t';
+				string nextToken;
+				parser.extractAndRemoveFirstToken(line, nextToken);
+				immuneFront += nextToken + '\t';
+				replacedBack = line;
+			}else{
+				immuneFront = "";
+				replacedBack = line;
+			}
+
+			pair<string, string>* largestMatchingEqv = NULL;
+			for(int i=0; i<eqvDB.size(); i++){
+				if(parser.indexOf(line, eqvDB[i].first) != -1){
+					if(largestMatchingEqv == NULL){
+						largestMatchingEqv = &eqvDB[i];
+					}else{
+						if(largestMatchingEqv->first.length() < eqvDB[i].first.length()){
+							largestMatchingEqv = &eqvDB[i];
+						}
+					}
+				}
+			}
+			if(largestMatchingEqv != NULL){
+				replacedBack = parser.replace(replacedBack, largestMatchingEqv->first, largestMatchingEqv->second);
+				program[laterProgramLine] = immuneFront + replacedBack;
+			}
+		}
+	}
+}
+
+void Assembler::extractMacroDefinitions(){
+	for(int lineNum=0; lineNum<program.size(); lineNum++){
+		vector<string> macroLines;
+		string line = program[lineNum];
+		string token = parser.extractFirstToken(line);
+		if(token == ".macro"){
+			macroLines.push_back(line);
+			program.erase(program.begin() + lineNum);
+			while(parser.extractFirstToken(program[lineNum]) != ".end_macro" && lineNum < program.size()){
+				macroLines.push_back(program[lineNum]);
+				program.erase(program.begin() + lineNum);
+			}
+			macroLines.push_back(".end_macro");
+			MacroAtom atom = MacroAtom(macroLines);
+			macroDB.push_back(atom);
+		}else{
+
+		}
+	}
+}
 
 void Assembler::pseudoInstructionPad(){	
 	for(int programLineNumber=0; programLineNumber<program.size(); programLineNumber++){
@@ -479,61 +629,7 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 }
 
 
-
 //Post-processing
-void Assembler::replaceEqv(){
-	vector<pair<string, string>> eqvDB;
-	for(int programLine=0; programLine<program.size(); programLine++){		
-		string line = program[programLine];
-		string token;
-		parser.extractAndRemoveFirstToken(line, token);
-		if(token == ".eqv"){
-			string eqvName;
-			parser.extractAndRemoveFirstToken(line, eqvName);
-			string eqvValue = parser.trim(line);
-			pair<string, string> eqvAtom = make_pair(eqvName, eqvValue);
-			eqvDB.push_back(eqvAtom);
-		}
-
-		for(int laterProgramLine = programLine + 1; laterProgramLine<program.size(); laterProgramLine++){
-			string line = program[laterProgramLine];
-			string token = parser.extractFirstToken(line);
-
-			string immuneFront;
-			string replacedBack;
-			if(token == ".eqv"){
-				parser.extractAndRemoveFirstToken(line, immuneFront);
-				immuneFront += '\t';
-				string nextToken;
-				parser.extractAndRemoveFirstToken(line, nextToken);
-				immuneFront += nextToken + '\t';
-				replacedBack = line;
-			}else{
-				immuneFront = "";
-				replacedBack = line;
-			}
-
-			pair<string, string>* largestMatchingEqv = NULL;
-			for(int i=0; i<eqvDB.size(); i++){
-				if(parser.indexOf(line, eqvDB[i].first) != -1){
-					if(largestMatchingEqv == NULL){
-						largestMatchingEqv = &eqvDB[i];
-					}else{
-						if(largestMatchingEqv->first.length() < eqvDB[i].first.length()){
-							largestMatchingEqv = &eqvDB[i];
-						}
-					}
-				}
-			}
-			if(largestMatchingEqv != NULL){
-				replacedBack = parser.replace(replacedBack, largestMatchingEqv->first, largestMatchingEqv->second);
-				program[laterProgramLine] = immuneFront + replacedBack;
-			}
-		}
-	}
-}
-
-
 void Assembler::pseudoInstructionReplace(){
 	for(int i=0; i<program.size(); i++){
 		ProgramAtom atom = alignedProgram[i];

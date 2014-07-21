@@ -2,6 +2,7 @@
 
 #include "BitManip.hpp"
 
+//TODO - fix 9001 memory leaks
 
 VirtualMemory::VirtualMemory(){
 	init();

@@ -46,6 +46,24 @@ struct ProgramAtom{
 	DIRECTIVE type;
 };
 
+class MacroAtom{
+	public:
+		MacroAtom();
+		MacroAtom(vector<string>);
+		~MacroAtom();
+		void init();
+		void deinit();
+		
+		vector<string> buildMacro(vector<string> const &arguments);
+		vector<string> buildMacro(string programLine);
+
+	private:
+		string name;
+		vector<string> parameters;
+		vector<string> body;
+
+};
+
 class Assembler{
 	public:
 		Assembler();
@@ -60,7 +78,9 @@ class Assembler{
 
 	//private:
 		//Pre-processing
+		void splitLabels();
 		void replaceEqv();
+		void extractMacroDefinitions();
 		void pseudoInstructionPad();
 
 		//Memory alignment
@@ -97,15 +117,16 @@ class Assembler{
 		DIRECTIVE currentMemorySegment;
 		DIRECTIVE currentValueTypeSpecifier;
 		ACTION currentAction;
-
 		uint32_t currentByteAlignment;
 
-
 		VirtualMemory virtualMemory;
-
+		
 		vector<string> program;
-
 		vector<ProgramAtom> alignedProgram;
+
+		vector<pair<string, string>> eqvDB;
+		vector<MacroAtom> macroDB;
+
 		vector<string> labelsToAssign;
 		vector<string> labelNames;
 		unordered_map<string, virtualAddr> labelMap;

@@ -43,14 +43,19 @@ int main(){
 	assembler.setEncoder(&encoder);
 	
 
-
-	string programName = "recursiontest.txt";
+	
+	//string programName = "macrotest.txt";
+	string programName = "labeltest.txt";
+	//string programName = "recursiontest.txt";
 	//string programName = "prime-2.s";
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";
 	//string programName = "prime-1.txt";
 	//string programName = "testProgram2.txt";
 	assembler.loadProgramFromFile(programName);
+	assembler.splitLabels();
+	assembler.extractMacroDefinitions();
+	//vector<string> testest = assembler.macroDB[0].buildMacro("test($t0, labelName");
 	assembler.replaceEqv();
 	assembler.pseudoInstructionPad();
 	assembler.alignRawProgram();
