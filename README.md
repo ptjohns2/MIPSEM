@@ -17,8 +17,9 @@
 4. Object file disk serialization	-	*stable*     
 5. Object file assembly from .asm sources	-	*stable*   
 6. Instruction emulation from memory	-	  nearly complete for most commonly used instructions    
-7. Pseudoinstruction replacement	-	in progress   
-   
+7. Pseudoinstruction replacement	-	*stable*    
+8. Macro replacement	-	*stable*       
+     
 ###Example program:      
 .text   
 addi	$t1, $zero, 48   
