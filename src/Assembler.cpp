@@ -55,7 +55,7 @@ vector<string> MacroAtom::buildMacro(string programLine){
 	getline(ss, jnk, '(');
 	string parameterList;
 	getline(ss, parameterList, ')');
-	return buildMacro(Parser::collectableLiteralListExplode(parameterList));
+	return buildMacro(Parser::commaSeparatedListExplode(parameterList));
 }
 
 bool MacroAtom::lineIsMacroCall(string programLine){
@@ -431,7 +431,7 @@ void Assembler::alignRawProgram(){
 					alignSegmentTop();
 					flushLabelBuffer();
 
-					vector<string> literalTokens = parser.collectableLiteralListExplode(line.second);
+					vector<string> literalTokens = parser.commaSeparatedListExplode(line.second);
 					alignLiteralTokenList(literalTokens, line.second, line.first);
 					currentAction = ACTION_INIT;
 				}

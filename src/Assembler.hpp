@@ -46,6 +46,12 @@ struct ProgramAtom{
 	DIRECTIVE type;
 };
 
+struct ProgramLine{
+	string fileName;
+	uint32_t pageNumber;
+	string line;
+};
+
 class MacroAtom{
 	public:
 		MacroAtom();

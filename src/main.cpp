@@ -1,3 +1,8 @@
+#define _CRTDBG_MAPALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+
 
 #include "Assembler.hpp"
 #include "CPU.hpp"
@@ -20,6 +25,13 @@
 using namespace std;
 
 int main(){
+	/*
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+    _CrtSetBreakAlloc(NUM);	//allocation number {1232} etc shown in objdump as NUM
+	{
+	*/
+
+
 	assert(sizeof(float) == 4);
 	assert(sizeof(int) == 4);
 	assert(sizeof(unsigned int) == 4);
@@ -45,11 +57,11 @@ int main(){
 
 	
 	//string programName = "fact.s";
-	string programName = "hw2MACROS.txt";
+	//string programName = "hw2MACROS.txt";
 	//string programName = "macrotest.txt";
 	//string programName = "labeltest.txt";
 	//string programName = "recursiontest.txt";
-	//string programName = "prime-2.s";
+	string programName = "prime-2.s";
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";
 	//string programName = "prime-1.txt";
@@ -74,9 +86,10 @@ int main(){
 
 
 
-
-	
-
+	/*
+	}
+	_CrtDumpMemoryLeaks();
+	*/
 	return 0;
 }
 
