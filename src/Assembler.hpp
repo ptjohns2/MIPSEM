@@ -56,6 +56,7 @@ class MacroAtom{
 		
 		vector<string> buildMacro(vector<string> const &arguments);
 		vector<string> buildMacro(string programLine);
+		bool lineIsMacroCall(string line);
 
 	private:
 		string name;
@@ -81,6 +82,7 @@ class Assembler{
 		void splitLabels();
 		void replaceEqv();
 		void extractMacroDefinitions();
+		void replaceMacros();
 		void pseudoInstructionPad();
 
 		//Memory alignment

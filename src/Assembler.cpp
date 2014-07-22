@@ -58,7 +58,16 @@ vector<string> MacroAtom::buildMacro(string programLine){
 	return buildMacro(Parser::collectableLiteralListExplode(parameterList));
 }
 
-
+bool MacroAtom::lineIsMacroCall(string line){
+	stringstream ss(line);
+	string potentialName;
+	getline(ss, potentialName, '(');
+	if(potentialName == name){
+		return true;
+	}else{
+		return false;
+	}
+}
 
 
 
@@ -123,8 +132,6 @@ void Assembler::loadProgramFromFile(string fileName){
 
 
 //Pre-processing
-
-//Post-processing
 
 void Assembler::splitLabels(){
 	for(int programLine=0; programLine<program.size(); programLine++){
@@ -209,11 +216,29 @@ void Assembler::extractMacroDefinitions(){
 				macroLines.push_back(program[lineNum]);
 				program.erase(program.begin() + lineNum);
 			}
+			program.erase(program.begin() + lineNum);
 			macroLines.push_back(".end_macro");
 			MacroAtom atom = MacroAtom(macroLines);
 			macroDB.push_back(atom);
+			lineNum--;
 		}else{
 
+		}
+	}
+}
+
+void Assembler::replaceMacros(){
+	for(int programLine=0; programLine<program.size(); programLine++){
+		string line = program[programLine];
+		for(int macroAtomNumber=0; macroAtomNumber<macroDB.size(); macroAtomNumber++){
+			if(macroDB[macroAtomNumber].lineIsMacroCall(line)){
+				vector<string> builtMacro = macroDB[macroAtomNumber].buildMacro(line);
+				program.insert(program.begin() + programLine, builtMacro.begin(), builtMacro.end());
+				programLine += builtMacro.size();
+				program.erase(program.begin() + programLine);
+				programLine--;
+				break;
+			}
 		}
 	}
 }
@@ -222,11 +247,7 @@ void Assembler::pseudoInstructionPad(){
 	for(int programLineNumber=0; programLineNumber<program.size(); programLineNumber++){
 		string line = program[programLineNumber];
 
-		string token = parser.extractFirstToken(line);
-		if(parser.tokenIsLabel(token)){
-			parser.extractAndRemoveFirstToken(line, token);
-		}
-		token = parser.toLower(parser.extractFirstToken(line));
+		string token = parser.toLower(parser.extractFirstToken(line));
 		int pseudoInstructionNumber = 0;
 		if(parser.tokenIsPseudoInstructionName(token)){
 			pseudoInstructionNumber = parser.getPseudoInstructionNameNumber(token);
@@ -238,7 +259,6 @@ void Assembler::pseudoInstructionPad(){
 			programLineNumber++;
 			program.insert(program.begin() + programLineNumber, line);
 		}
-		//programLineNumber += numLinesToInsert + 1;
 	}
 }
 
