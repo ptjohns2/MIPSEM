@@ -44,10 +44,11 @@ int main(){
 	
 
 	
-	//string programName = "hw2MACROS.txt";
+	//string programName = "fact.s";
+	string programName = "hw2MACROS.txt";
 	//string programName = "macrotest.txt";
 	//string programName = "labeltest.txt";
-	string programName = "recursiontest.txt";
+	//string programName = "recursiontest.txt";
 	//string programName = "prime-2.s";
 	//string programName = "primes.txt";
 	//string programName = "myTest.txt";

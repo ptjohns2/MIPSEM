@@ -56,7 +56,7 @@ class MacroAtom{
 		
 		vector<string> buildMacro(vector<string> const &arguments);
 		vector<string> buildMacro(string programLine);
-		bool lineIsMacroCall(string line);
+		bool lineIsMacroCall(string programLine);
 
 	private:
 		string name;
@@ -99,7 +99,7 @@ class Assembler{
 		void incrementSegmentTop(virtualAddr);
 		virtualAddr getCurrentMemoryLocation();
 
-		void alignLiteralTokenList(vector<string> const &tokens, string currentLine);
+		void alignLiteralTokenList(vector<string> const &tokens, string currentLine, uint32_t lineNumber);
 		void writeAlignedRawProgramToDisk(string fileName);
 
 		//Post-processing
@@ -123,13 +123,13 @@ class Assembler{
 
 		VirtualMemory virtualMemory;
 		
-		vector<string> program;
-		vector<ProgramAtom> alignedProgram;
+		vector<pair<uint32_t, string>> program;
+		vector<pair<uint32_t, ProgramAtom>> alignedProgram;
 
 		vector<pair<string, string>> eqvDB;
 		vector<MacroAtom> macroDB;
 
-		vector<string> labelsToAssign;
+		vector<pair<uint32_t, string>> labelsToAssign;
 		vector<string> labelNames;
 		unordered_map<string, virtualAddr> labelMap;
 

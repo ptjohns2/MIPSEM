@@ -58,15 +58,11 @@ vector<string> MacroAtom::buildMacro(string programLine){
 	return buildMacro(Parser::collectableLiteralListExplode(parameterList));
 }
 
-bool MacroAtom::lineIsMacroCall(string line){
-	stringstream ss(line);
+bool MacroAtom::lineIsMacroCall(string programLine){
+	stringstream ss(programLine);
 	string potentialName;
 	getline(ss, potentialName, '(');
-	if(potentialName == name){
-		return true;
-	}else{
-		return false;
-	}
+	return potentialName == name;
 }
 
 
@@ -99,14 +95,6 @@ void Assembler::deinit(){
 }
 void Assembler::reset(){
 	virtualMemory.reset();
-	program.clear();
-	alignedProgram.clear();
-	labelsToAssign.clear();
-	labelNames.clear();
-	labelMap.clear();
-
-	globalLabelNames.clear();
-	globalLabelMap.clear();
 
 	init();
 }
@@ -119,11 +107,13 @@ void Assembler::loadProgramFromFile(string fileName){
 	fstream file = fstream(fileName);
 	if(!file.is_open()){return;}
 	string tmpProgramLine;
+	uint32_t lineNumber = 0;
 	while(getline(file, tmpProgramLine)){
 		tmpProgramLine = Parser::sanitizeProgramLine(tmpProgramLine);
 		if(tmpProgramLine != ""){
-			program.push_back(tmpProgramLine);
+			program.push_back(make_pair(lineNumber, tmpProgramLine));
 		}
+		lineNumber++;
 	}
 }
 
@@ -135,17 +125,17 @@ void Assembler::loadProgramFromFile(string fileName){
 
 void Assembler::splitLabels(){
 	for(int programLine=0; programLine<program.size(); programLine++){
-		string line = program[programLine];
-		string token = parser.extractFirstToken(line);
+		pair<uint32_t, string> line = program[programLine];
+		string token = parser.extractFirstToken(line.second);
 		vector<string> labels;
 		while(token != ""){
 			if(!parser.tokenIsLabel(token)){break;}
-			parser.extractAndRemoveFirstToken(line, token);
-			program.insert(program.begin() + programLine, token);
+			parser.extractAndRemoveFirstToken(line.second, token);
+			program.insert(program.begin() + programLine, make_pair(line.first, token));
 			programLine++;
-			token = parser.extractFirstToken(line);
+			token = parser.extractFirstToken(line.second);
 		}
-		if(line == ""){
+		if(line.second == ""){
 			program.erase(program.begin() + programLine);
 			programLine--;
 		}else{
@@ -155,7 +145,7 @@ void Assembler::splitLabels(){
 }
 void Assembler::replaceEqv(){
 	for(int programLine=0; programLine<program.size(); programLine++){		
-		string line = program[programLine];
+		string line = program[programLine].second;
 		string token;
 		parser.extractAndRemoveFirstToken(line, token);
 		if(token == ".eqv"){
@@ -167,7 +157,7 @@ void Assembler::replaceEqv(){
 		}
 
 		for(int laterProgramLine = programLine + 1; laterProgramLine<program.size(); laterProgramLine++){
-			string line = program[laterProgramLine];
+			string line = program[laterProgramLine].second;
 			string token = parser.extractFirstToken(line);
 
 			string immuneFront;
@@ -198,7 +188,7 @@ void Assembler::replaceEqv(){
 			}
 			if(largestMatchingEqv != NULL){
 				replacedBack = parser.replace(replacedBack, largestMatchingEqv->first, largestMatchingEqv->second);
-				program[laterProgramLine] = immuneFront + replacedBack;
+				program[laterProgramLine].second = immuneFront + replacedBack;
 			}
 		}
 	}
@@ -207,13 +197,13 @@ void Assembler::replaceEqv(){
 void Assembler::extractMacroDefinitions(){
 	for(int lineNum=0; lineNum<program.size(); lineNum++){
 		vector<string> macroLines;
-		string line = program[lineNum];
+		string line = program[lineNum].second;
 		string token = parser.extractFirstToken(line);
 		if(token == ".macro"){
 			macroLines.push_back(line);
 			program.erase(program.begin() + lineNum);
-			while(parser.extractFirstToken(program[lineNum]) != ".end_macro" && lineNum < program.size()){
-				macroLines.push_back(program[lineNum]);
+			while(parser.extractFirstToken(program[lineNum].second) != ".end_macro" && lineNum < program.size()){
+				macroLines.push_back(program[lineNum].second);
 				program.erase(program.begin() + lineNum);
 			}
 			program.erase(program.begin() + lineNum);
@@ -229,12 +219,15 @@ void Assembler::extractMacroDefinitions(){
 
 void Assembler::replaceMacros(){
 	for(int programLine=0; programLine<program.size(); programLine++){
-		string line = program[programLine];
+		pair<uint32_t, string> line = program[programLine];
 		for(int macroAtomNumber=0; macroAtomNumber<macroDB.size(); macroAtomNumber++){
-			if(macroDB[macroAtomNumber].lineIsMacroCall(line)){
-				vector<string> builtMacro = macroDB[macroAtomNumber].buildMacro(line);
-				program.insert(program.begin() + programLine, builtMacro.begin(), builtMacro.end());
-				programLine += builtMacro.size();
+			if(macroDB[macroAtomNumber].lineIsMacroCall(line.second)){
+				vector<string> builtMacro = macroDB[macroAtomNumber].buildMacro(line.second);
+				for(int macroLine=0; macroLine<builtMacro.size(); macroLine++){
+					pair<uint32_t, string> newLine = make_pair(line.first, builtMacro[macroLine]);
+					program.insert(program.begin() + programLine, newLine);
+					programLine++;
+				}
 				program.erase(program.begin() + programLine);
 				programLine--;
 				break;
@@ -245,9 +238,9 @@ void Assembler::replaceMacros(){
 
 void Assembler::pseudoInstructionPad(){	
 	for(int programLineNumber=0; programLineNumber<program.size(); programLineNumber++){
-		string line = program[programLineNumber];
+		pair<uint32_t, string> line = program[programLineNumber];
 
-		string token = parser.toLower(parser.extractFirstToken(line));
+		string token = parser.toLower(parser.extractFirstToken(line.second));
 		int pseudoInstructionNumber = 0;
 		if(parser.tokenIsPseudoInstructionName(token)){
 			pseudoInstructionNumber = parser.getPseudoInstructionNameNumber(token);
@@ -257,6 +250,7 @@ void Assembler::pseudoInstructionPad(){
 		int numLinesToInsert = parser.getPseudoInstructionNumberOfLinesToInsert(token);
 		for(int numInsertedLines = 0; numInsertedLines < numLinesToInsert; numInsertedLines++){
 			programLineNumber++;
+			line.second = "PSEUDO_INSTRUCTION_PADDING";
 			program.insert(program.begin() + programLineNumber, line);
 		}
 	}
@@ -381,23 +375,23 @@ void Assembler::applyDirective(string directive){
 
 void Assembler::alignRawProgram(){
 	for(int lineNum=0; lineNum<program.size(); lineNum++){
-		string line = program[lineNum];
+		pair<uint32_t, string> line = program[lineNum];
 
-		string token = parser.extractFirstToken(line);
-		while(parser.tokenIsDirective(token) || parser.tokenIsLabel(token)){
-			parser.extractAndRemoveFirstToken(line, token);
-			if(parser.tokenIsLabel(token)){
-				string labelName = parser.getLabelName(token);
-				labelsToAssign.push_back(labelName);
-			}else if(parser.tokenIsDirective(token)){
-				applyDirective(token);
-			}
-			token = parser.extractFirstToken(line);
+		string token = parser.extractFirstToken(line.second);
+		if(parser.tokenIsLabel(token)){
+			string labelName = parser.getLabelName(token);
+			labelsToAssign.push_back(make_pair(line.first, labelName));
+			continue;
+		}
+		while(parser.tokenIsDirective(token)){
+			parser.extractAndRemoveFirstToken(line.second, token);
+			applyDirective(token);
+			token = parser.extractFirstToken(line.second);
 			if(token == ""){break;}
 		}
 		
-		if(line == "" && currentAction != ACTION_DECLARE_SEGMENT){
-			continue; //if programLine is all consumed, skip to next
+		if(line.second == "" && currentAction != ACTION_DECLARE_SEGMENT){
+			continue; //if programLine is all consumed, skip to next line unless you need to declare segment in following actions
 		}
 		//consume literal token
 		ProgramAtom atom;
@@ -415,7 +409,7 @@ void Assembler::alignRawProgram(){
 					atom.addr = addr;
 					atom.token = mappedProgramString;
 					atom.type = currentMemorySegment;
-					alignedProgram.push_back(atom);
+					alignedProgram.push_back(make_pair(line.first, atom));
 					switch(currentMemorySegment){
 						case DIRECTIVE_DATA:
 							currentAction = ACTION_INIT;
@@ -437,8 +431,8 @@ void Assembler::alignRawProgram(){
 					alignSegmentTop();
 					flushLabelBuffer();
 
-					vector<string> literalTokens = parser.collectableLiteralListExplode(line);
-					alignLiteralTokenList(literalTokens, line);
+					vector<string> literalTokens = parser.collectableLiteralListExplode(line.second);
+					alignLiteralTokenList(literalTokens, line.second, line.first);
 					currentAction = ACTION_INIT;
 				}
 				break;
@@ -446,15 +440,15 @@ void Assembler::alignRawProgram(){
 				{
 					flushLabelBuffer();
 					int i=0;
-					while(line[i] != '"'){i++;}
-					string stringLiteral = line.substr(i);
+					while(line.second[i] != '"'){i++;}
+					string stringLiteral = line.second.substr(i);
 					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
 
 					mappedProgramString = parser.literals.getRawStringLiteralValue(rawString);
 					atom.addr = getCurrentMemoryLocation();
 					atom.token = mappedProgramString;
 					atom.type = currentValueTypeSpecifier;
-					alignedProgram.push_back(atom);
+					alignedProgram.push_back(make_pair(line.first, atom));
 					
 					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTE;
 					if(currentValueTypeSpecifier == DIRECTIVE_ASCIIZ){
@@ -479,13 +473,13 @@ void Assembler::alignRawProgram(){
 					alignSegmentTop();
 					flushLabelBuffer();
 
-					parser.extractAndRemoveFirstToken(line, token);
+					parser.extractAndRemoveFirstToken(line.second, token);
 					uint32_t spaceSize = parser.literals.getLiteralValue(token);
 
 					atom.token = parser.literals.getDecimalLiteralString(spaceSize);
 					atom.addr = getCurrentMemoryLocation();
 					atom.type = DIRECTIVE_SPACE;
-					alignedProgram.push_back(atom);
+					alignedProgram.push_back(make_pair(line.first, atom));
 
 					incrementSegmentTop(spaceSize);
 					currentAction = ACTION_INIT;
@@ -498,9 +492,9 @@ void Assembler::alignRawProgram(){
 					flushLabelBuffer();
 
 					atom.addr = getCurrentMemoryLocation();
-					atom.token = line;	//instruction full line
+					atom.token = line.second;	//instruction full line
 					atom.type = DIRECTIVE_INSTRUCTION;
-					alignedProgram.push_back(atom);
+					alignedProgram.push_back(make_pair(line.first, atom));
 
 					incrementSegmentTop(SIZE_WORD);
 				}
@@ -519,14 +513,15 @@ void Assembler::alignRawProgram(){
 void Assembler::flushLabelBuffer(){
 	for(int i=0; i<labelsToAssign.size(); i++){
 		virtualAddr addr = memorySegmentTopArray[currentMemorySegment];
-		addLabelAddress(labelsToAssign[i], addr);
+		addLabelAddress(labelsToAssign[i].second, addr);
 
 		ProgramAtom atom;
 		atom.addr = addr;
-		atom.token = labelsToAssign[i];
+		atom.token = labelsToAssign[i].second;
 		atom.type = DIRECTIVE_LABEL;
 
-		alignedProgram.push_back(atom);
+		uint32_t lineNumber = labelsToAssign[i].first;
+		alignedProgram.push_back(make_pair(lineNumber, atom));
 	}
 	labelsToAssign.clear();
 }
@@ -545,7 +540,7 @@ virtualAddr Assembler::getCurrentMemoryLocation(){
 
 
 
-void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, string currentLine){
+void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, string currentLine, uint32_t lineNumber){
 	virtualAddr memorySegmentTopIncrementationSize = 0;
 	for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
 		//init string to ".datatype	|[insert literals here]"
@@ -606,7 +601,8 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 		atom.addr = addr;
 		atom.token = mappedProgramString;
 		atom.type = currentValueTypeSpecifier;
-		alignedProgram.push_back(atom);
+
+		alignedProgram.push_back(make_pair(lineNumber, atom));
 		incrementSegmentTop(memorySegmentTopIncrementationSize);
 		if(terminateLine){break;} //exit for loop
 	}
@@ -620,7 +616,7 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 	ofstream file = ofstream(fileName);
 	if(!file.is_open()){return;}
 	for(int i=0; i<alignedProgram.size(); i++){
-		ProgramAtom atom = alignedProgram[i];
+		ProgramAtom atom = alignedProgram[i].second;
 		DIRECTIVE type = atom.type;
 		bool tokenIsSegmentName = type <= DIRECTIVE_KTEXT;
 		bool tokenIsLabel = type == DIRECTIVE_LABEL;
@@ -652,7 +648,7 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 //Post-processing
 void Assembler::pseudoInstructionReplace(){
 	for(int i=0; i<alignedProgram.size(); i++){
-		ProgramAtom atom = alignedProgram[i];
+		ProgramAtom atom = alignedProgram[i].second;
 		string line = atom.token;
 		if(atom.type == DIRECTIVE_INSTRUCTION){
 			string mnemonic = parser.extractFirstToken(atom.token);
@@ -670,8 +666,8 @@ void Assembler::pseudoInstructionReplace(){
 							string labelName = tokenizedInstruction[3];
 							string line1 = "slt\t$at, " + registerName1 + ", " + registerName2;
 							string line2 = "beq\t$at, $zero, " + labelName;
-							alignedProgram[i].token = line1;
-							alignedProgram[i+1].token = line2;
+							alignedProgram[i].second.token = line1;
+							alignedProgram[i+1].second.token = line2;
 						}
 						break;
 					case 1:
@@ -716,8 +712,8 @@ void Assembler::pseudoInstructionReplace(){
 							string registerName = tokenizedInstruction[1];
 							string line1 = "lui\t" + registerName + ", " + msbHex;
 							string line2 = "ori\t" + registerName + ", " + registerName + ", " + lsbHex;
-							alignedProgram[i].token = line1;
-							alignedProgram[i+1].token = line2;
+							alignedProgram[i].second.token = line1;
+							alignedProgram[i+1].second.token = line2;
 						}
 						break;
 					case 7:
@@ -732,8 +728,8 @@ void Assembler::pseudoInstructionReplace(){
 							string registerName = tokenizedInstruction[1];
 							string line1 = "lui\t" + registerName + ", " + msbHex;
 							string line2 = "ori\t" + registerName + ", " + registerName + ", " + lsbHex;
-							alignedProgram[i].token = line1;
-							alignedProgram[i+1].token = line2;
+							alignedProgram[i].second.token = line1;
+							alignedProgram[i+1].second.token = line2;
 
 						}
 						break;
@@ -743,7 +739,7 @@ void Assembler::pseudoInstructionReplace(){
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "add\t" + registerName1 + ", " + registerName2 + ", $zero";
-							alignedProgram[i].token = line1;
+							alignedProgram[i].second.token = line1;
 						}
 						break;
 					case 9:
@@ -817,7 +813,7 @@ void Assembler::pseudoInstructionReplace(){
 
 void Assembler::replaceLabels(){
 	for(int i=0; i<alignedProgram.size(); i++){
-		ProgramAtom atom = alignedProgram[i];
+		ProgramAtom atom = alignedProgram[i].second;
 		if(atom.type == DIRECTIVE_INSTRUCTION){
 		//Modified replacement
 			string mnemonic = parser.extractFirstToken(atom.token);
@@ -840,12 +836,12 @@ void Assembler::replaceLabels(){
 				string immediateString = parser.literals.getHexLiteralString(immediateVal);
 				instructionTokens[instructionTokens.size() - 1] = immediateString;
 				string newInstructionString = parser.combineInstructionTokens(instructionTokens);
-				alignedProgram[i].token = newInstructionString;
+				alignedProgram[i].second.token = newInstructionString;
 			}else{
 				//Standard text replacement
 				for(int labelNum=0; labelNum<labelNames.size(); labelNum++){
 					instructionTokens.clear();
-					instructionTokens = parser.tokenizeInstruction(alignedProgram[i].token);
+					instructionTokens = parser.tokenizeInstruction(alignedProgram[i].second.token);
 					bool labelWasReplaced = false;
 					for(int tokenNum = 1; tokenNum < instructionTokens.size(); tokenNum++){
 						if(tokenIsInLabelDB(instructionTokens[tokenNum])){
@@ -858,7 +854,7 @@ void Assembler::replaceLabels(){
 					}
 					if(labelWasReplaced){
 						string newInstructionString = parser.combineInstructionTokens(instructionTokens);
-						alignedProgram[i].token = newInstructionString;
+						alignedProgram[i].second.token = newInstructionString;
 					}
 				}
 			}
@@ -874,9 +870,9 @@ void Assembler::replaceLabels(){
 //VirtualMemory mapping
 void Assembler::mapAlignedProgramToVirtualMemory(){
 	for(int i=0; i<alignedProgram.size(); i++){
-		ProgramAtom atom = alignedProgram[i];
+		ProgramAtom atom = alignedProgram[i].second;
 		virtualAddr tokenAddr = atom.addr;
-		switch(alignedProgram[i].type){
+		switch(alignedProgram[i].second.type){
 			case DIRECTIVE_DATA:
 				{
 					//do nothing
