@@ -150,7 +150,7 @@ class VirtualMemoryPage{
 		byte rawMem[NUM_BYTES_IN_PAGE];
 
 		//InstructionCache members
-		Instruction** instructionCache;
+		pair<bool, Instruction>* instructionCache;
 		static Decoder* decoder;
 };
 

@@ -219,19 +219,13 @@ bool VirtualMemoryPage::instructionCacheIsAllocated(){
 }
 void VirtualMemoryPage::allocInstructionCache(){
 	if(!instructionCacheIsAllocated()){
-		instructionCache = new Instruction*[NUM_WORDS_IN_PAGE];
+		instructionCache = new pair<bool, Instruction>[NUM_WORDS_IN_PAGE];
 		for(int i=0; i<NUM_WORDS_IN_PAGE; i++){
-			instructionCache[i] = NULL;
+			instructionCache[i].first = false;
 		}
 	}
 }
 void VirtualMemoryPage::deallocInstructionCache(){
-	if(!instructionCache == NULL){
-		for(int i=0; i<NUM_WORDS_IN_PAGE; i++){
-			delete instructionCache[i];
-			instructionCache[i] = NULL;
-		}
-	}
 	delete[] instructionCache;
 	instructionCache = NULL;
 }
@@ -242,15 +236,8 @@ bool VirtualMemoryPage::isValidInstruction(virtualAddr address){
 		return false;
 	}else{
 		uint32_t pageOffset = calculatePageOffset(address);
-		Instruction* insPtr = instructionCache[pageOffset >> WORD_ALIGN_OFFSET];
-		if(insPtr == NULL){
-			return false;
-		}
-
-		instr bin = insPtr->getBin();
-		byte* byteAddr = getByteAddr(VirtualMemory::wordAlignAddr(address));
-		instr readBin = readMemAs<instr>(byteAddr);
-		return readBin == bin;
+		pair<bool, Instruction>* insPtr = &instructionCache[pageOffset >> WORD_ALIGN_OFFSET];
+		return insPtr->first;
 	}
 }
 void VirtualMemoryPage::invalidateInstruction(virtualAddr address){
@@ -258,25 +245,19 @@ void VirtualMemoryPage::invalidateInstruction(virtualAddr address){
 		return;
 	}else{
 		uint32_t pageOffset = calculatePageOffset(address);
-		delete instructionCache[pageOffset >> WORD_ALIGN_OFFSET];
-		instructionCache[pageOffset >> WORD_ALIGN_OFFSET] = NULL;
+		pair<bool, Instruction>* insPtr = &instructionCache[pageOffset >> WORD_ALIGN_OFFSET];
+		insPtr->first = false;
 	}
 }
 void VirtualMemoryPage::revalidateInstruction(virtualAddr address){
 	if(!instructionCacheIsAllocated()){
 		allocInstructionCache();
 	}
-	invalidateInstruction(address);
-
 	virtualAddr virtualWordAddr = VirtualMemory::wordAlignAddr(address);
 	uint32_t pageOffset = calculatePageOffset(virtualWordAddr);
-	uint32_t encodedInstruction = readMemAs<uint32_t>(&rawMem[pageOffset]);
+	uint32_t readWord = readMemAs<uint32_t>(&rawMem[pageOffset]);
 
-	Instruction decodedInstruction = decoder->buildInstruction(encodedInstruction);
-	Instruction* heapInstructionPtr = new Instruction();
-	*heapInstructionPtr = decodedInstruction;
-
-	instructionCache[pageOffset >> 2] = heapInstructionPtr;
+	instructionCache[pageOffset >> 2] = make_pair<bool, Instruction>(true, decoder->buildInstruction(readWord));
 }
 
 Instruction* VirtualMemoryPage::readInstruction(virtualAddr address){
@@ -288,7 +269,7 @@ Instruction* VirtualMemoryPage::readInstruction(virtualAddr address){
 	}
 	virtualAddr virtualWordAddr = VirtualMemory::wordAlignAddr(address);
 	uint32_t pageOffset = calculatePageOffset(virtualWordAddr);
-	return instructionCache[pageOffset >> 2];
+	return &instructionCache[pageOffset >> 2].second;
 }
 
 

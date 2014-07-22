@@ -913,7 +913,12 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 				break;
 			case DIRECTIVE_WORD:
 				{
-					int32_t val = parser.literals.getLiteralValue(atom.token);
+					int32_t val;
+					if(parser.tokenIsInstructionName(parser.extractFirstToken(atom.token))){
+						val = readMemAs<int32_t>(&encoder->buildInstruction(atom.token));
+					}else{
+						val = parser.literals.getLiteralValue(atom.token);
+					}
 					size_t size = sizeof(val);
 					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
 				}
