@@ -24,6 +24,9 @@
       
  ```Assembly
 #Obfuscated Hello World in MIPS32 assembly.  Uses self modifying code
+
+####### MACROS
+
 .eqv	INSTRUCTION_ENCODING__addi_$v0_$0_0	0x20020000	
 
 .macro printString(%label)
@@ -45,22 +48,22 @@
 	syscall
 .end_macro
 	
-
-
+####### .DATA SECTION
 .data
-stringAddr:		.asciiz	"Self modifying Hello, World! program in MIPS32"
+stringAddr:		.asciiz	"Hello, World!"
 instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .data section
 
+####### .TEXT SECTION
 .text
 	printString(stringAddr)
 	exit()
 	
-					
+							
 ```    
       
 
-###Example output:      
-![Alt text](/demos/program1output.png?raw=true)
+###Example program output:      
+![Alt text](/demos/selfModifyingHelloWorld_output.png?raw=true)
 
 
 

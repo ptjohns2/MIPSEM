@@ -57,7 +57,7 @@ int main(){
 	Instruction tmp = encoder.buildInstruction("addi $v0, $0, 0");
 	Instruction tmp2 = encoder.buildInstruction("addi $v0, $0, 10");
 	
-	string programName = "obfuscatedHelloWorld.txt";
+	string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "myTest.txt";
 	//string programName = "labeltest.txt";
 	//string programName = "hw2MACROS.txt";
