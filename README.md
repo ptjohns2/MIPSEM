@@ -55,7 +55,55 @@
 	printString<span style='color:#808030; '>(</span>stringAddr<span style='color:#808030; '>)</span>
 	exit<span style='color:#808030; '>(</span><span style='color:#808030; '>)</span>
 </pre></pre>
-	   	   		   
+      
+      
+      
+ ```
+#Obfuscated Hello World in MIPS32 assembly.  Uses self modifying code
+.eqv	INSTRUCTION_ENCODING__addi_$v0_$0_0	0x20020000	
+
+.macro printString(%label)
+	li	$t1, INSTRUCTION_ENCODING__addi_$v0_$0_0
+	addi	$t1, $t1, 4
+	la	$t0, nopAddr1
+	sw	$t1, 0($t0)
+	nopAddr1:	nop
+	la	$a0, %label
+	la	$t2, instructionAddr	#$t2 = instructionAddr
+	lw	$t1, 0($t2)		#$t1 = *$t2 = *instructionAddr
+	la	$t2, nopAddr2		#$t2 = nopAddr2
+	sw	$t1, 0($t2)		#*nopAddr2 = $t1 = *$t2 = *instructionAddr
+	nopAddr2:	nop
+.end_macro
+
+.macro exit()
+	addi	$v0, $zero, 0xA
+	syscall
+.end_macro
+	
+
+
+.data
+stringAddr:		.asciiz	"Self modifying Hello, World! program in MIPS32"
+instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .data section
+
+.text
+	printString(stringAddr)
+	exit()
+	
+					
+```    
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
 ###Example output:      
 ![Alt text](/demos/program1output.png?raw=true)
