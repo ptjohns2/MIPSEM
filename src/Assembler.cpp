@@ -2,6 +2,7 @@
 
 #include "BitManip.hpp"
 #include "Parser.hpp"
+#include "types.hpp"
 
 #include <iostream>
 #include <fstream>

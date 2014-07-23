@@ -15,6 +15,7 @@ Decoder::~Decoder(){}
 Instruction Decoder::buildInstruction(instr ins){	
 	InstructionData* id = resolver.getInstructionData(ins);
 	if(id == NULL){
+		//TODO: fix
 		Instruction jnk = buildInstruction(0x0);
 		return jnk;
 	}

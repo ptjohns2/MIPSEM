@@ -524,7 +524,7 @@ inline void CPU::executeInstructionID_9(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_10(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	10	=	ALNV.PS	:	$fd,	$fs,	$ft,	$rs		
-	//TODO:
+
 }
 inline void CPU::executeInstructionID_11(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	11	=	AND	:	$rd,	$rs,	$rt,	_		
@@ -1306,7 +1306,6 @@ inline void CPU::executeInstructionID_184(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_185(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	185	=	J	:	+.addr,	_,	_,	_		
-	//TODO: ?
 	PC = (PC & 0xF0000000) | (a0 << 2);
 }
 inline void CPU::executeInstructionID_186(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1956,7 +1955,7 @@ inline void CPU::executeInstructionID_339(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_340(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	340	=	SWE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	MEM.writePOD<int32_t>(GPR[a2] + a1, GPR[a0]);
 }
 inline void CPU::executeInstructionID_341(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	341	=	SWL	:	$rt,	-.imm,	($rs),	_		
@@ -2023,28 +2022,24 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 			break;
 		case 5:
 			//read integer	5		=======>	$v0 contains integer read
-			//TODO: getline
 			cin.clear();
 			cin >> tmpInt;
 			GPR[$v0] = tmpInt;
 			break;
 		case 6:
 			//read float	6		=======>	$f0 contains float read
-			//TODO: getline
 			cin >> tmpFloat;
 			FPR[0] = tmpFloat;
 			break;
 		case 7:
 			//read double	7		=======>	$f0 contains double read
-			//TODO: getline
 			cin >> tmpDouble;
 			FPR[0] = tmpDouble;
 			break;
 		case 8:
 			//read string	8	$a0 = address of input buffer	=======>	See note below table
-			//					$a1 = maximum number of characters to read		
-			//TODO: getline
-			cin >> tmpString;
+			//					$a1 = maximum number of characters to read	
+			getline(cin, tmpString);
 			tmpString += '\0';
 			MEM.writeToVirtualMemorySpace(GPR[$a0], tmpString.length(), (void*)tmpString.c_str());
 			break;

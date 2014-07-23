@@ -40,17 +40,20 @@ typedef enum {
 }ACTION;
 
 
-struct ProgramLine{
-	string fileName;
-	uint32_t lineNumber;
-	string text;
+
+class ProgramLine{
+	public:
+		string fileName;
+		uint32_t lineNumber;
+		string text;
 };
 
-struct ProgramAtom{
-	virtualAddr addr;
-	string token;
-	DIRECTIVE type;
-	ProgramLine* programLine;
+class ProgramAtom{
+	public:
+		virtualAddr addr;
+		string token;
+		DIRECTIVE type;
+		ProgramLine* programLine;
 };
 
 

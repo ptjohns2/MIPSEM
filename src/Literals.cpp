@@ -82,7 +82,6 @@ bool Literals::tokenIsLiteral(string token){
 	if(tokenIsOctalLiteral(token)){return true;}
 	if(tokenIsCharLiteral(token)){return true;}
 	return false;
-	//TODO: add more types of literals to this
 }
 int Literals::getLiteralValue(string token){
 	if(tokenIsDecimalLiteral(token)){
@@ -509,7 +508,6 @@ bool Literals::tokenIsStringLiteral(string token){
 	return tokenIsRawStringLiteral(Parser::removeNestedQuotes(token));
 }
 bool Literals::tokenIsRawStringLiteral(string token){
-	//TODO check if "" thing is okay etc
 	if(token == ""){return true;}
 	if(token[0] == '"'){return false;}
 	for(int i=0; i<token.length(); i++){
