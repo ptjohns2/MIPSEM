@@ -21,19 +21,56 @@
 8. Macro replacement	-	*stable*       
      
 ###Example program:      
-.text   
-addi	$t1, $zero, 48   
-addi	$t0, $zero, 0   
-loopstart:   
-addi	$t0, $t0, 8   
-addi	$v0, $zero, 1   
-add	$a0, $zero, $t0   
-syscall	   
-beq	$t0, $t1, loopend   
-j	loopstart   
-loopend:    
-addi	$a0, $zero, 9999	   
-syscall				   		   
+
+<pre style='color:#000000;background:#ffffff;'><html><body style='color:#000000; background:#ffffff; '><pre>
+#Obfuscated Hello World <span style='color:#800000; font-weight:bold; '>in</span> MIPS3<span style='color:#008c00; '>2</span> assembly.  <span style='color:#004a43; '>Uses</span> self modifying <span style='color:#004a43; '>code</span>
+.eqv	INSTRUCTION_ENCODING__addi_$v0_$0_<span style='color:#008c00; '>0</span>	<span style='color:#008000; '>0x20020000</span>	
+
+.<span style='color:#004a43; '>macro</span> printString<span style='color:#808030; '>(</span><span style='color:#808030; '>%</span><span style='color:#004a43; '>label</span><span style='color:#808030; '>)</span>
+	li	$t1<span style='color:#808030; '>,</span> INSTRUCTION_ENCODING__addi_$v0_$0_<span style='color:#008c00; '>0</span>
+	addi	$t1<span style='color:#808030; '>,</span> $t1<span style='color:#808030; '>,</span> <span style='color:#008c00; '>4</span>
+	la	$t0<span style='color:#808030; '>,</span> nopAddr1
+	sw	$t1<span style='color:#808030; '>,</span> <span style='color:#008c00; '>0</span><span style='color:#808030; '>(</span>$t0<span style='color:#808030; '>)</span>
+<span style='color:#e34adc; '>	nopAddr1:</span>	<span style='color:#800000; font-weight:bold; '>nop</span>
+	la	$a0<span style='color:#808030; '>,</span> <span style='color:#808030; '>%</span><span style='color:#004a43; '>label</span>
+	la	$t2<span style='color:#808030; '>,</span> instructionAddr	#$t2 <span style='color:#808030; '>=</span> instructionAddr
+	lw	$t1<span style='color:#808030; '>,</span> <span style='color:#008c00; '>0</span><span style='color:#808030; '>(</span>$t2<span style='color:#808030; '>)</span>		#$t1 <span style='color:#808030; '>=</span> <span style='color:#808030; '>*</span>$t2 <span style='color:#808030; '>=</span> <span style='color:#808030; '>*</span>instructionAddr
+	la	$t2<span style='color:#808030; '>,</span> nopAddr2		#$t2 <span style='color:#808030; '>=</span> nopAddr2
+	sw	$t1<span style='color:#808030; '>,</span> <span style='color:#008c00; '>0</span><span style='color:#808030; '>(</span>$t2<span style='color:#808030; '>)</span>		#<span style='color:#808030; '>*</span>nopAddr2 <span style='color:#808030; '>=</span> $t1 <span style='color:#808030; '>=</span> <span style='color:#808030; '>*</span>$t2 <span style='color:#808030; '>=</span> <span style='color:#808030; '>*</span>instructionAddr
+<span style='color:#e34adc; '>	nopAddr2:</span>	<span style='color:#800000; font-weight:bold; '>nop</span>
+.end_macro
+
+.<span style='color:#004a43; '>macro</span> exit<span style='color:#808030; '>(</span><span style='color:#808030; '>)</span>
+	addi	$v0<span style='color:#808030; '>,</span> $zero<span style='color:#808030; '>,</span> <span style='color:#008000; '>0xA</span>
+	<span style='color:#bb7977; font-weight:bold; '>syscall</span>
+.end_macro
+	
+
+
+<span style='color:#004a43; '>.data</span>
+<span style='color:#e34adc; '>stringAddr:</span>		.asciiz	<span style='color:#0000e6; '>"Self modifying Hello, World! program in MIPS32"</span>
+<span style='color:#e34adc; '>instructionAddr:</span>	.<span style='color:#800000; font-weight:bold; '>word</span>	<span style='color:#bb7977; font-weight:bold; '>syscall</span>	#encode <span style='color:#0000e6; '>"syscall"</span> instruction to <span style='color:#004a43; '>this</span> <span style='color:#800000; font-weight:bold; '>word</span> <span style='color:#800000; font-weight:bold; '>in</span> <span style='color:#004a43; '>.data</span> <span style='color:#004a43; '>section</span>
+
+.text
+	printString<span style='color:#808030; '>(</span>stringAddr<span style='color:#808030; '>)</span>
+	exit<span style='color:#808030; '>(</span><span style='color:#808030; '>)</span>
+</pre>
+		   		   
    
 ###Example output:   
 ![Alt text](/demos/program1output.png?raw=true)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

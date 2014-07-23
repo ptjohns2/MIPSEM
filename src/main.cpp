@@ -54,11 +54,13 @@ int main(){
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
 	
-
+	Instruction tmp = encoder.buildInstruction("addi $v0, $0, 0");
+	Instruction tmp2 = encoder.buildInstruction("addi $v0, $0, 10");
 	
+	string programName = "obfuscatedHelloWorld.txt";
 	//string programName = "myTest.txt";
 	//string programName = "labeltest.txt";
-	string programName = "hw2MACROS.txt";
+	//string programName = "hw2MACROS.txt";
 	//string programName = "macrotest.txt";
 	//string programName = "recursiontest.txt";
 	//tring programName = "prime-1.txt";

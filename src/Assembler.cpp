@@ -927,7 +927,8 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 				{
 					int32_t val;
 					if(parser.tokenIsInstructionName(parser.extractFirstToken(atom.token))){
-						val = readMemAs<int32_t>(&encoder->buildInstruction(atom.token));
+						instr bin = encoder->buildInstruction(atom.token).getBin();
+						val = readMemAs<int32_t>(&bin);
 					}else{
 						val = parser.literals.getLiteralValue(atom.token);
 					}

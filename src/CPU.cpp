@@ -47,7 +47,7 @@ void CPU::run(){
 }
 void CPU::executeInstructionAtPC(){
 	Instruction* instructionFromMemory = MEM.readInstruction(PC);
-	cout << "\nPC = " << parser.literals.getHexLiteralString(PC) << " [" << instructionFromMemory->getAsmString() << "]\t\t\t\t";
+	cout << "\nPC = " << parser.literals.getHexLiteralString(PC) << '\t' << instructionFromMemory->getAsmString() << "\t\t\t\t";
 	executeInstruction(instructionFromMemory);
 }
 void CPU::executeInstruction(Instruction* instruction){

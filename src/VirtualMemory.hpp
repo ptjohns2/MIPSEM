@@ -69,6 +69,7 @@ class VirtualMemory{
 
 
 		void writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr);
+		void invalidateInstructionCacheOfVirtualMemorySpace(virtualAddr address, size_t size);
 		h_byte* readVirtualMemorySpaceToHeap(virtualAddr address, size_t size) const;
 		byte* getByteAddr(virtualAddr address) const;
 		

@@ -59,6 +59,8 @@ MemoryMap VirtualMemory::exportMemoryMap() const{
 }
 
 void VirtualMemory::writeToVirtualMemorySpace(virtualAddr address, size_t size, void* ptr){
+	invalidateInstructionCacheOfVirtualMemorySpace(address, size);
+
 	VirtualMemoryPage* basePagePtr = pageTable->getPageAddr(address);
 	if(basePagePtr->memSpaceIsInBounds(address, size)){
 		//Standard read, no page fault
@@ -72,6 +74,12 @@ void VirtualMemory::writeToVirtualMemorySpace(virtualAddr address, size_t size, 
 			//memcpy(byteAddr, ptr + i, 1);
 			*byteAddr = *((byte*)ptr + i);
 		}
+	}
+}
+void VirtualMemory::invalidateInstructionCacheOfVirtualMemorySpace(virtualAddr address, size_t size){
+	for(virtualAddr wordAddr = address; wordAddr < address + size; wordAddr+=4){
+		VirtualMemoryPage* basePagePtr = pageTable->getPageAddr(wordAddr);
+		basePagePtr->invalidateInstruction(wordAddr);
 	}
 }
 h_byte* VirtualMemory::readVirtualMemorySpaceToHeap(virtualAddr address, size_t size) const{
@@ -255,7 +263,7 @@ void VirtualMemoryPage::revalidateInstruction(virtualAddr address){
 	virtualAddr virtualWordAddr = VirtualMemory::wordAlignAddr(address);
 	uint32_t pageOffset = calculatePageOffset(virtualWordAddr);
 	uint32_t readWord = readMemAs<uint32_t>(&rawMem[pageOffset]);
-
+	
 	instructionCache[pageOffset >> 2] = make_pair<bool, Instruction>(true, decoder->buildInstruction(readWord));
 }
 
