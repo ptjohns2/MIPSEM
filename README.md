@@ -20,8 +20,8 @@
 7. Pseudoinstruction replacement	-	*stable*    
 8. Macro replacement	-	*stable*       
      
-###Example program:      
-
+###Example program:         
+      
 <pre style='color:#000000;background:#ffffff;'><html><body style='color:#000000; background:#ffffff; '><pre>
 #Obfuscated Hello World <span style='color:#800000; font-weight:bold; '>in</span> MIPS3<span style='color:#008c00; '>2</span> assembly.  <span style='color:#004a43; '>Uses</span> self modifying <span style='color:#004a43; '>code</span>
 .eqv	INSTRUCTION_ENCODING__addi_$v0_$0_<span style='color:#008c00; '>0</span>	<span style='color:#008000; '>0x20020000</span>	
@@ -55,9 +55,9 @@
 	printString<span style='color:#808030; '>(</span>stringAddr<span style='color:#808030; '>)</span>
 	exit<span style='color:#808030; '>(</span><span style='color:#808030; '>)</span>
 </pre>
-		   		   
-   
-###Example output:   
+	   	   		   
+      
+###Example output:      
 ![Alt text](/demos/program1output.png?raw=true)
 
 
