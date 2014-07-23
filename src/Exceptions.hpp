@@ -28,7 +28,6 @@ class FileNotFoundException : public AssemblerException{
 	public:
 		FileNotFoundException();
 		FileNotFoundException(ProgramAtom*, string);
-		~FileNotFoundException();
 
 		string toString();
 
@@ -42,7 +41,6 @@ class UnexpectedTokenException : public AssemblerException{
 	public:
 		UnexpectedTokenException();
 		UnexpectedTokenException(ProgramAtom*, string);
-		~UnexpectedTokenException();
 
 		string toString();
 
@@ -54,7 +52,6 @@ class ExpectedTokenException : public AssemblerException{
 	public:
 		ExpectedTokenException();
 		ExpectedTokenException(ProgramAtom*, string);
-		~ExpectedTokenException();
 
 		string toString();
 
@@ -67,7 +64,6 @@ class EncodingException : public AssemblerException{
 	public:
 		EncodingException();
 		EncodingException(ProgramAtom*, string);
-		~EncodingException();
 
 		string toString();
 

@@ -1,6 +1,6 @@
 #include "Exceptions.hpp"
 
-/*
+
 
 AssemblerException::AssemblerException(){
 	this->programAtom = NULL;
@@ -31,14 +31,13 @@ string AssemblerException::toString(string lead){
 FileNotFoundException::FileNotFoundException()
 	:	AssemblerException()
 {
-
+	ExceptionName = "FileNotFoundException";
 }
 FileNotFoundException::FileNotFoundException(ProgramAtom* programAtom, string info)
 	:	AssemblerException(programAtom, info)
 {
-
+	ExceptionName = "FileNotFoundException";
 }
-string FileNotFoundException::ExceptionName = "FileNotFoundException";
 string FileNotFoundException::toString(){
 	return AssemblerException::toString(ExceptionName);
 }
@@ -52,14 +51,13 @@ string FileNotFoundException::toString(){
 UnexpectedTokenException::UnexpectedTokenException()
 	:	AssemblerException()
 {
-
+	ExceptionName = "UnexpectedTokenException";
 }
 UnexpectedTokenException::UnexpectedTokenException(ProgramAtom* programAtom, string info)
 	:	AssemblerException(programAtom, info)
 {
-
+	ExceptionName = "UnexpectedTokenException";
 }
-string UnexpectedTokenException::ExceptionName = "UnexpectedTokenException";
 string UnexpectedTokenException::toString(){
 	return AssemblerException::toString(ExceptionName);
 }
@@ -75,14 +73,13 @@ string UnexpectedTokenException::toString(){
 ExpectedTokenException::ExpectedTokenException()
 	:	AssemblerException()
 {
-
+	ExceptionName = "ExpectedTokenException";
 }
 ExpectedTokenException::ExpectedTokenException(ProgramAtom* programAtom, string info)
 	:	AssemblerException(programAtom, info)
 {
-
+	ExceptionName = "ExpectedTokenException";
 }
-string ExpectedTokenException::ExceptionName = "ExpectedTokenException";
 string ExpectedTokenException::toString(){
 	return AssemblerException::toString(ExceptionName);
 }
@@ -102,14 +99,13 @@ string ExpectedTokenException::toString(){
 EncodingException::EncodingException()
 	:	AssemblerException()
 {
-
+	ExceptionName = "EncodingException";
 }
 EncodingException::EncodingException(ProgramAtom* programAtom, string info)
 	:	AssemblerException(programAtom, info)
 {
-
+	ExceptionName = "EncodingException";
 }
-string EncodingException::ExceptionName = "ExpectedTokenException";
 string EncodingException::toString(){
 	return AssemblerException::toString(ExceptionName);
 }
@@ -124,4 +120,4 @@ string EncodingException::toString(){
 
 
 
-*/
+
