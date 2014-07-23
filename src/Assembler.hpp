@@ -40,17 +40,19 @@ typedef enum {
 }ACTION;
 
 
+struct ProgramLine{
+	string fileName;
+	uint32_t lineNumber;
+	string text;
+};
+
 struct ProgramAtom{
 	virtualAddr addr;
 	string token;
 	DIRECTIVE type;
+	ProgramLine* programLine;
 };
 
-struct ProgramLine{
-	string fileName;
-	uint32_t pageNumber;
-	string line;
-};
 
 class MacroAtom{
 	public:
@@ -105,7 +107,7 @@ class Assembler{
 		void incrementSegmentTop(virtualAddr);
 		virtualAddr getCurrentMemoryLocation();
 
-		void alignLiteralTokenList(vector<string> const &tokens, string currentLine, uint32_t lineNumber);
+		void alignLiteralTokenList(vector<string> const &tokens, string currentLine, ProgramLine* programLine);
 		void writeAlignedRawProgramToDisk(string fileName);
 
 		//Post-processing
@@ -129,13 +131,13 @@ class Assembler{
 
 		VirtualMemory virtualMemory;
 		
-		vector<pair<uint32_t, string>> program;
-		vector<pair<uint32_t, ProgramAtom>> alignedProgram;
+		vector<ProgramLine> program;
+		vector<ProgramAtom> alignedProgram;
 
 		vector<pair<string, string>> eqvDB;
 		vector<MacroAtom> macroDB;
 
-		vector<pair<uint32_t, string>> labelsToAssign;
+		vector<ProgramLine*> labelsToAssign;
 		vector<string> labelNames;
 		unordered_map<string, virtualAddr> labelMap;
 
