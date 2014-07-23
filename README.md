@@ -54,7 +54,7 @@
 .text
 	printString<span style='color:#808030; '>(</span>stringAddr<span style='color:#808030; '>)</span>
 	exit<span style='color:#808030; '>(</span><span style='color:#808030; '>)</span>
-</pre>
+</pre></pre>
 	   	   		   
       
 ###Example output:      
