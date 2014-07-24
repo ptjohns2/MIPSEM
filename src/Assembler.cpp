@@ -823,6 +823,15 @@ void Assembler::pseudoInstructionReplace(){
 						{
 							//la
 							string labelName = tokenizedInstruction[2];
+							if(!tokenIsInLabelDB(labelName)){
+								string error = "Label \""
+									+ labelName
+									+ "\" not recognized in file \""
+									+ atom.programLine->fileName 
+									+ "\" on line number "
+									+ std::to_string(atom.programLine->lineNumber);
+								throw AssemblerException(error);
+							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
 							virtualAddr msb = labelAddr >> (NUM_BITS_IN_VIRTUAL_ADDR / 2);
 							virtualAddr lsb = labelAddr & 0x0000FFFF;
@@ -942,6 +951,16 @@ void Assembler::replaceLabels(){
 			vector<string> instructionTokens = parser.tokenizeInstruction(atom.token);
 			if(isBranch || isJump){
 				string lastToken = instructionTokens[instructionTokens.size() - 1];
+				if(!tokenIsInLabelDB(lastToken)){
+					//EXCEPTION
+					string error = "Label \""
+						+ lastToken
+						+ "\" not recognized in file \""
+						+ atom.programLine->fileName 
+						+ "\" on line number "
+						+ std::to_string(atom.programLine->lineNumber);
+					throw AssemblerException(error);
+				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
 				virtualAddr immediateVal;
