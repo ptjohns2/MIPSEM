@@ -85,8 +85,8 @@ class Assembler{
 		void reset();
 		void setEncoder(Encoder*);
 
-
-		void loadProgramFromFile(string fileName);
+		string assemble(string fileName);
+		void loadProgramFromFile(string fileName, ProgramLine* programLine = NULL);
 
 	//private:
 		//Pre-processing
@@ -125,6 +125,8 @@ class Assembler{
 		Parser parser;
 		Encoder* encoder;
 		
+		string defaultObjectNamePostfix;
+		string defaultAlignedProgramNamePostfix;
 		
 		virtualAddr memorySegmentTopArray[NUMBER_OF_MEMORY_SEGMENTS];
 		DIRECTIVE currentMemorySegment;

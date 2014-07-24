@@ -90,6 +90,9 @@ void Assembler::init(){
 	currentValueTypeSpecifier = DIRECTIVE_WORD;
 	currentAction = ACTION_INIT;
 	currentByteAlignment = SIZE_WORD;
+	
+	defaultObjectNamePostfix = "tmpObj.obj"; 
+	defaultAlignedProgramNamePostfix = ".obj.txt"; 
 
 }
 void Assembler::deinit(){
@@ -104,30 +107,44 @@ void Assembler::setEncoder(Encoder* encoder){
 	this->encoder = encoder;
 }
 
+string Assembler::assemble(string fileName){
+	try{
+		loadProgramFromFile(fileName);
 
-void Assembler::loadProgramFromFile(string fileName){
+		splitLabels();
+		replaceEqv();
+		extractMacroDefinitions();
+		replaceMacros();
+		pseudoInstructionPad();
+
+		alignRawProgram();
+		pseudoInstructionReplace();
+		replaceLabels();
+
+		writeAlignedRawProgramToDisk(fileName + defaultAlignedProgramNamePostfix);
+		mapAlignedProgramToVirtualMemory();
+
+		virtualMemory.serialize(fileName + defaultObjectNamePostfix);
+	}catch(AssemblerException &e){
+		string message = e.toString();
+		cout << '\n' << message << '\n';
+	}
+	return fileName + defaultObjectNamePostfix;
+}
+
+void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
 	fstream file = fstream(fileName);
 	if(!file.is_open()){
 		//EXCEPTION
-		string error = "I'm sorry Dave, I'm afraid I can't open the... file named \""
+		string error = "I'm sorry Dave, I'm afraid I can't open file \""
 			+ fileName
-			+ "\.  Remember to check your .includes";
-		throw AssemblerException(error);
+			+ "\"";
+		throw AssemblerException(programLine, error);
 	}
 	string tmpProgramLine;
 	uint32_t lineNumber = 0;
 	while(getline(file, tmpProgramLine)){
 		tmpProgramLine = parser.sanitizeProgramLine(tmpProgramLine);
-		
-		string token = parser.toLower(parser.extractFirstToken(tmpProgramLine));
-		if(token == ".include"){
-			parser.extractAndRemoveFirstToken(tmpProgramLine, token);
-			string nestedFileName = parser.trim(tmpProgramLine);
-			nestedFileName = parser.removeNestedQuotes(nestedFileName);
-			nestedFileName = parser.trim(nestedFileName);
-			loadProgramFromFile(nestedFileName);
-			continue;
-		}
 		
 		if(tmpProgramLine != ""){
 			ProgramLine programLine;
@@ -136,6 +153,17 @@ void Assembler::loadProgramFromFile(string fileName){
 			programLine.text = tmpProgramLine;
 			program.push_back(programLine);
 		}
+
+		string token = parser.toLower(parser.extractFirstToken(tmpProgramLine));
+		if(token == ".include"){
+			parser.extractAndRemoveFirstToken(tmpProgramLine, token);
+			string nestedFileName = parser.trim(tmpProgramLine);
+			nestedFileName = parser.removeNestedQuotes(nestedFileName);
+			nestedFileName = parser.trim(nestedFileName);
+			ProgramLine* programLinePtr = (program.size() == 0)? NULL : &program[program.size() - 1];
+			loadProgramFromFile(nestedFileName, programLinePtr);
+		}
+		
 		lineNumber++;
 	}
 }
@@ -235,10 +263,8 @@ void Assembler::extractMacroDefinitions(){
 			}
 			if(program[lineNum].text != ".end_macro"){
 				//EXCEPTION
-				string error = "Macro definition on line "
-					+ std::to_string(programLine.lineNumber)
-					+ " not matched with .end_macro directive.";
-				throw AssemblerException(error);
+				string error = "Macro not matched with .end_macro directive.";
+				throw AssemblerException(&program[lineNum], error);
 			}
 			program.erase(program.begin() + lineNum);
 			macroLines.push_back(".end_macro");
@@ -404,13 +430,8 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 			break;
 		default:
 			//EXCEPTION
-			string error = "Unrecognized directive "
-				+ directive
-				+ " in file \""
-				+ programLine->fileName 
-				+ "\" on line number "
-				+ std::to_string(programLine->lineNumber);
-			throw AssemblerException(error);
+			string error = "Unrecognized directive \"" + directive + "\"";
+			throw AssemblerException(programLine, error);
 			break;
 	}
 }
@@ -427,11 +448,8 @@ void Assembler::alignRawProgram(){
 				//EXCEPTION
 				string error = "Label \""
 					+ labelName 
-					+ "\" already exists in file \""
-					+ programLine.fileName
-					+ "\" on line number "
-					+ std::to_string(programLine.lineNumber);
-				throw AssemblerException(error);					
+					+ "\" already exists";
+				throw AssemblerException(&program[lineNum], error);					
 			}
 			programLine.text = labelName;
 			labelsToAssign.push_back(&program[lineNum]);
@@ -498,11 +516,8 @@ void Assembler::alignRawProgram(){
 					while(programLine.text[i] != '"'){i++;}
 					if(programLine.text[i] != '"'){
 						//EXCEPTION
-						string error = "Expected string literal after .ascii(z) directive in file\""
-							+ programLine.fileName 
-							+ "\" on line number "
-							+ std::to_string(programLine.lineNumber);
-						throw AssemblerException(error);
+						string error = "Expected string literal after .ascii(z) directive";
+						throw AssemblerException(&program[lineNum], error);
 					}
 					string stringLiteral = programLine.text.substr(i);
 					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
@@ -642,23 +657,13 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 			if(!parser.literals.tokenIsFixedPointLiteral(currentLiteralToken)
 				&& !parser.tokenIsInstructionName(currentLiteralToken)){
 				
-				string error = "Invalid fixed point literal \""
-					+ currentLiteralToken 
-					+ "\" in file \""
-					+ programLine->fileName
-					+ "\" on line number "
-					+ std::to_string(programLine->lineNumber);
-				throw AssemblerException(error);
+				string error = "Invalid fixed point literal \"" + currentLiteralToken + "\"";
+				throw AssemblerException(programLine, error);
 			}
 		}else{
 			if(!parser.literals.tokenIsFloatLiteral(currentLiteralToken)){
-				string error = "Invalid floating point literal \""
-					+ currentLiteralToken 
-					+ "\" in file \""
-					+ programLine->fileName
-					+ "\" on line number "
-					+ std::to_string(programLine->lineNumber);
-				throw AssemblerException(error);
+				string error = "Invalid floating point literal \"" + currentLiteralToken + "\"";
+				throw AssemblerException(programLine, error);
 			}
 		}
 		//END EXCEPTION
@@ -826,11 +831,8 @@ void Assembler::pseudoInstructionReplace(){
 							if(!tokenIsInLabelDB(labelName)){
 								string error = "Label \""
 									+ labelName
-									+ "\" not recognized in file \""
-									+ atom.programLine->fileName 
-									+ "\" on line number "
-									+ std::to_string(atom.programLine->lineNumber);
-								throw AssemblerException(error);
+									+ "\" not recognized";
+								throw AssemblerException(atom.programLine, error);
 							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
 							virtualAddr msb = labelAddr >> (NUM_BITS_IN_VIRTUAL_ADDR / 2);
@@ -955,11 +957,8 @@ void Assembler::replaceLabels(){
 					//EXCEPTION
 					string error = "Label \""
 						+ lastToken
-						+ "\" not recognized in file \""
-						+ atom.programLine->fileName 
-						+ "\" on line number "
-						+ std::to_string(atom.programLine->lineNumber);
-					throw AssemblerException(error);
+						+ "\" not recognized";
+					throw AssemblerException(atom.programLine, error);
 				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
@@ -1054,13 +1053,8 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 							bin = encoder->buildInstruction(atom.token).getBin();
 						}catch(AssemblerException e){
 							//EXCEPTION
-							string error = "Invalid instruction \""
-								+ atom.programLine->text
-								+ " in file \""
-								+ atom.programLine->fileName 
-								+ "\" on line number "
-								+ std::to_string(atom.programLine->lineNumber);
-							throw AssemblerException(error);
+							string error = "Unable to encode instruction \"" + atom.programLine->text + "\"";
+							throw AssemblerException(atom.programLine, error);
 						}
 						val = readMemAs<int32_t>(&bin);
 					}else{

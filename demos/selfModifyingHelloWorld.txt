@@ -26,11 +26,11 @@
 ####### .DATA SECTION
 .data
 stringAddr:		.asciiz	"Hello, World!"
-instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .data section
+
+#encode "syscall" instruction to this word in .data section
+instructionAddr:	.word	syscall	
 
 ####### .TEXT SECTION
 .text
 	printString(stringAddr)
 	exit
-	
-					

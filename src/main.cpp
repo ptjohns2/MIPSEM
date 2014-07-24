@@ -56,9 +56,7 @@ int main(){
 	assembler.setEncoder(&encoder);
 	
 	
-
-
-
+	
 	//string programName = "includetest.txt";
 	string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "myTest.txt";
@@ -70,20 +68,9 @@ int main(){
 	//string programName = "prime-2.s";a
 	//string programName = "fact.s";
 	//string programName = "testProgram2.txt";
-	assembler.loadProgramFromFile(programName);
-	assembler.splitLabels();
-	assembler.replaceEqv();
-	assembler.extractMacroDefinitions();
-	assembler.replaceMacros();
-	assembler.pseudoInstructionPad();
-	assembler.alignRawProgram();
-	assembler.pseudoInstructionReplace();
-	assembler.replaceLabels();
-	assembler.writeAlignedRawProgramToDisk(programName + ".obj.txt");
-	assembler.mapAlignedProgramToVirtualMemory();
 
-	string objectFileName = "tmpObject.obj";
-	assembler.virtualMemory.serialize(objectFileName);
+	string objectFileName = assembler.assemble(programName);
+
 	cpu.MEM.deserialize(objectFileName);
 	
 	cpu.run();

@@ -23,8 +23,9 @@ Instruction Encoder::buildInstruction(string asmString){
 	if(id == NULL){
 		//EXCEPTION
 		string error = "Unable to encode instruction \""
-			+ asmString;
-		throw AssemblerException(error);
+			+ asmString
+			+ "\"";
+		throw AssemblerException(NULL, error);
 	}
 
 	vector<string> arguments = Parser::tokenizeInstruction(asmString);

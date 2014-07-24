@@ -13,11 +13,12 @@ using std::string;
 class AssemblerException : public exception{
 	public:
 		AssemblerException();
-		AssemblerException(string);
+		AssemblerException(ProgramLine*, string);
 
 		string toString();
 
 	protected:
+		ProgramLine* programLine;
 		string info;
 
 };
