@@ -275,7 +275,7 @@ vector<string> Parser::commaSeparatedListExplode(string str){
 			i++;
 		}
 		if(isToken){
-			ret.push_back(tmpStr);
+			ret.push_back(trim(tmpStr));
 		}
 	}
 	return ret;

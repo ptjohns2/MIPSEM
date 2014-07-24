@@ -19,14 +19,16 @@ class Encoder{
 		static instr setBitrange(instr bin, uint32_t value, bitrange br);
 		static instr setBitrange(instr bin, uint32_t value, unsigned int start, unsigned int end);
 
-	private:
+		//Members
+		StringResolver resolver;
+
+private:
 		//Methods
 		instr encodeArgument(instr bin, string argument, bitrange br);
 		instr encodeInstruction(InstructionData* id, vector<string> arguments);
 		instr encodeAbnormalInstruction(InstructionData* id, vector<string> arguments);
 		
 		//Members
-		StringResolver resolver;
 		Decoder* decoder;
 		Parser parser;
 

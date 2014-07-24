@@ -59,8 +59,8 @@ int main(){
 
 
 
-	string programName = "includetest.txt";
-	//string programName = "selfModifyingHelloWorld.txt";
+	//string programName = "includetest.txt";
+	string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "myTest.txt";
 	//string programName = "labeltest.txt";
 	//string programName = "hw2MACROS.txt";

@@ -83,6 +83,14 @@ bool Literals::tokenIsLiteral(string token){
 	if(tokenIsCharLiteral(token)){return true;}
 	return false;
 }
+bool Literals::tokenIsFixedPointLiteral(string token){
+	if(tokenIsDecimalLiteral(token)){return true;}
+	if(tokenIsHexLiteral(token)){return true;}
+	if(tokenIsBinaryLiteral(token)){return true;}
+	if(tokenIsOctalLiteral(token)){return true;}
+	if(tokenIsCharLiteral(token)){return true;}
+	return false;
+}
 int Literals::getLiteralValue(string token){
 	if(tokenIsDecimalLiteral(token)){
 		return getDecimalLiteralValue(token);
@@ -553,8 +561,6 @@ string Literals::getRawStringLiteralString(string token){
 string Literals::getStringLiteralString(string token){
 	return '"' + getRawStringLiteralString(token) + '"';
 }
-
-
 
 
 

@@ -108,7 +108,11 @@ void Assembler::setEncoder(Encoder* encoder){
 void Assembler::loadProgramFromFile(string fileName){
 	fstream file = fstream(fileName);
 	if(!file.is_open()){
-		throw FileNotFoundException(fileName);
+		//EXCEPTION
+		string error = "I'm sorry Dave, I'm afraid I can't open the... file named \""
+			+ fileName
+			+ "\.  Remember to check your .includes";
+		throw AssemblerException(error);
 	}
 	string tmpProgramLine;
 	uint32_t lineNumber = 0;
@@ -229,6 +233,13 @@ void Assembler::extractMacroDefinitions(){
 				macroLines.push_back(program[lineNum].text);
 				program.erase(program.begin() + lineNum);
 			}
+			if(program[lineNum].text != ".end_macro"){
+				//EXCEPTION
+				string error = "Macro definition on line "
+					+ std::to_string(programLine.lineNumber)
+					+ " not matched with .end_macro directive.";
+				throw AssemblerException(error);
+			}
 			program.erase(program.begin() + lineNum);
 			macroLines.push_back(".end_macro");
 			MacroAtom atom = MacroAtom(macroLines);
@@ -302,7 +313,7 @@ virtualAddr Assembler::getLabelAddress(string label){
 	}
 }
 
-void Assembler::applyDirective(string directive){
+void Assembler::applyDirective(string directive, ProgramLine* programLine){
 	uint32_t directiveNumber = parser.getDirectiveNumber(directive);
 	switch(directiveNumber){
 		//Primary memory segments
@@ -392,7 +403,14 @@ void Assembler::applyDirective(string directive){
 
 			break;
 		default:
-
+			//EXCEPTION
+			string error = "Unrecognized directive "
+				+ directive
+				+ " in file \""
+				+ programLine->fileName 
+				+ "\" on line number "
+				+ std::to_string(programLine->lineNumber);
+			throw AssemblerException(error);
 			break;
 	}
 }
@@ -405,13 +423,23 @@ void Assembler::alignRawProgram(){
 		string token = parser.extractFirstToken(programLine.text);
 		if(parser.tokenIsLabel(token)){
 			string labelName = parser.getLabelName(token);
+			if(tokenIsInLabelDB(labelName)){
+				//EXCEPTION
+				string error = "Label \""
+					+ labelName 
+					+ "\" already exists in file \""
+					+ programLine.fileName
+					+ "\" on line number "
+					+ std::to_string(programLine.lineNumber);
+				throw AssemblerException(error);					
+			}
 			programLine.text = labelName;
 			labelsToAssign.push_back(&program[lineNum]);
 			continue;
 		}
 		while(parser.tokenIsDirective(token)){
 			parser.extractAndRemoveFirstToken(programLine.text, token);
-			applyDirective(token);
+			applyDirective(token, &programLine);
 			token = parser.extractFirstToken(programLine.text);
 			if(token == ""){break;}
 		}
@@ -468,6 +496,14 @@ void Assembler::alignRawProgram(){
 					flushLabelBuffer();
 					int i=0;
 					while(programLine.text[i] != '"'){i++;}
+					if(programLine.text[i] != '"'){
+						//EXCEPTION
+						string error = "Expected string literal after .ascii(z) directive in file\""
+							+ programLine.fileName 
+							+ "\" on line number "
+							+ std::to_string(programLine.lineNumber);
+						throw AssemblerException(error);
+					}
 					string stringLiteral = programLine.text.substr(i);
 					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
 
@@ -489,6 +525,16 @@ void Assembler::alignRawProgram(){
 				break;
 			case ACTION_ALIGN:
 				{
+					if(!parser.literals.tokenIsFixedPointLiteral(token)){
+						//EXCEPTION
+						string error = "Unable to align memory to an offset of \""
+							+ token
+							+ "\" in file \""
+							+ programLine.fileName 
+							+ "\" on line number "
+							+ std::to_string(programLine.lineNumber)
+							+ ". Expected fixed point literal";
+					}
 					currentByteAlignment = parser.literals.getLiteralValue(token);
 					alignSegmentTop();
 					currentAction = ACTION_INIT;
@@ -503,6 +549,16 @@ void Assembler::alignRawProgram(){
 
 					parser.extractAndRemoveFirstToken(programLine.text, token);
 					uint32_t spaceSize = parser.literals.getLiteralValue(token);
+					if(!parser.literals.tokenIsFixedPointLiteral(token)){
+						//EXCEPTION
+						string error = "Unable to reserve memory space of size \""
+							+ token
+							+ "\" in file \""
+							+ programLine.fileName 
+							+ "\" on line number "
+							+ std::to_string(programLine.lineNumber)
+							+ ". Expected fixed point literal";
+					}
 
 					atom.token = parser.literals.getDecimalLiteralString(spaceSize);
 					atom.addr = getCurrentMemoryLocation();
@@ -571,18 +627,49 @@ virtualAddr Assembler::getCurrentMemoryLocation(){
 
 void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, string currentLine, ProgramLine* programLine){
 	virtualAddr memorySegmentTopIncrementationSize = 0;
+	bool tokenIsFixedPointLiteral =
+		currentValueTypeSpecifier == DIRECTIVE_BYTE
+		|| currentValueTypeSpecifier == DIRECTIVE_HALF
+		|| currentValueTypeSpecifier == DIRECTIVE_WORD;
+	
 	for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
 		//init string to ".datatype	|[insert literals here]"
 		string mappedProgramString;
-
 		string currentLiteralToken = literalTokens[tokenNum];
+
+		//EXCEPTION
+		if(tokenIsFixedPointLiteral){
+			if(!parser.literals.tokenIsFixedPointLiteral(currentLiteralToken)
+				&& !parser.tokenIsInstructionName(currentLiteralToken)){
+				
+				string error = "Invalid fixed point literal \""
+					+ currentLiteralToken 
+					+ "\" in file \""
+					+ programLine->fileName
+					+ "\" on line number "
+					+ std::to_string(programLine->lineNumber);
+				throw AssemblerException(error);
+			}
+		}else{
+			if(!parser.literals.tokenIsFloatLiteral(currentLiteralToken)){
+				string error = "Invalid floating point literal \""
+					+ currentLiteralToken 
+					+ "\" in file \""
+					+ programLine->fileName
+					+ "\" on line number "
+					+ std::to_string(programLine->lineNumber);
+				throw AssemblerException(error);
+			}
+		}
+		//END EXCEPTION
+
 		bool terminateLine = false;
 		switch(currentValueTypeSpecifier){
+			//TODO: semi-redundant case switch, fix with array to index into to find SIZE of token
 			case DIRECTIVE_BYTE:
 				{
 					memorySegmentTopIncrementationSize = SIZE_BYTE;
 					char val = parser.literals.getLiteralValue(currentLiteralToken);
-
 					mappedProgramString = parser.literals.getCharLiteralString(val);
 				}
 				break;
@@ -651,6 +738,7 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 		bool tokenIsSegmentName = type <= DIRECTIVE_KTEXT;
 		bool tokenIsLabel = type == DIRECTIVE_LABEL;
 		bool tokenIsInstruction = type == DIRECTIVE_INSTRUCTION;
+		bool tokenIsStringLiteral = type == DIRECTIVE_ASCII || DIRECTIVE_ASCII; 
 		if(tokenIsLabel){
 			file << atom.token << ':';
 			file << '\n';
@@ -666,7 +754,8 @@ void Assembler::writeAlignedRawProgramToDisk(string fileName){
 			file << ':';
 			file << '\t';
 			if(!tokenIsInstruction){file << parser.getDirectiveName(type) << '\t';}
-			file << atom.token;
+			string val = tokenIsStringLiteral? parser.literals.getStringLiteralString(atom.token) : atom.token;
+			file << val;
 			file << '\n';
 		}
 	}
@@ -941,7 +1030,19 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 				{
 					int32_t val;
 					if(parser.tokenIsInstructionName(parser.extractFirstToken(atom.token))){
-						instr bin = encoder->buildInstruction(atom.token).getBin();
+						instr bin;
+						try{
+							bin = encoder->buildInstruction(atom.token).getBin();
+						}catch(AssemblerException e){
+							//EXCEPTION
+							string error = "Invalid instruction \""
+								+ atom.programLine->text
+								+ " in file \""
+								+ atom.programLine->fileName 
+								+ "\" on line number "
+								+ std::to_string(atom.programLine->lineNumber);
+							throw AssemblerException(error);
+						}
 						val = readMemAs<int32_t>(&bin);
 					}else{
 						val = parser.literals.getLiteralValue(atom.token);

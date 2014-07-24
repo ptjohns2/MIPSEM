@@ -1,6 +1,7 @@
 #include "Encoder.hpp"
 
 #include "Decoder.hpp"
+#include "Exceptions.hpp"
 #include "Parser.hpp"
 
 #include <bitset>
@@ -20,9 +21,10 @@ Encoder::~Encoder(){}
 Instruction Encoder::buildInstruction(string asmString){
 	InstructionData* id = resolver.getInstructionData(asmString);
 	if(id == NULL){
-		//TODO: FIX
-		Instruction jnk = buildInstruction("nop");
-		return jnk;
+		//EXCEPTION
+		string error = "Unable to encode instruction \""
+			+ asmString;
+		throw AssemblerException(error);
 	}
 
 	vector<string> arguments = Parser::tokenizeInstruction(asmString);

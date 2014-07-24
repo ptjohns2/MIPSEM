@@ -101,7 +101,7 @@ class Assembler{
 		void addLabelAddress(string, virtualAddr);
 		virtualAddr getLabelAddress(string);
 
-		void applyDirective(string);
+		void applyDirective(string, ProgramLine*);
 
 		void alignRawProgram();
 		void flushLabelBuffer();
