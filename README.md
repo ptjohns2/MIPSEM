@@ -57,7 +57,7 @@ instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .da
 ```    
       
 
-###Example program's emulation output:      
+###MIPSEM output:      
 ![Alt text](/demos/selfModifyingHelloWorld_output.png?raw=true)
 
 
