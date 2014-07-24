@@ -7,6 +7,7 @@
 #include "Assembler.hpp"
 #include "CPU.hpp"
 #include "Decoder.hpp"
+#include "Exceptions.hpp"
 #include "InstructionDataBank.hpp"
 #include "Encoder.hpp"
 #include "MemoryMap.hpp"
@@ -54,10 +55,12 @@ int main(){
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
 	
-	Instruction tmp = encoder.buildInstruction("addi $v0, $0, 0");
-	Instruction tmp2 = encoder.buildInstruction("addi $v0, $0, 10");
 	
-	string programName = "selfModifyingHelloWorld.txt";
+
+
+
+	string programName = "includetest.txt";
+	//string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "myTest.txt";
 	//string programName = "labeltest.txt";
 	//string programName = "hw2MACROS.txt";

@@ -1,6 +1,7 @@
 #include "Assembler.hpp"
 
 #include "BitManip.hpp"
+#include "Exceptions.hpp"
 #include "Parser.hpp"
 #include "types.hpp"
 
@@ -106,16 +107,29 @@ void Assembler::setEncoder(Encoder* encoder){
 
 void Assembler::loadProgramFromFile(string fileName){
 	fstream file = fstream(fileName);
-	if(!file.is_open()){return;}
+	if(!file.is_open()){
+		throw FileNotFoundException(fileName);
+	}
 	string tmpProgramLine;
 	uint32_t lineNumber = 0;
 	while(getline(file, tmpProgramLine)){
-		tmpProgramLine = Parser::sanitizeProgramLine(tmpProgramLine);
+		tmpProgramLine = parser.sanitizeProgramLine(tmpProgramLine);
+		
+		string token = parser.toLower(parser.extractFirstToken(tmpProgramLine));
+		if(token == ".include"){
+			parser.extractAndRemoveFirstToken(tmpProgramLine, token);
+			string nestedFileName = parser.trim(tmpProgramLine);
+			nestedFileName = parser.removeNestedQuotes(nestedFileName);
+			nestedFileName = parser.trim(nestedFileName);
+			loadProgramFromFile(nestedFileName);
+			continue;
+		}
+		
 		if(tmpProgramLine != ""){
 			ProgramLine programLine;
 			programLine.fileName = fileName;
 			programLine.lineNumber = lineNumber;
-			programLine.text =  tmpProgramLine;
+			programLine.text = tmpProgramLine;
 			program.push_back(programLine);
 		}
 		lineNumber++;

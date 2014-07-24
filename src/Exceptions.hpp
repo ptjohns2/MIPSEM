@@ -27,7 +27,7 @@ class AssemblerException : public exception{
 class FileNotFoundException : public AssemblerException{
 	public:
 		FileNotFoundException();
-		FileNotFoundException(ProgramAtom*, string);
+		FileNotFoundException(string);
 
 		string toString();
 

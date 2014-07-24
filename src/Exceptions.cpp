@@ -11,14 +11,17 @@ AssemblerException::AssemblerException(ProgramAtom* programAtom, string info){
 }
 string AssemblerException::ExceptionName = "AssemblerException";
 string AssemblerException::toString(string lead){
-	return 
-		lead
+	string retStr = lead;
+	if(this->programAtom != NULL){
+		retStr +=
 		+ " error in file \"" 
 		+ programAtom->programLine->fileName 
 		+ "\" on line " 
 		+ std::to_string(programAtom->programLine->lineNumber)
 		+ ":\t" 
 		+ programAtom->token;
+	}
+	return retStr;
 }
 
 
@@ -33,13 +36,13 @@ FileNotFoundException::FileNotFoundException()
 {
 	ExceptionName = "FileNotFoundException";
 }
-FileNotFoundException::FileNotFoundException(ProgramAtom* programAtom, string info)
-	:	AssemblerException(programAtom, info)
+FileNotFoundException::FileNotFoundException(string fileName)
+	:	AssemblerException(NULL, fileName)
 {
 	ExceptionName = "FileNotFoundException";
 }
 string FileNotFoundException::toString(){
-	return AssemblerException::toString(ExceptionName);
+	return AssemblerException::toString(ExceptionName) + '\t' + this->info;
 }
 
 
