@@ -6,7 +6,7 @@
 
 .macro printString(%label)
 	li	$t1, INSTRUCTION_ENCODING__addi_$v0_$0_0
-	addi	$t1, $t1, 4
+	addi	$t1, $t1, 0b0100
 	la	$t0, nopAddr1
 	sw	$t1, 0($t0)
 	nopAddr1:	nop
