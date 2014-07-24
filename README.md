@@ -15,7 +15,7 @@
 7. Pseudoinstruction replacement	-	*stable*    
 8. Macro replacement	-	*stable*       
      
-###Example program:               
+###Example MIPS32 program:               
       
  ```Assembly
 #Obfuscated Hello World in MIPS32 assembly.  Uses self modifying code
@@ -57,7 +57,7 @@ instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .da
 ```    
       
 
-###Example program output:      
+###Example program's emulation output:      
 ![Alt text](/demos/selfModifyingHelloWorld_output.png?raw=true)
 
 
