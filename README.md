@@ -58,7 +58,7 @@ instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .da
       
 
 ###MIPSEM output:      
-![Screenshot](http://raw.githubusercontent.com/ptjohns2/MIPSEM/master/demos/selfModifyingHelloWorld_output.png)
+![Screenshot](/demos/selfModifyingHelloWorld_output.png?raw=true)
 
 
 
