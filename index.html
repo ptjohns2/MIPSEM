@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>MIPSEM by ptjohns2</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>MIPSEM</h1>
+        <h2>Assembler and emulator for MIPS32 assembly</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/ptjohns2/MIPSEM/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/ptjohns2/MIPSEM/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/ptjohns2/MIPSEM" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="mipsem-c" class="anchor" href="#mipsem-c"><span class="octicon octicon-link"></span></a>MIPSEM (C++)</h1>
+
+<h2>
+<a name="assembler-and-emulator-for-mips32-assembly" class="anchor" href="#assembler-and-emulator-for-mips32-assembly"><span class="octicon octicon-link"></span></a>Assembler and emulator for MIPS32 assembly</h2>
+
+<blockquote>
+<p>Decodes and encodes all MIPS32 instructions.  MIPS32 asm programs can be mapped to a custom .mmap file which can be mapped to MIPSEM's 32-bit addressable virtual memory system.  The virtual CPU can then execute instructions from memory by using a decoded instruction cache to speed up execution.  This results in no additional instruction decoding overhead within loops or function calls, as well as the ability to write self modifying code.   </p>
+</blockquote>
+
+<h2>
+<a name="progress" class="anchor" href="#progress"><span class="octicon octicon-link"></span></a>Progress:</h2>
+
+<ol>
+<li>Instruction encoding -   <em>stable</em><br>
+</li>
+<li>Instruction decoding -   <em>stable</em><br>
+</li>
+<li>Virtual memory system    -   <em>stable</em><br>
+</li>
+<li>Object file disk serialization   -   <em>stable</em><br>
+</li>
+<li>Object file assembly from .asm sources   -   <em>stable</em><br>
+</li>
+<li>Instruction emulation from memory    -     nearly complete for most commonly used instructions<br>
+</li>
+<li>Pseudoinstruction replacement    -   <em>stable</em><br>
+</li>
+<li>Macro replacement    -   <em>stable</em><br>
+</li>
+</ol><h3>
+<a name="example-mips32-program" class="anchor" href="#example-mips32-program"><span class="octicon octicon-link"></span></a>Example MIPS32 program:</h3>
+
+<pre lang="Assembly"><code>#Obfuscated Hello World in MIPS32 assembly.  Uses self modifying code
+
+####### MACROS
+
+.eqv    INSTRUCTION_ENCODING__addi_$v0_$0_0 0x20020000  
+
+.macro printString(%label)
+    li  $t1, INSTRUCTION_ENCODING__addi_$v0_$0_0
+    addi    $t1, $t1, 4
+    la  $t0, nopAddr1
+    sw  $t1, 0($t0)
+    nopAddr1:   nop
+    la  $a0, %label
+    la  $t2, instructionAddr    #$t2 = instructionAddr
+    lw  $t1, 0($t2)     #$t1 = *$t2 = *instructionAddr
+    la  $t2, nopAddr2       #$t2 = nopAddr2
+    sw  $t1, 0($t2)     #*nopAddr2 = $t1 = *$t2 = *instructionAddr
+    nopAddr2:   nop
+.end_macro
+
+.macro exit()
+    addi    $v0, $zero, 0xA
+    syscall
+.end_macro
+
+####### .DATA SECTION
+.data
+stringAddr:     .asciiz "Hello, World!"
+instructionAddr:    .word   syscall #encode "syscall" instruction to this word in .data section
+
+####### .TEXT SECTION
+.text
+    printString(stringAddr)
+    exit()
+
+
+</code></pre>
+
+<h3>
+<a name="mipsem-output" class="anchor" href="#mipsem-output"><span class="octicon octicon-link"></span></a>MIPSEM output:</h3>
+
+<p><img src="/demos/selfModifyingHelloWorld_output.png?raw=true" alt="Alt text"></p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
