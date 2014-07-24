@@ -51,9 +51,7 @@ instructionAddr:	.word	syscall	#encode "syscall" instruction to this word in .da
 ####### .TEXT SECTION
 .text
 	printString(stringAddr)
-	exit()
-	
-							
+	exit						
 ```    
       
 
