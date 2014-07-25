@@ -54,10 +54,10 @@ void CPU::executeInstruction(Instruction* instruction){
 	//Get necessary data
 	InstructionData* instructionData = instruction->getInstructionData();
 	int instructionId = instructionData->getID();
-	int32_t a0 = instruction->getTokenValue(0);
-	int32_t a1 = instruction->getTokenValue(1);
-	int32_t a2 = instruction->getTokenValue(2);
-	int32_t a3 = instruction->getTokenValue(3);
+	int32_t a0 = instruction->getArgumentValue(0);
+	int32_t a1 = instruction->getArgumentValue(1);
+	int32_t a2 = instruction->getArgumentValue(2);
+	int32_t a3 = instruction->getArgumentValue(3);
 	
 	//PC incrementation
 	if(!instructionData->isJump()){

@@ -14,8 +14,10 @@ class Literals{
 
 
 		bool tokenIsLiteral(string);
-		bool tokenIsFixedPointLiteral(string);
 		int getLiteralValue(string);
+
+		bool tokenIsFixedPointLiteral(string);
+		int getFixedPointLiteralValue(string);
 		
 		static bool tokenIsDecimalLiteral(string);
 		static bool isDecimalDigit(char);

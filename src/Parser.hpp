@@ -58,7 +58,7 @@ class Parser{
 		
 		
 
-		int getTokenValue(string);
+		int getArgumentValue(string);
 
 
 		bool tokenIsRegister(string);

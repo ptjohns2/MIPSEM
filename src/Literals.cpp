@@ -1,5 +1,6 @@
 #include "Literals.hpp"
 
+#include "Exceptions.hpp"
 #include "Parser.hpp"
 
 #include <bitset>
@@ -83,14 +84,6 @@ bool Literals::tokenIsLiteral(string token){
 	if(tokenIsCharLiteral(token)){return true;}
 	return false;
 }
-bool Literals::tokenIsFixedPointLiteral(string token){
-	if(tokenIsDecimalLiteral(token)){return true;}
-	if(tokenIsHexLiteral(token)){return true;}
-	if(tokenIsBinaryLiteral(token)){return true;}
-	if(tokenIsOctalLiteral(token)){return true;}
-	if(tokenIsCharLiteral(token)){return true;}
-	return false;
-}
 int Literals::getLiteralValue(string token){
 	if(tokenIsDecimalLiteral(token)){
 		return getDecimalLiteralValue(token);
@@ -105,11 +98,33 @@ int Literals::getLiteralValue(string token){
 	}else if(tokenIsFloatLiteral(token)){
 		return (int)(getFloatLiteralValue(token));
 	}
-	cout << "error[int getLiteralValue(string argument)]: " << token << " is not a valid literal value\n";
-	//getchar();
+	throw InvalidTokenException("Literal", token);
 	return 0;
 }
 
+bool Literals::tokenIsFixedPointLiteral(string token){
+	if(tokenIsDecimalLiteral(token)){return true;}
+	if(tokenIsHexLiteral(token)){return true;}
+	if(tokenIsBinaryLiteral(token)){return true;}
+	if(tokenIsOctalLiteral(token)){return true;}
+	if(tokenIsCharLiteral(token)){return true;}
+	return false;
+}
+int Literals::getFixedPointLiteralValue(string token){
+	if(tokenIsDecimalLiteral(token)){
+		return getDecimalLiteralValue(token);
+	}else if(tokenIsHexLiteral(token)){
+		return getHexLiteralValue(token);
+	}else if(tokenIsBinaryLiteral(token)){
+		return getBinaryLiteralValue(token);
+	}else if(tokenIsOctalLiteral(token)){
+		return getOctalLiteralValue(token);
+	}else if(tokenIsCharLiteral(token)){
+		return (int)getCharLiteralValue(token);
+	}
+	throw InvalidTokenException("Fixed point literal", token);
+	return 0;
+}
 
 
 
@@ -137,6 +152,10 @@ int Literals::getDecimalDigitValue(char c){
 }
 int Literals::getDecimalLiteralValue(string token){
 	//return atoi(token.c_str());
+	if(!tokenIsDecimalLiteral(token)){
+		throw InvalidTokenException("Decimal literal", token);
+		return 0;
+	}
 	bool isNeg = token[0] == '-';
 	int start = isNeg? 1 : 0;
 	int retVal = 0;
@@ -183,9 +202,17 @@ bool Literals::tokenIsFloatLiteral(string token){
 	return true;
 }
 float Literals::getFloatLiteralValue(string token){
+	if(!tokenIsFloatLiteral(token)){
+		throw InvalidTokenException("Float literal", token);
+		return 0;
+	}
 	return (float)atof(token.c_str());
 }
 double Literals::getDoubleLiteralValue(string token){
+	if(!tokenIsFloatLiteral(token)){
+		throw InvalidTokenException("Double literal", token);
+		return 0;
+	}
 	return atof(token.c_str());
 }
 string Literals::getFloatLiteralString(float val){
@@ -216,7 +243,9 @@ bool Literals::isHexDigit(char c){
 }
 bool Literals::tokenIsRawHexLiteral(string token){
 	for(unsigned int i=0; i<token.length(); i++){
-		if(!isHexDigit(token[i])){return false;}
+		if(!isHexDigit(token[i])){
+			return false;
+		}
 	}
 	return true;
 }
@@ -232,6 +261,10 @@ int Literals::getHexDigitValue(char c){
 	}
 }
 int Literals::getHexLiteralValue(string token){
+	if(!tokenIsHexLiteral(token)){
+		throw InvalidTokenException("Hex literal", token);
+		return 0;
+	}
 	return getRawHexLiteralValue(token.substr(2));
 }
 int Literals::getRawHexLiteralValue(string token){
@@ -280,6 +313,10 @@ int Literals::getBinaryDigitValue(char c){
 	return (c == '0')? 0 : 1;
 }
 int Literals::getRawBinaryLiteralValue(string token){
+	if(!tokenIsBinaryLiteral(token)){
+		throw InvalidTokenException("Binary literal", token);
+		return 0;
+	}
 	int retVal = 0;
 	for(int i=0; i<token.length(); i++){
 		retVal <<= 1;
@@ -370,6 +407,10 @@ int Literals::getOctalDigitValue(char c){
 	return c - '0';
 }
 int Literals::getRawOctalLiteralValue(string token){
+	if(!tokenIsOctalLiteral(token)){
+		throw InvalidTokenException("Octal literal", token);
+		return 0;
+	}
 	int retVal = 0;
 	for(int i=0; i<token.length(); i++){
 		retVal <<= 3;
@@ -485,6 +526,10 @@ char Literals::getRawEscapedCharLiteralValue(string token){
 	}
 }
 char Literals::getCharLiteralValue(string token){
+	if(!tokenIsCharLiteral(token)){
+		throw InvalidTokenException("Char literal", token);
+		return 0;
+	}
 	return getRawCharLiteralValue(Parser::removeNestedApostrophes(token));
 }
 string Literals::getRawCharLiteralString(char c){
@@ -549,6 +594,10 @@ string Literals::getRawStringLiteralValue(string token){
 	return newString;
 }
 string Literals::getStringLiteralValue(string token){
+	if(!tokenIsStringLiteral(token)){
+		throw InvalidTokenException("String literal", token);
+		return "INVALID_STRING_LITERAL";
+	}
 	return getRawStringLiteralValue(Parser::removeNestedQuotes(token));
 }
 string Literals::getRawStringLiteralString(string token){

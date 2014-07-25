@@ -1,5 +1,7 @@
 #include "Parser.hpp"
 
+#include "Exceptions.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
@@ -330,15 +332,14 @@ string Parser::combineTokensToString(vector<string> const &tokens, int from){
 
 
 
-int Parser::getTokenValue(string argument){
+int Parser::getArgumentValue(string argument){
 	argument = removeNestedParentheses(argument);
 	if(tokenIsRegister(argument)){
 		return getRegisterIndex(argument);
-	}else if(literals.tokenIsLiteral(argument)){
+	}else if(literals.tokenIsFixedPointLiteral(argument)){
 		return literals.getLiteralValue(argument);
 	}
-	cout << "Error invalid token " << argument << '\n';
-	getchar();
+	throw InvalidTokenException("Instruction argument", argument);
 	return 0;
 }
 
@@ -353,21 +354,21 @@ int Parser::getRegisterIndex(string token){
 	}else if(tokenIsFPRegister(token)){
 		return getFPRegisterIndex(token);
 	}
-	cout << "error Parser::getRegisterIndex - invalid argument";
-	getchar();
+	throw InvalidTokenException("Register name", token);
 	return 0;
 }
 
 bool Parser::tokenIsGPRegister(string token){
-	return getGPRegisterIndex(token) != -1;
+	return GPRegisterNameMap.find(token) != GPRegisterNameMap.end();
 }
 int Parser::getGPRegisterIndex(string token){
 	unordered_map<string, int>::iterator iter = GPRegisterNameMap.find(token);
 	if(iter != GPRegisterNameMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("General purpose register name", token);
 	}
+	return 0;
 }
 string Parser::getGPRegisterName(int index){
 	assert(index >= 0 && index < 32);
@@ -376,15 +377,16 @@ string Parser::getGPRegisterName(int index){
 
 
 bool Parser::tokenIsFPRegister(string token){
-	return getFPRegisterIndex(token) != -1;
+	return FPRegisterNameMap.find(token) != FPRegisterNameMap.end();
 }
 int Parser::getFPRegisterIndex(string token){
 	unordered_map<string, int>::iterator iter = FPRegisterNameMap.find(token);
 	if(iter != FPRegisterNameMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("Floating point register name", token);
 	}
+	return 0;
 }
 string Parser::getFPRegisterName(int index){
 	assert(index >= 0 && index < 32);
@@ -408,68 +410,73 @@ string Parser::getFPRegisterName(int index){
 
 
 bool Parser::tokenIsInstructionName(string token){
-	return getInstructionNameNumber(token) != -1;
+	return InstructionNameMap.find(token) != InstructionNameMap.end();
 }
 int Parser::getInstructionNameNumber(string token){
 	unordered_map<string, int>::iterator iter = InstructionNameMap.find(token);
 	if(iter != InstructionNameMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("Instruction name", token);
 	}
+	return 0;
 }
 bool Parser::tokenIsBranchInstructionName(string token){
-	return getBranchInstructionNameNumber(token) != -1;
+	return BranchInstructionNameMap.find(token) != BranchInstructionNameMap.end();
 }
 int Parser::getBranchInstructionNameNumber(string token){
 	unordered_map<string, int>::iterator iter = BranchInstructionNameMap.find(token);
 	if(iter != BranchInstructionNameMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("Branch instruction name", token);
 	}
+	return 0;
 }
 bool Parser::tokenIsJumpInstructionName(string token){
-	return getJumpInstructionNameNumber(token) != -1;
+	return JumpInstructionNameMap.find(token) != JumpInstructionNameMap.end();
 }
 int Parser::getJumpInstructionNameNumber(string token){
 	unordered_map<string, int>::iterator iter = JumpInstructionNameMap.find(token);
 	if(iter != JumpInstructionNameMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("Jump instruction name", token);
 	}
+	return 0;
 }
 bool Parser::tokenIsPseudoInstructionName(string token){
-	return getPseudoInstructionNameNumber(token) != -1;
+	return PseudoInstructionNameMap.find(token) != PseudoInstructionNameMap.end();
 }
 int Parser::getPseudoInstructionNameNumber(string token){
 	unordered_map<string, int>::iterator iter = PseudoInstructionNameMap.find(token);
 	if(iter != PseudoInstructionNameMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("Pseudo instruction name", token);
 	}
+	return 0;
 }
 int Parser::getPseudoInstructionNumberOfLinesToInsert(string token){
-	if(!tokenIsPseudoInstructionName(token)){return -1;}
+	//EXCEPTION handled in getPseudoInstructionNameNumber(token)
 	int num = getPseudoInstructionNameNumber(token);
 	return PseudoInstructionNamesAndNumberOfLinesToInsert[num].second;
 }
 
 
 bool Parser::tokenIsDirective(string token){
-	return getDirectiveNumber(token) != -1;
+	return DirectiveMap.find(token) != DirectiveMap.end();
 }
 int Parser::getDirectiveNumber(string token){
 	unordered_map<string, int>::iterator iter = DirectiveMap.find(token);
 	if(iter != DirectiveMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		throw InvalidTokenException("Directive", token);
 	}
 }
 string Parser::getDirectiveName(int num){
+	assert(num >= 0 && num < NUM_DIRECTIVE_NAMES);
 	return DirectiveNames[num];
 }
 
@@ -484,31 +491,6 @@ bool Parser::tokenIsLabel(string token){
 string Parser::getLabelName(string token){
 	return token.substr(0, token.length() - 1);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-
-
-
 
 
 

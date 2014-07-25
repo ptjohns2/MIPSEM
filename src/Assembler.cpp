@@ -124,12 +124,15 @@ string Assembler::assemble(string fileName){
 		writeAlignedRawProgramToDisk(fileName + defaultAlignedProgramNamePostfix);
 		mapAlignedProgramToVirtualMemory();
 
-		virtualMemory.serialize(fileName + defaultObjectNamePostfix);
+		virtualMemory.serialize(defaultObjectNamePostfix);
 	}catch(AssemblerException &e){
 		string message = e.toString();
 		cout << '\n' << message << '\n';
+	}catch(InvalidTokenException &e){
+		cout << "ERROR [Assembler::assemble(string fileName)]: HANDLE INVALID TOKEN EXCEPTION IN ASSEMBLER!!!:\t" + e.toString();
+		getchar();
 	}
-	return fileName + defaultObjectNamePostfix;
+	return defaultObjectNamePostfix;
 }
 
 void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
@@ -140,6 +143,7 @@ void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
 			+ fileName
 			+ "\"";
 		throw AssemblerException(programLine, error);
+		return;
 	}
 	string tmpProgramLine;
 	uint32_t lineNumber = 0;
@@ -263,8 +267,9 @@ void Assembler::extractMacroDefinitions(){
 			}
 			if(program[lineNum].text != ".end_macro"){
 				//EXCEPTION
-				string error = "Macro not matched with .end_macro directive.";
+				string error = "Macro not matched with .end_macro directive before EOF";
 				throw AssemblerException(&program[lineNum], error);
+				return;
 			}
 			program.erase(program.begin() + lineNum);
 			macroLines.push_back(".end_macro");
@@ -324,9 +329,13 @@ void Assembler::pseudoInstructionPad(){
 
 
 bool Assembler::tokenIsInLabelDB(string token){
-	return getLabelAddress(token) != -1;
+	return labelMap.find(token) != labelMap.end();
 }
 void Assembler::addLabelAddress(string label, virtualAddr addr){
+	if(tokenIsInLabelDB(label)){
+		//EXCEPTION
+		throw InvalidTokenException("Duplicate label", label);
+	}
 	labelMap[label] = addr;
 	labelNames.push_back(label);
 }
@@ -335,8 +344,10 @@ virtualAddr Assembler::getLabelAddress(string label){
 	if(iter != labelMap.end()){
 		return (*iter).second;
 	}else{
-		return -1;
+		//EXCEPTION
+		throw InvalidTokenException("Label", label);
 	}
+	return 0;
 }
 
 void Assembler::applyDirective(string directive, ProgramLine* programLine){
@@ -444,13 +455,6 @@ void Assembler::alignRawProgram(){
 		string token = parser.extractFirstToken(programLine.text);
 		if(parser.tokenIsLabel(token)){
 			string labelName = parser.getLabelName(token);
-			if(tokenIsInLabelDB(labelName)){
-				//EXCEPTION
-				string error = "Label \""
-					+ labelName 
-					+ "\" already exists";
-				throw AssemblerException(&program[lineNum], error);					
-			}
 			programLine.text = labelName;
 			labelsToAssign.push_back(&program[lineNum]);
 			continue;
@@ -514,13 +518,17 @@ void Assembler::alignRawProgram(){
 					flushLabelBuffer();
 					int i=0;
 					while(programLine.text[i] != '"'){i++;}
-					if(programLine.text[i] != '"'){
-						//EXCEPTION
-						string error = "Expected string literal after .ascii(z) directive";
-						throw AssemblerException(&program[lineNum], error);
-					}
+
 					string stringLiteral = programLine.text.substr(i);
-					string rawString = parser.literals.getStringLiteralValue(stringLiteral);
+					string rawString;
+					try{
+						rawString = parser.literals.getStringLiteralValue(stringLiteral);
+					}catch(InvalidTokenException &e){
+						//EXCEPTION
+						string error = "Expected a string literal";
+						throw AssemblerException(&program[lineNum], error);
+						continue;
+					}
 
 					mappedProgramString = parser.literals.getRawStringLiteralValue(rawString);
 					atom.addr = getCurrentMemoryLocation();
@@ -540,20 +548,15 @@ void Assembler::alignRawProgram(){
 				break;
 			case ACTION_ALIGN:
 				{
-					if(!parser.literals.tokenIsFixedPointLiteral(token)){
-						//EXCEPTION
-						string error = "Unable to align memory to an offset of \""
-							+ token
-							+ "\" in file \""
-							+ programLine.fileName 
-							+ "\" on line number "
-							+ std::to_string(programLine.lineNumber)
-							+ ". Expected fixed point literal";
+					try{
+						currentByteAlignment = parser.literals.getFixedPointLiteralValue(token);
+					}catch(InvalidTokenException &e){
+						string error = "Unable to align memory to non-fixed point offset";
+						throw AssemblerException(&program[lineNum], error);
+						continue;
 					}
-					currentByteAlignment = parser.literals.getLiteralValue(token);
 					alignSegmentTop();
 					currentAction = ACTION_INIT;
-					//align
 				}
 				break;
 			case ACTION_SPACE:
@@ -563,16 +566,14 @@ void Assembler::alignRawProgram(){
 					flushLabelBuffer();
 
 					parser.extractAndRemoveFirstToken(programLine.text, token);
-					uint32_t spaceSize = parser.literals.getLiteralValue(token);
-					if(!parser.literals.tokenIsFixedPointLiteral(token)){
+					uint32_t spaceSize = 0;
+					try{
+						spaceSize = parser.literals.getFixedPointLiteralValue(token);
+					}catch(InvalidTokenException &e){
 						//EXCEPTION
-						string error = "Unable to reserve memory space of size \""
-							+ token
-							+ "\" in file \""
-							+ programLine.fileName 
-							+ "\" on line number "
-							+ std::to_string(programLine.lineNumber)
-							+ ". Expected fixed point literal";
+						string error = "Unable to reserve memory space of non-fixed point size";
+						throw AssemblerException(&program[lineNum], error);
+						continue;
 					}
 
 					atom.token = parser.literals.getDecimalLiteralString(spaceSize);
@@ -614,7 +615,14 @@ void Assembler::alignRawProgram(){
 void Assembler::flushLabelBuffer(){
 	for(int i=0; i<labelsToAssign.size(); i++){
 		virtualAddr addr = memorySegmentTopArray[currentMemorySegment];
-		addLabelAddress(parser.getLabelName(labelsToAssign[i]->text), addr);
+		try{
+			addLabelAddress(parser.getLabelName(labelsToAssign[i]->text), addr);
+		}catch(InvalidTokenException &e){
+			//EXCEPTION
+			string error = "Duplicate label \"" + labelsToAssign[i]->text;
+			throw AssemblerException(labelsToAssign[i], error);
+			continue;
+		}
 
 		ProgramAtom atom;
 		atom.addr = addr;
@@ -654,19 +662,25 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 
 		//EXCEPTION
 		if(tokenIsFixedPointLiteral){
-			if(!parser.literals.tokenIsFixedPointLiteral(currentLiteralToken)
-				&& !parser.tokenIsInstructionName(currentLiteralToken)){
-				
-				string error = "Invalid fixed point literal \"" + currentLiteralToken + "\"";
-				throw AssemblerException(programLine, error);
+			if(!parser.literals.tokenIsFixedPointLiteral(currentLiteralToken)){
+				if(parser.tokenIsInstructionName(currentLiteralToken) && currentValueTypeSpecifier == DIRECTIVE_WORD){
+					//do nothing
+				}else{
+					//EXCEPTION
+					string error = "Invalid fixed point literal \"" + currentLiteralToken + "\"";
+					throw AssemblerException(programLine, error);
+					continue;
+				}
 			}
 		}else{
+			//tokenIsFloatingPointLiteral
 			if(!parser.literals.tokenIsFloatLiteral(currentLiteralToken)){
+				//EXCEPTION
 				string error = "Invalid floating point literal \"" + currentLiteralToken + "\"";
 				throw AssemblerException(programLine, error);
+				continue;
 			}
 		}
-		//END EXCEPTION
 
 		bool terminateLine = false;
 		switch(currentValueTypeSpecifier){
@@ -829,10 +843,12 @@ void Assembler::pseudoInstructionReplace(){
 							//la
 							string labelName = tokenizedInstruction[2];
 							if(!tokenIsInLabelDB(labelName)){
+								//EXCEPTION
 								string error = "Label \""
 									+ labelName
 									+ "\" not recognized";
 								throw AssemblerException(atom.programLine, error);
+								continue;
 							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
 							virtualAddr msb = labelAddr >> (NUM_BITS_IN_VIRTUAL_ADDR / 2);
@@ -850,7 +866,19 @@ void Assembler::pseudoInstructionReplace(){
 						{
 							//li
 							string immediateString = tokenizedInstruction[2];
-							uint32_t immediateVal = parser.literals.getLiteralValue(immediateString);
+
+							//EXCEPTION
+							//TODO
+							uint32_t immediateVal;
+							try{
+								immediateVal = parser.literals.getLiteralValue(immediateString);
+							}catch(InvalidTokenException &e){
+								string error = "Invalid immediate on \"li\" pseudoinstruction, \""
+									+ immediateString
+									+ "\"";
+								throw AssemblerException(atom.programLine, error);
+								continue;
+							}
 							virtualAddr msb = immediateVal >> (NUM_BITS_IN_WORD / 2);
 							virtualAddr lsb = immediateVal & 0x0000FFFF;
 							string msbHex = parser.literals.getHexLiteralString(msb);

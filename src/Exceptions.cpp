@@ -26,7 +26,17 @@ string AssemblerException::toString(){
 
 
 
+InvalidTokenException::InvalidTokenException(){
 
+}
+InvalidTokenException::InvalidTokenException(string type, string token){
+	this->type = type;
+	this->token = token;
+}
+
+string InvalidTokenException::toString(){
+	return "InvalidTokenException:\t\"" + token + "\" is not a \"" + type + "\"";
+}
 
 
 

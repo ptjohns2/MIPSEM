@@ -67,7 +67,7 @@ instr Encoder::setBitrange(instr bin, uint32_t value, bitrange br){
 
 //	private Methods
 instr Encoder::encodeArgument(instr bin, string argument, bitrange br){
-	int32_t parameterValue = parser.getTokenValue(argument);
+	int32_t parameterValue = parser.getArgumentValue(argument);
 	instr encodedInstr = setBitrange(bin, parameterValue, br);
 	return encodedInstr;
 }
@@ -97,7 +97,7 @@ instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arg
 		case 153:
 			{
 			//CLZ rd, rs
-				newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
+			newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
 			bitrange rt_br;
 			rt_br.first = 20;
 			rt_br.second = 16;
@@ -108,7 +108,7 @@ instr Encoder::encodeAbnormalInstruction(InstructionData* id, vector<string> arg
 		case 179:
 			{
 			//EXT rt, rs, pos, size
-				newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
+			newInstruction = encodeArgument(newInstruction, arguments[0], id->getParameterBitrange(0));
 			newInstruction = encodeArgument(newInstruction, arguments[1], id->getParameterBitrange(1));
 			newInstruction = encodeArgument(newInstruction, arguments[2], id->getParameterBitrange(2));
 

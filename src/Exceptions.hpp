@@ -24,6 +24,20 @@ class AssemblerException : public exception{
 };
 
 
+class InvalidTokenException : public exception{
+	public:
+		InvalidTokenException();
+		InvalidTokenException(string, string);
+
+		string toString();
+
+	protected:
+		string type;
+		string token;
+
+
+
+};
 
 
 

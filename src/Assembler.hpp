@@ -98,7 +98,7 @@ class Assembler{
 
 		//Memory alignment
 		bool tokenIsInLabelDB(string);
-		void addLabelAddress(string, virtualAddr);
+		void addLabelAddress(string label, virtualAddr);
 		virtualAddr getLabelAddress(string);
 
 		void applyDirective(string, ProgramLine*);

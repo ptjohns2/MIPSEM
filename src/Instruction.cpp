@@ -26,7 +26,7 @@ Instruction::~Instruction(){
 InstructionData* Instruction::getInstructionData()const{return instructionData;}
 string Instruction::getAsmString()const{return asmString;}
 instr Instruction::getBin()const{return bin;}
-int32_t Instruction::getTokenValue(int index)const{return arguments[index];}
+int32_t Instruction::getArgumentValue(int index)const{return arguments[index];}
 
 
 

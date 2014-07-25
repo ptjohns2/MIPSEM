@@ -1,5 +1,6 @@
 #include "StringResolver.hpp"
 
+#include "Exceptions.hpp"
 #include "Parser.hpp"
 
 #include <algorithm>
@@ -81,11 +82,10 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 			tmpTokStr = "g$";
 		}else if(parser.tokenIsFPRegister(tmpArg)){
 			tmpTokStr = "f$";
-		}else if(parser.literals.tokenIsLiteral(tmpArg)){
+		}else if(parser.literals.tokenIsFixedPointLiteral(tmpArg)){
 			tmpTokStr = ".";
 		}else{
-			cout << "invalid token " << tmpArg;
-			getchar();
+			throw InvalidTokenException("Instruction argument", tmpArg);
 		}
 		if(isNestedByParentheses){
 			tmpTokStr = "(" + tmpTokStr + ")";
