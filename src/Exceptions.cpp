@@ -15,7 +15,7 @@ string AssemblerException::toString(){
 	if(this->programLine != NULL){
 		message += " [\""
 			+ programLine->fileName
-			+ "\: line "
+			+ "\": line "
 			+ std::to_string(programLine->lineNumber)
 			+ "]";
 	}

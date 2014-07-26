@@ -313,10 +313,6 @@ int Literals::getBinaryDigitValue(char c){
 	return (c == '0')? 0 : 1;
 }
 int Literals::getRawBinaryLiteralValue(string token){
-	if(!tokenIsBinaryLiteral(token)){
-		throw InvalidTokenException("Binary literal", token);
-		return 0;
-	}
 	int retVal = 0;
 	for(int i=0; i<token.length(); i++){
 		retVal <<= 1;
@@ -325,6 +321,10 @@ int Literals::getRawBinaryLiteralValue(string token){
 	return retVal;
 }
 int Literals::getBinaryLiteralValue(string token){
+	if(!tokenIsBinaryLiteral(token)){
+		throw InvalidTokenException("Binary literal", token);
+		return 0;
+	}
 	//this instead of binStrToSigned/UnsignedDecInt(string binStr)
 	//	so it's counted as leading 0s
 	int retVal = binStrToUnsignedDecInt(token.substr(2));

@@ -85,6 +85,7 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 		}else if(parser.literals.tokenIsFixedPointLiteral(tmpArg)){
 			tmpTokStr = ".";
 		}else{
+			//EXCEPTION
 			throw InvalidTokenException("Instruction argument", tmpArg);
 		}
 		if(isNestedByParentheses){

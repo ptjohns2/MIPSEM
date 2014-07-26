@@ -251,9 +251,11 @@ vector<string> Parser::commaSeparatedListExplode(string str){
 	for(int i=0; i<str.length(); i++){
 		bool isToken = false;
 		string tmpStr;
+		//TODO
+		bool isStringLiteral;	//implement later
 		while(isWhiteSpace(str[i]) && i<str.length()){i++;}
 		while(i<str.length()){
-			/*
+			
 			//COND1 whitespace and not ' ' char literal
 			if(isWhiteSpace(str[i])){
 				if(str[i-1] == '\'' && str[i+1] == '\''){
@@ -262,7 +264,7 @@ vector<string> Parser::commaSeparatedListExplode(string str){
 					break;
 				}
 			}
-			*/
+			
 			//COND2 comma and not ',' char literal
 			if(str[i] == ','){
 				if(str[i-1] == '\'' && str[i+1] == '\''){

@@ -5,6 +5,7 @@
 #include "MemoryMap.hpp"
 #include "Parser.hpp"
 #include "VirtualMemory.hpp"
+class AssemblerException;
 
 #include <utility>
 #include <unordered_map>
@@ -60,19 +61,20 @@ class ProgramAtom{
 class MacroAtom{
 	public:
 		MacroAtom();
-		MacroAtom(vector<string>);
+		MacroAtom(vector<ProgramLine>);
 		~MacroAtom();
 		void init();
 		void deinit();
 		
-		vector<string> buildMacro(vector<string> const &arguments);
-		vector<string> buildMacro(string programLine);
+		vector<ProgramLine> buildMacro(vector<string> const &arguments);
+		vector<ProgramLine> buildMacro(string programLine);
 		bool lineIsMacroCall(string programLine);
+		vector<string> getMacroCallArguments(string programLine);
 
 	private:
 		string name;
 		vector<string> parameters;
-		vector<string> body;
+		vector<ProgramLine> body;
 
 };
 
@@ -148,6 +150,12 @@ class Assembler{
 
 		vector<string> globalLabelNames;
 		unordered_map<string, virtualAddr> globalLabelMap;
+
+		//EXCEPTIONS
+		void addException(AssemblerException const &e);
+		vector<AssemblerException> recoverableExceptions;
+		ProgramLine* currentProgramLine;
+
 
 
 };

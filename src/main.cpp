@@ -28,7 +28,7 @@ using namespace std;
 int main(){
 	/*
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-    _CrtSetBreakAlloc(NUM);	//allocation number {1232} etc shown in objdump as NUM
+    _CrtSetBreakAlloc(NUM);	//allocation number ex {123} etc shown in objdump as NUM
 	{
 	*/
 
@@ -58,8 +58,8 @@ int main(){
 	
 	
 	string programName = "EXCEPTIONTEST.txt";
-	//string programName = "includetest.txt";
 	//string programName = "selfModifyingHelloWorld.txt";
+	//string programName = "includetest.txt";
 	//string programName = "myTest.txt";
 	//string programName = "labeltest.txt";
 	//string programName = "hw2MACROS.txt";
@@ -69,8 +69,13 @@ int main(){
 	//string programName = "prime-2.s";a
 	//string programName = "fact.s";
 	//string programName = "testProgram2.txt";
-
-	string objectFileName = assembler.assemble(programName);
+	string objectFileName;
+	try{
+		objectFileName = assembler.assemble(programName);
+	}catch(AssemblerException &e){
+		cout << e.toString();
+		return 0;
+	}
 
 	cpu.MEM.deserialize(objectFileName);
 	

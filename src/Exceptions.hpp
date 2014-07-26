@@ -2,6 +2,7 @@
 #define __EXCEPTIONS_HPP__
 
 #include "Assembler.hpp"
+#include "types.hpp"
 
 #include <exception>
 #include <string>

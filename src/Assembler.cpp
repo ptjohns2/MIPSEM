@@ -13,19 +13,18 @@
 MacroAtom::MacroAtom(){
 
 }
-MacroAtom::MacroAtom(vector<string> definition){
+MacroAtom::MacroAtom(vector<ProgramLine> definition){
 	string token;
 	//extract name
-	string header = definition[0];
+	string header = definition[0].text;
 	Parser::extractAndRemoveFirstToken(header, token);
 	stringstream ss = stringstream(header);
+
 	getline(ss, this->name, '(');
 	string parameterList;
 	getline(ss, parameterList, ')');
-	ss = stringstream(parameterList);
-	while(getline(ss, token, ',')){
-		this->parameters.push_back(token);
-	}
+
+	parameters = Parser::commaSeparatedListExplode(parameterList);
 	for(int i=1; i<definition.size()-1; i++){
 		this->body.push_back(definition[i]);
 	}
@@ -40,30 +39,33 @@ void MacroAtom::deinit(){
 
 }
 
-vector<string> MacroAtom::buildMacro(vector<string> const &arguments){
-	vector<string> replacedBody;
-	for(int lineNum=0; lineNum<body.size(); lineNum++){
-		string line = body[lineNum];
+vector<ProgramLine> MacroAtom::buildMacro(vector<string> const &arguments){
+	vector<ProgramLine> replacedBody = body;
+	for(int lineNum=0; lineNum<replacedBody.size(); lineNum++){
 		for(int argNum=0; argNum<parameters.size(); argNum++){
-			line = Parser::replace(line, parameters[argNum], arguments[argNum]);
+			replacedBody[lineNum].text = Parser::replace(replacedBody[lineNum].text, parameters[argNum], arguments[argNum]);
 		}
-		replacedBody.push_back(line);
 	}
 	return replacedBody;
 }
-vector<string> MacroAtom::buildMacro(string programLine){
+vector<ProgramLine> MacroAtom::buildMacro(string programLine){
 	string jnk, argument;
 	stringstream ss(programLine);
 	getline(ss, jnk, '(');
-	string parameterList;
-	getline(ss, parameterList, ')');
-	return buildMacro(Parser::commaSeparatedListExplode(parameterList));
+	string argumentList;
+	getline(ss, argumentList, ')');
+	return buildMacro(Parser::commaSeparatedListExplode(argumentList));
 }
 
 bool MacroAtom::lineIsMacroCall(string programLine){
 	stringstream ss(programLine);
 	string potentialName;
 	getline(ss, potentialName, '(');
+	string argumentList;
+	getline(ss, argumentList, ')');
+	if(Parser::commaSeparatedListExplode(argumentList).size() != parameters.size()){
+		return false;
+	}
 	return potentialName == name;
 }
 
@@ -120,7 +122,7 @@ string Assembler::assemble(string fileName){
 		alignRawProgram();
 		pseudoInstructionReplace();
 		replaceLabels();
-
+		
 		writeAlignedRawProgramToDisk(fileName + defaultAlignedProgramNamePostfix);
 		mapAlignedProgramToVirtualMemory();
 
@@ -132,6 +134,13 @@ string Assembler::assemble(string fileName){
 		cout << "ERROR [Assembler::assemble(string fileName)]: HANDLE INVALID TOKEN EXCEPTION IN ASSEMBLER!!!:\t" + e.toString();
 		getchar();
 	}
+	if(recoverableExceptions.size() != 0){
+		for(int i=0; i<recoverableExceptions.size(); i++){
+			cout << recoverableExceptions[i].toString() << '\n';
+		}
+		throw AssemblerException(NULL, "Unable to assemble");
+	}
+	
 	return defaultObjectNamePostfix;
 }
 
@@ -255,14 +264,14 @@ void Assembler::replaceEqv(){
 
 void Assembler::extractMacroDefinitions(){
 	for(int lineNum=0; lineNum<program.size(); lineNum++){
-		vector<string> macroLines;
+		vector<ProgramLine> macroLines;
 		ProgramLine programLine = program[lineNum];
 		string token = parser.extractFirstToken(programLine.text);
 		if(token == ".macro"){
-			macroLines.push_back(programLine.text);
+			macroLines.push_back(programLine);
 			program.erase(program.begin() + lineNum);
 			while(parser.extractFirstToken(program[lineNum].text) != ".end_macro" && lineNum < program.size()){
-				macroLines.push_back(program[lineNum].text);
+				macroLines.push_back(program[lineNum]);
 				program.erase(program.begin() + lineNum);
 			}
 			if(program[lineNum].text != ".end_macro"){
@@ -271,8 +280,8 @@ void Assembler::extractMacroDefinitions(){
 				throw AssemblerException(&program[lineNum], error);
 				return;
 			}
+			macroLines.push_back(program[lineNum]);
 			program.erase(program.begin() + lineNum);
-			macroLines.push_back(".end_macro");
 			MacroAtom atom = MacroAtom(macroLines);
 			macroDB.push_back(atom);
 			lineNum--;
@@ -287,14 +296,9 @@ void Assembler::replaceMacros(){
 		ProgramLine programLine = program[lineNum];
 		for(int macroAtomNumber=0; macroAtomNumber<macroDB.size(); macroAtomNumber++){
 			if(macroDB[macroAtomNumber].lineIsMacroCall(programLine.text)){
-				vector<string> builtMacro = macroDB[macroAtomNumber].buildMacro(programLine.text);
-				for(int macroLine=0; macroLine<builtMacro.size(); macroLine++){
-					ProgramLine newProgramLine = programLine;
-					newProgramLine.text = builtMacro[macroLine];
-					program.insert(program.begin() + lineNum, newProgramLine);
-					lineNum++;
-				}
-				program.erase(program.begin() + lineNum);
+				vector<ProgramLine> builtMacro = macroDB[macroAtomNumber].buildMacro(programLine.text);
+				program.insert(program.begin() + lineNum, builtMacro.begin(), builtMacro.end());
+				program.erase(program.begin() + lineNum + builtMacro.size());
 				lineNum--;
 				break;
 			}
@@ -317,7 +321,7 @@ void Assembler::pseudoInstructionPad(){
 		for(int numInsertedLines = 0; numInsertedLines < numLinesToInsert; numInsertedLines++){
 			lineNum++;
 			//Modify tmp ProgramLine programLine and insert into program as padding
-			programLine.text = "PSEUDO_INSTRUCTION_PADDING";
+			programLine.text = "ASSEMBLER::PSEUDO_INSTRUCTION_PADDING";
 			program.insert(program.begin() + lineNum, programLine);
 		}
 	}
@@ -442,7 +446,7 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 		default:
 			//EXCEPTION
 			string error = "Unrecognized directive \"" + directive + "\"";
-			throw AssemblerException(programLine, error);
+			addException(AssemblerException(programLine, error));
 			break;
 	}
 }
@@ -526,7 +530,7 @@ void Assembler::alignRawProgram(){
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
 						string error = "Expected a string literal";
-						throw AssemblerException(&program[lineNum], error);
+						addException(AssemblerException(&program[lineNum], error));
 						continue;
 					}
 
@@ -552,7 +556,7 @@ void Assembler::alignRawProgram(){
 						currentByteAlignment = parser.literals.getFixedPointLiteralValue(token);
 					}catch(InvalidTokenException &e){
 						string error = "Unable to align memory to non-fixed point offset";
-						throw AssemblerException(&program[lineNum], error);
+						addException(AssemblerException(&program[lineNum], error));
 						continue;
 					}
 					alignSegmentTop();
@@ -572,7 +576,7 @@ void Assembler::alignRawProgram(){
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
 						string error = "Unable to reserve memory space of non-fixed point size";
-						throw AssemblerException(&program[lineNum], error);
+						addException(AssemblerException(&program[lineNum], error));
 						continue;
 					}
 
@@ -619,8 +623,8 @@ void Assembler::flushLabelBuffer(){
 			addLabelAddress(parser.getLabelName(labelsToAssign[i]->text), addr);
 		}catch(InvalidTokenException &e){
 			//EXCEPTION
-			string error = "Duplicate label \"" + labelsToAssign[i]->text;
-			throw AssemblerException(labelsToAssign[i], error);
+			string error = "Duplicate label \"" + labelsToAssign[i]->text + "\"";
+			addException(AssemblerException(labelsToAssign[i], error));
 			continue;
 		}
 
@@ -650,86 +654,67 @@ virtualAddr Assembler::getCurrentMemoryLocation(){
 
 void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, string currentLine, ProgramLine* programLine){
 	virtualAddr memorySegmentTopIncrementationSize = 0;
-	bool tokenIsFixedPointLiteral =
-		currentValueTypeSpecifier == DIRECTIVE_BYTE
-		|| currentValueTypeSpecifier == DIRECTIVE_HALF
-		|| currentValueTypeSpecifier == DIRECTIVE_WORD;
-	
+
 	for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
 		//init string to ".datatype	|[insert literals here]"
 		string mappedProgramString;
 		string currentLiteralToken = literalTokens[tokenNum];
 
-		//EXCEPTION
-		if(tokenIsFixedPointLiteral){
-			if(!parser.literals.tokenIsFixedPointLiteral(currentLiteralToken)){
-				if(parser.tokenIsInstructionName(currentLiteralToken) && currentValueTypeSpecifier == DIRECTIVE_WORD){
-					//do nothing
-				}else{
-					//EXCEPTION
-					string error = "Invalid fixed point literal \"" + currentLiteralToken + "\"";
-					throw AssemblerException(programLine, error);
-					continue;
-				}
-			}
-		}else{
-			//tokenIsFloatingPointLiteral
-			if(!parser.literals.tokenIsFloatLiteral(currentLiteralToken)){
-				//EXCEPTION
-				string error = "Invalid floating point literal \"" + currentLiteralToken + "\"";
-				throw AssemblerException(programLine, error);
-				continue;
-			}
-		}
-
 		bool terminateLine = false;
-		switch(currentValueTypeSpecifier){
-			//TODO: semi-redundant case switch, fix with array to index into to find SIZE of token
-			case DIRECTIVE_BYTE:
-				{
-					memorySegmentTopIncrementationSize = SIZE_BYTE;
-					char val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString = parser.literals.getCharLiteralString(val);
-				}
-				break;
-			case DIRECTIVE_HALF:
-				{
-					memorySegmentTopIncrementationSize = SIZE_HALF;
-					uint16_t val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString = parser.literals.getDecimalLiteralString(val);
-				}
-				break;
-			case DIRECTIVE_WORD:
-				{
-					//Standard literal value + instructions addon
-					memorySegmentTopIncrementationSize = SIZE_WORD;
-					if(parser.tokenIsInstructionName(currentLiteralToken)){
-						//Add instruction
-						mappedProgramString = currentLine;
-						terminateLine = true;
-						break;
+		try{
+			switch(currentValueTypeSpecifier){
+				//TODO: semi-redundant case switch, fix with array to index into to find SIZE of token
+				case DIRECTIVE_BYTE:
+					{
+						memorySegmentTopIncrementationSize = SIZE_BYTE;
+						char val = parser.literals.getLiteralValue(currentLiteralToken);
+						mappedProgramString = parser.literals.getCharLiteralString(val);
 					}
-					uint32_t val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString = parser.literals.getDecimalLiteralString(val);
-				}
-				break;
-			case DIRECTIVE_FLOAT:
-				{
-					memorySegmentTopIncrementationSize = SIZE_FLOAT;
-					float val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString = parser.literals.getFloatLiteralString(val);
-				}
-				break;
-			case DIRECTIVE_DOUBLE:
-				{
-					memorySegmentTopIncrementationSize = SIZE_DOUBLE;
-					double val = parser.literals.getLiteralValue(currentLiteralToken);
-					mappedProgramString = parser.literals.getFloatLiteralString(val);
-				}
-				break;
-			default:
+					break;
+				case DIRECTIVE_HALF:
+					{
+						memorySegmentTopIncrementationSize = SIZE_HALF;
+						uint16_t val = parser.literals.getLiteralValue(currentLiteralToken);
+						mappedProgramString = parser.literals.getDecimalLiteralString(val);
+					}
+					break;
+				case DIRECTIVE_WORD:
+					{
+						//Standard literal value + instructions addon
+						memorySegmentTopIncrementationSize = SIZE_WORD;
+						if(parser.tokenIsInstructionName(currentLiteralToken)){
+							//Add instruction
+							mappedProgramString = currentLine;
+							terminateLine = true;
+							break;
+						}
+						uint32_t val = parser.literals.getLiteralValue(currentLiteralToken);
+						mappedProgramString = parser.literals.getDecimalLiteralString(val);
+					}
+					break;
+				case DIRECTIVE_FLOAT:
+					{
+						memorySegmentTopIncrementationSize = SIZE_FLOAT;
+						float val = parser.literals.getFloatLiteralValue(currentLiteralToken);
+						mappedProgramString = parser.literals.getFloatLiteralString(val);
+					}
+					break;
+				case DIRECTIVE_DOUBLE:
+					{
+						memorySegmentTopIncrementationSize = SIZE_DOUBLE;
+						double val = parser.literals.getDoubleLiteralValue(currentLiteralToken);
+						mappedProgramString = parser.literals.getFloatLiteralString(val);
+					}
+					break;
+				default:
 
-				break;
+					break;
+			}
+		}catch(InvalidTokenException &e){
+			//EXCEPTION
+			string error = "Invalid literal \"" + currentLiteralToken + "\"";
+			addException(AssemblerException(programLine, error));
+			continue;
 		}
 		virtualAddr addr = getCurrentMemoryLocation();
 		ProgramAtom atom;
@@ -847,7 +832,7 @@ void Assembler::pseudoInstructionReplace(){
 								string error = "Label \""
 									+ labelName
 									+ "\" not recognized";
-								throw AssemblerException(atom.programLine, error);
+								addException(AssemblerException(atom.programLine, error));
 								continue;
 							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
@@ -876,7 +861,7 @@ void Assembler::pseudoInstructionReplace(){
 								string error = "Invalid immediate on \"li\" pseudoinstruction, \""
 									+ immediateString
 									+ "\"";
-								throw AssemblerException(atom.programLine, error);
+								addException(AssemblerException(atom.programLine, error));
 								continue;
 							}
 							virtualAddr msb = immediateVal >> (NUM_BITS_IN_WORD / 2);
@@ -986,7 +971,7 @@ void Assembler::replaceLabels(){
 					string error = "Label \""
 						+ lastToken
 						+ "\" not recognized";
-					throw AssemblerException(atom.programLine, error);
+					addException(AssemblerException(atom.programLine, error));
 				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
@@ -1079,10 +1064,10 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 						instr bin;
 						try{
 							bin = encoder->buildInstruction(atom.token).getBin();
-						}catch(AssemblerException e){
+						}catch(InvalidTokenException &e){
 							//EXCEPTION
 							string error = "Unable to encode instruction \"" + atom.programLine->text + "\"";
-							throw AssemblerException(atom.programLine, error);
+							addException(AssemblerException(atom.programLine, error));
 						}
 						val = readMemAs<int32_t>(&bin);
 					}else{
@@ -1138,8 +1123,14 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 				break;
 			case DIRECTIVE_INSTRUCTION:
 				{
-					Instruction instruction = encoder->buildInstruction(atom.token);
-					instr bin = instruction.getBin();
+					instr bin = 0;
+					try{
+						Instruction instruction = encoder->buildInstruction(atom.token);
+						bin = instruction.getBin();
+					}catch(InvalidTokenException &e){
+						string error = "Unable to encode instruction";
+						addException(AssemblerException(atom.programLine, error));
+					}
 					size_t size = sizeof(bin);
 
 					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &bin);
@@ -1153,4 +1144,10 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 				break;
 		}
 	}
+}
+
+
+
+void Assembler::addException(AssemblerException const &e){
+	recoverableExceptions.push_back(e);
 }

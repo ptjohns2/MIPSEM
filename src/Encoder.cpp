@@ -25,7 +25,7 @@ Instruction Encoder::buildInstruction(string asmString){
 		string error = "Unable to encode instruction \""
 			+ asmString
 			+ "\"";
-		throw AssemblerException(NULL, error);
+		throw InvalidTokenException(error, asmString);
 	}
 
 	vector<string> arguments = Parser::tokenizeInstruction(asmString);
