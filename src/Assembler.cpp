@@ -10,6 +10,8 @@
 #include <tuple>
 #include <sstream>
 
+#define ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD	("ASSEMBLER:PSEUDOINSTRUCTION")
+
 MacroAtom::MacroAtom(){
 
 }
@@ -138,7 +140,7 @@ string Assembler::assemble(string fileName){
 		for(int i=0; i<recoverableExceptions.size(); i++){
 			cout << recoverableExceptions[i].toString() << '\n';
 		}
-		throw AssemblerException(NULL, "Unable to assemble");
+		throw AssemblerException(NULL, "Unable to assemble", fileName);
 	}
 	
 	return defaultObjectNamePostfix;
@@ -148,10 +150,9 @@ void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
 	fstream file = fstream(fileName);
 	if(!file.is_open()){
 		//EXCEPTION
-		string error = "I'm sorry Dave, I'm afraid I can't open file \""
-			+ fileName
-			+ "\"";
-		throw AssemblerException(programLine, error);
+		string error = "I'm sorry Dave, I'm afraid I can't open that file";
+		string offendingToken = fileName;
+		throw AssemblerException(programLine, error, offendingToken);
 		return;
 	}
 	string tmpProgramLine;
@@ -277,7 +278,8 @@ void Assembler::extractMacroDefinitions(){
 			if(program[lineNum].text != ".end_macro"){
 				//EXCEPTION
 				string error = "Macro not matched with .end_macro directive before EOF";
-				throw AssemblerException(&program[lineNum], error);
+				string offendingToken = programLine.text;
+				throw AssemblerException(&program[lineNum], error, offendingToken);
 				return;
 			}
 			macroLines.push_back(program[lineNum]);
@@ -321,7 +323,7 @@ void Assembler::pseudoInstructionPad(){
 		for(int numInsertedLines = 0; numInsertedLines < numLinesToInsert; numInsertedLines++){
 			lineNum++;
 			//Modify tmp ProgramLine programLine and insert into program as padding
-			programLine.text = "ASSEMBLER::PSEUDO_INSTRUCTION_PADDING";
+			programLine.text = ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD;
 			program.insert(program.begin() + lineNum, programLine);
 		}
 	}
@@ -446,7 +448,8 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 		default:
 			//EXCEPTION
 			string error = "Unrecognized directive \"" + directive + "\"";
-			addException(AssemblerException(programLine, error));
+			string offendingToken = directive;
+			addException(AssemblerException(programLine, error, offendingToken));
 			break;
 	}
 }
@@ -530,7 +533,8 @@ void Assembler::alignRawProgram(){
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
 						string error = "Expected a string literal";
-						addException(AssemblerException(&program[lineNum], error));
+						string offendingToken = rawString;
+						addException(AssemblerException(&program[lineNum], error, offendingToken));
 						continue;
 					}
 
@@ -556,7 +560,8 @@ void Assembler::alignRawProgram(){
 						currentByteAlignment = parser.literals.getFixedPointLiteralValue(token);
 					}catch(InvalidTokenException &e){
 						string error = "Unable to align memory to non-fixed point offset";
-						addException(AssemblerException(&program[lineNum], error));
+						string offendingToken = token;
+						addException(AssemblerException(&program[lineNum], error, token));
 						continue;
 					}
 					alignSegmentTop();
@@ -576,7 +581,8 @@ void Assembler::alignRawProgram(){
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
 						string error = "Unable to reserve memory space of non-fixed point size";
-						addException(AssemblerException(&program[lineNum], error));
+						string offendingToken = token;
+						addException(AssemblerException(&program[lineNum], error, offendingToken));
 						continue;
 					}
 
@@ -623,8 +629,9 @@ void Assembler::flushLabelBuffer(){
 			addLabelAddress(parser.getLabelName(labelsToAssign[i]->text), addr);
 		}catch(InvalidTokenException &e){
 			//EXCEPTION
-			string error = "Duplicate label \"" + labelsToAssign[i]->text + "\"";
-			addException(AssemblerException(labelsToAssign[i], error));
+			string error = "Duplicate label";
+			string offendingToken = labelsToAssign[i]->text;
+			addException(AssemblerException(labelsToAssign[i], error, offendingToken));
 			continue;
 		}
 
@@ -712,8 +719,9 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 			}
 		}catch(InvalidTokenException &e){
 			//EXCEPTION
-			string error = "Invalid literal \"" + currentLiteralToken + "\"";
-			addException(AssemblerException(programLine, error));
+			string error = "Invalid literal";
+			string offendingToken = currentLiteralToken;
+			addException(AssemblerException(programLine, error, offendingToken));
 			continue;
 		}
 		virtualAddr addr = getCurrentMemoryLocation();
@@ -829,10 +837,9 @@ void Assembler::pseudoInstructionReplace(){
 							string labelName = tokenizedInstruction[2];
 							if(!tokenIsInLabelDB(labelName)){
 								//EXCEPTION
-								string error = "Label \""
-									+ labelName
-									+ "\" not recognized";
-								addException(AssemblerException(atom.programLine, error));
+								string error = "Label not recognized";
+								string offendingToken = labelName;
+								addException(AssemblerException(atom.programLine, error, offendingToken));
 								continue;
 							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
@@ -858,10 +865,9 @@ void Assembler::pseudoInstructionReplace(){
 							try{
 								immediateVal = parser.literals.getLiteralValue(immediateString);
 							}catch(InvalidTokenException &e){
-								string error = "Invalid immediate on \"li\" pseudoinstruction, \""
-									+ immediateString
-									+ "\"";
-								addException(AssemblerException(atom.programLine, error));
+								string error = "Invalid immediate on \"li\" pseudoinstruction";
+								string offendingToken = immediateString;
+								addException(AssemblerException(atom.programLine, error, offendingToken));
 								continue;
 							}
 							virtualAddr msb = immediateVal >> (NUM_BITS_IN_WORD / 2);
@@ -968,10 +974,9 @@ void Assembler::replaceLabels(){
 				string lastToken = instructionTokens[instructionTokens.size() - 1];
 				if(!tokenIsInLabelDB(lastToken)){
 					//EXCEPTION
-					string error = "Label \""
-						+ lastToken
-						+ "\" not recognized";
-					addException(AssemblerException(atom.programLine, error));
+					string error = "Label not recognized";
+					string offendingToken = lastToken;
+					addException(AssemblerException(atom.programLine, error, offendingToken));
 				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
@@ -1066,8 +1071,9 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 							bin = encoder->buildInstruction(atom.token).getBin();
 						}catch(InvalidTokenException &e){
 							//EXCEPTION
-							string error = "Unable to encode instruction \"" + atom.programLine->text + "\"";
-							addException(AssemblerException(atom.programLine, error));
+							string error = "Unable to encode instruction";
+							string offendingToken = atom.token;
+							addException(AssemblerException(atom.programLine, error, offendingToken));
 						}
 						val = readMemAs<int32_t>(&bin);
 					}else{
@@ -1129,7 +1135,8 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 						bin = instruction.getBin();
 					}catch(InvalidTokenException &e){
 						string error = "Unable to encode instruction";
-						addException(AssemblerException(atom.programLine, error));
+						string offendingToken = atom.token;
+						addException(AssemblerException(atom.programLine, error, offendingToken));
 					}
 					size_t size = sizeof(bin);
 
@@ -1149,5 +1156,9 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 
 
 void Assembler::addException(AssemblerException const &e){
+	//CONDITIONS TO ACTUALLY ADD
+	if(e.programLine->text == ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD){
+		return;
+	}
 	recoverableExceptions.push_back(e);
 }

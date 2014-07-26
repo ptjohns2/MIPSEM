@@ -2,24 +2,28 @@
 
 
 
-AssemblerException::AssemblerException(){
+AssemblerException::AssemblerException()
+	:	programLine(NULL)
+{
 
 }
-AssemblerException::AssemblerException(ProgramLine* programLine, string info){
-	this->programLine = programLine;
-	this->info = info;
+AssemblerException::AssemblerException(ProgramLine* programLine, string info, string offendingToken)
+	:	programLine(programLine), info(info), offendingToken(offendingToken)
+{
+
 }
 
 string AssemblerException::toString(){
 	string message = "Error";
 	if(this->programLine != NULL){
-		message += " [\""
+		message += " ["
 			+ programLine->fileName
-			+ "\": line "
+			+ ": line "
 			+ std::to_string(programLine->lineNumber)
-			+ "]";
+			+ "] ";
 	}
-	message += ":\t" + this->info;
+	message += this->info;
+	message += ": \"" + this->offendingToken + "\"";
 	return message;
 }
 
