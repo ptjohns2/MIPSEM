@@ -45,7 +45,7 @@ class Parser{
 		static vector<string> tokenizeInstruction(string);
 		static string combineInstructionTokens(vector<string> const&);
 		static vector<string> stringExplode(string);
-		static vector<string> commaSeparatedListExplode(string);
+		static vector<string> commaSeparatedLiteralListExplode(string);
 
 		static string extractFirstToken(string);
 		static bool extractAndRemoveFirstToken(string &src, string &token);

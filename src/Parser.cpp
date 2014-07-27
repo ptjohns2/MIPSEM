@@ -246,32 +246,39 @@ vector<string> Parser::stringExplode(string str){
 }
 
 
-vector<string> Parser::commaSeparatedListExplode(string str){
+vector<string> Parser::commaSeparatedLiteralListExplode(string str){
 	vector<string> ret;
 	for(int i=0; i<str.length(); i++){
 		bool isToken = false;
 		string tmpStr;
 		//TODO
-		bool isStringLiteral;	//implement later
+		bool isStringLiteral = false;
 		while(isWhiteSpace(str[i]) && i<str.length()){i++;}
+		if(str[i] == '"'){
+			isStringLiteral = true;
+			tmpStr += '"';
+			i++;
+		}
 		while(i<str.length()){
+			//=> BREAKING CONDITIONS TO TRIGGER END OF TOKEN!
 			
-			//COND1 whitespace and not ' ' char literal
-			if(isWhiteSpace(str[i])){
-				if(str[i-1] == '\'' && str[i+1] == '\''){
-					//do nothing
-				}else{
-					break;
-				}
-			}
-			
-			//COND2 comma and not ',' char literal
+			//COND2 comma and not ',' char literal or "*,*" string literal
 			if(str[i] == ','){
 				if(str[i-1] == '\'' && str[i+1] == '\''){
+					//do nothing;
+				}else if(isStringLiteral){
 					//do nothing;
 				}else{
 					break;
 				}
+			}
+
+			//=> STATE CHANGE CONDITIONS 
+
+			//COND undelimited quotation -> end of string literal
+			if(str[i] == '"' && str[i-1] != '\\'){
+				isStringLiteral = false;
+				//break;
 			}
 
 			isToken = true;

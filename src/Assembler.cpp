@@ -26,7 +26,7 @@ MacroAtom::MacroAtom(vector<ProgramLine> definition){
 	string parameterList;
 	getline(ss, parameterList, ')');
 
-	parameters = Parser::commaSeparatedListExplode(parameterList);
+	parameters = Parser::commaSeparatedLiteralListExplode(parameterList);
 	for(int i=1; i<definition.size()-1; i++){
 		this->body.push_back(definition[i]);
 	}
@@ -56,7 +56,7 @@ vector<ProgramLine> MacroAtom::buildMacro(string programLine){
 	getline(ss, jnk, '(');
 	string argumentList;
 	getline(ss, argumentList, ')');
-	return buildMacro(Parser::commaSeparatedListExplode(argumentList));
+	return buildMacro(Parser::commaSeparatedLiteralListExplode(argumentList));
 }
 
 bool MacroAtom::lineIsMacroCall(string programLine){
@@ -65,7 +65,7 @@ bool MacroAtom::lineIsMacroCall(string programLine){
 	getline(ss, potentialName, '(');
 	string argumentList;
 	getline(ss, argumentList, ')');
-	if(Parser::commaSeparatedListExplode(argumentList).size() != parameters.size()){
+	if(Parser::commaSeparatedLiteralListExplode(argumentList).size() != parameters.size()){
 		return false;
 	}
 	return potentialName == name;
@@ -515,7 +515,7 @@ void Assembler::alignRawProgram(){
 					alignSegmentTop();
 					flushLabelBuffer();
 
-					vector<string> literalTokens = parser.commaSeparatedListExplode(programLine.text);
+					vector<string> literalTokens = parser.commaSeparatedLiteralListExplode(programLine.text);
 					alignLiteralTokenList(literalTokens, programLine.text, &program[lineNum]);
 					currentAction = ACTION_INIT;
 				}
