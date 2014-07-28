@@ -30,6 +30,4 @@ typedef uint32_t		virtualAddr;
 
 typedef std::pair<int,int> bitrange;
 
-
-
 #endif

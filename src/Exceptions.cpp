@@ -21,6 +21,8 @@ string AssemblerException::toString(){
 			+ ": line "
 			+ std::to_string(programLine->lineNumber)
 			+ "] ";
+	}else{
+		message += ": ";
 	}
 	message += this->info;
 	message += ": \"" + this->offendingToken + "\"";

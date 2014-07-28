@@ -55,11 +55,13 @@ int main(){
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
 	
-
-	//string programName = "EXCEPTIONTEST.txt";
+	
+	string programName = "EXCEPTIONTEST.txt";
+	//string programName = "99bottles.txt";
 	//string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "includetest.txt";
-	string programName = "myTest.txt";
+	//string programName = "myTest.txt";
+	//string programName = "fakeFile.txt";
 	//string programName = "labeltest.txt";
 	//string programName = "hw2MACROS.txt";
 	//string programName = "macrotest.txt";

@@ -68,13 +68,19 @@ class MacroAtom{
 		
 		vector<ProgramLine> buildMacro(vector<string> const &arguments);
 		vector<ProgramLine> buildMacro(string programLine);
+
+		vector<ProgramLine> getUniquelyLabelledMacroBody();
+
 		bool lineIsMacroCall(string programLine);
 		vector<string> getMacroCallArguments(string programLine);
+
+		vector<pair<string, string>> reassignedLabels;
 
 	private:
 		string name;
 		vector<string> parameters;
 		vector<ProgramLine> body;
+		int numTimesUsed;
 
 };
 

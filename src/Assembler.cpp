@@ -5,12 +5,15 @@
 #include "Parser.hpp"
 #include "types.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <tuple>
 #include <sstream>
 
-#define ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD	("ASSEMBLER:PSEUDOINSTRUCTION")
+#define ASSEMBLER_RESERVED_PREFIX					("@_")
+#define ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD	("@_PSEUDOINSTRUCTION")
+#define ASSEMBLER_MACRO_LABEL_PREFIX				("@_MACRO_LABEL_")
 
 MacroAtom::MacroAtom(){
 
@@ -27,9 +30,12 @@ MacroAtom::MacroAtom(vector<ProgramLine> definition){
 	getline(ss, parameterList, ')');
 
 	parameters = Parser::commaSeparatedLiteralListExplode(parameterList);
+
 	for(int i=1; i<definition.size()-1; i++){
 		this->body.push_back(definition[i]);
 	}
+
+	numTimesUsed = 0;
 }
 MacroAtom::~MacroAtom(){
 
@@ -42,7 +48,7 @@ void MacroAtom::deinit(){
 }
 
 vector<ProgramLine> MacroAtom::buildMacro(vector<string> const &arguments){
-	vector<ProgramLine> replacedBody = body;
+	vector<ProgramLine> replacedBody = getUniquelyLabelledMacroBody();
 	for(int lineNum=0; lineNum<replacedBody.size(); lineNum++){
 		for(int argNum=0; argNum<parameters.size(); argNum++){
 			replacedBody[lineNum].text = Parser::replace(replacedBody[lineNum].text, parameters[argNum], arguments[argNum]);
@@ -57,6 +63,35 @@ vector<ProgramLine> MacroAtom::buildMacro(string programLine){
 	string argumentList;
 	getline(ss, argumentList, ')');
 	return buildMacro(Parser::commaSeparatedLiteralListExplode(argumentList));
+}
+
+vector<ProgramLine> MacroAtom::getUniquelyLabelledMacroBody(){
+	numTimesUsed++;
+	vector<ProgramLine> newBody = body;
+	vector<string> labelNamesFound;
+	for(int lineNum=0; lineNum<newBody.size(); lineNum++){
+		if(Parser::tokenIsLabel(newBody[lineNum].text)){
+			labelNamesFound.push_back(Parser::getLabelName(newBody[lineNum].text));
+		}
+	}
+	struct stringCompareFunctionPointer {
+		bool operator()(const string& lhs, const string& rhs){
+			return lhs.size() < rhs.size();
+		}
+	};
+	stringCompareFunctionPointer stringComparer;
+	std::sort(labelNamesFound.begin(), labelNamesFound.end(), stringComparer);
+
+	for(int lineNum=0; lineNum<newBody.size(); lineNum++){
+		for(int labelNum=0; labelNum<labelNamesFound.size(); labelNum++){
+			if(Parser::indexOf(newBody[lineNum].text, labelNamesFound[labelNum]) != -1){
+				string newLabelName = ASSEMBLER_MACRO_LABEL_PREFIX + std::to_string(numTimesUsed) + "_" + labelNamesFound[labelNum];
+				newBody[lineNum].text = Parser::replace(newBody[lineNum].text, labelNamesFound[labelNum], newLabelName);
+			}
+		}
+	}
+
+	return newBody;
 }
 
 bool MacroAtom::lineIsMacroCall(string programLine){
@@ -112,6 +147,7 @@ void Assembler::setEncoder(Encoder* encoder){
 }
 
 string Assembler::assemble(string fileName){
+	bool invalidateAssembly = false;
 	try{
 		loadProgramFromFile(fileName);
 
@@ -132,11 +168,12 @@ string Assembler::assemble(string fileName){
 	}catch(AssemblerException &e){
 		string message = e.toString();
 		cout << '\n' << message << '\n';
+		invalidateAssembly = true;
 	}catch(InvalidTokenException &e){
 		cout << "ERROR [Assembler::assemble(string fileName)]: HANDLE INVALID TOKEN EXCEPTION IN ASSEMBLER!!!:\t" + e.toString();
 		getchar();
 	}
-	if(recoverableExceptions.size() != 0){
+	if(recoverableExceptions.size() != 0 || invalidateAssembly){
 		for(int i=0; i<recoverableExceptions.size(); i++){
 			cout << recoverableExceptions[i].toString() << '\n';
 		}
@@ -242,7 +279,7 @@ void Assembler::replaceEqv(){
 				immuneFront = "";
 				replacedBack = laterProgramLine.text;
 			}
-
+			//TODO - just order eqvDB first and go backwards so it's always biggest 
 			pair<string, string>* largestMatchingEqv = NULL;
 			for(int i=0; i<eqvDB.size(); i++){
 				if(parser.indexOf(laterProgramLine.text, eqvDB[i].first) != -1){
@@ -447,7 +484,7 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 			break;
 		default:
 			//EXCEPTION
-			string error = "Unrecognized directive \"" + directive + "\"";
+			string error = ERROR_UNRECOGNIZED_DIRECTIVE;
 			string offendingToken = directive;
 			addException(AssemblerException(programLine, error, offendingToken));
 			break;
@@ -532,7 +569,7 @@ void Assembler::alignRawProgram(){
 						rawString = parser.literals.getStringLiteralValue(stringLiteral);
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
-						string error = "Expected a string literal";
+						string error = ERROR_INVALID_STRING_LITERAL;
 						string offendingToken = rawString;
 						addException(AssemblerException(&program[lineNum], error, offendingToken));
 						continue;
@@ -559,7 +596,7 @@ void Assembler::alignRawProgram(){
 					try{
 						currentByteAlignment = parser.literals.getFixedPointLiteralValue(token);
 					}catch(InvalidTokenException &e){
-						string error = "Unable to align memory to non-fixed point offset";
+						string error = ERROR_INVALID_ALIGNMENT_VALUE;
 						string offendingToken = token;
 						addException(AssemblerException(&program[lineNum], error, token));
 						continue;
@@ -580,7 +617,7 @@ void Assembler::alignRawProgram(){
 						spaceSize = parser.literals.getFixedPointLiteralValue(token);
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
-						string error = "Unable to reserve memory space of non-fixed point size";
+						string error = ERROR_INVALID_SPACE_VALUE;
 						string offendingToken = token;
 						addException(AssemblerException(&program[lineNum], error, offendingToken));
 						continue;
@@ -629,7 +666,7 @@ void Assembler::flushLabelBuffer(){
 			addLabelAddress(parser.getLabelName(labelsToAssign[i]->text), addr);
 		}catch(InvalidTokenException &e){
 			//EXCEPTION
-			string error = "Duplicate label";
+			string error = ERROR_INVALID_LABEL;
 			string offendingToken = labelsToAssign[i]->text;
 			addException(AssemblerException(labelsToAssign[i], error, offendingToken));
 			continue;
@@ -719,7 +756,7 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 			}
 		}catch(InvalidTokenException &e){
 			//EXCEPTION
-			string error = "Invalid literal";
+			string error = ERROR_INVALID_LITERAL;
 			string offendingToken = currentLiteralToken;
 			addException(AssemblerException(programLine, error, offendingToken));
 			continue;
@@ -837,7 +874,7 @@ void Assembler::pseudoInstructionReplace(){
 							string labelName = tokenizedInstruction[2];
 							if(!tokenIsInLabelDB(labelName)){
 								//EXCEPTION
-								string error = "Label not recognized";
+								string error = ERROR_UNRECOGNIZED_LABEL;
 								string offendingToken = labelName;
 								addException(AssemblerException(atom.programLine, error, offendingToken));
 								continue;
@@ -865,7 +902,7 @@ void Assembler::pseudoInstructionReplace(){
 							try{
 								immediateVal = parser.literals.getLiteralValue(immediateString);
 							}catch(InvalidTokenException &e){
-								string error = "Invalid immediate on \"li\" pseudoinstruction";
+								string error = ERROR_INVALID_IMMEDIATE_LI;
 								string offendingToken = immediateString;
 								addException(AssemblerException(atom.programLine, error, offendingToken));
 								continue;
@@ -974,7 +1011,7 @@ void Assembler::replaceLabels(){
 				string lastToken = instructionTokens[instructionTokens.size() - 1];
 				if(!tokenIsInLabelDB(lastToken)){
 					//EXCEPTION
-					string error = "Label not recognized";
+					string error = ERROR_UNRECOGNIZED_LABEL;
 					string offendingToken = lastToken;
 					addException(AssemblerException(atom.programLine, error, offendingToken));
 				}
@@ -1071,7 +1108,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 							bin = encoder->buildInstruction(atom.token).getBin();
 						}catch(InvalidTokenException &e){
 							//EXCEPTION
-							string error = "Unable to encode instruction";
+							string error = ERROR_INVALID_INSTRUCTION;
 							string offendingToken = atom.token;
 							addException(AssemblerException(atom.programLine, error, offendingToken));
 						}
@@ -1134,7 +1171,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 						Instruction instruction = encoder->buildInstruction(atom.token);
 						bin = instruction.getBin();
 					}catch(InvalidTokenException &e){
-						string error = "Unable to encode instruction";
+						string error = ERROR_INVALID_INSTRUCTION;
 						string offendingToken = atom.token;
 						addException(AssemblerException(atom.programLine, error, offendingToken));
 					}
