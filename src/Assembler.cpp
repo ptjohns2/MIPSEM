@@ -249,6 +249,7 @@ void Assembler::splitLabels(){
 		}
 	}
 }
+
 void Assembler::replaceEqv(){
 	for(int lineNum=0; lineNum<program.size(); lineNum++){		
 		ProgramLine programLine = program[lineNum];
@@ -279,22 +280,20 @@ void Assembler::replaceEqv(){
 				immuneFront = "";
 				replacedBack = laterProgramLine.text;
 			}
-			//TODO - just order eqvDB first and go backwards so it's always biggest 
-			pair<string, string>* largestMatchingEqv = NULL;
+			//TODO - just order eqvDB first and go backwards so it's always biggest, then ALL will match
+			struct stringCompareFunctionPointer {
+				bool operator()(const pair<string, string>& lhs, const pair<string, string>& rhs){
+					return lhs.first.size() < rhs.first.size();
+				}
+			};
+			stringCompareFunctionPointer stringComparer;
+			std::sort(eqvDB.begin(), eqvDB.end(), stringComparer);
+
 			for(int i=0; i<eqvDB.size(); i++){
 				if(parser.indexOf(laterProgramLine.text, eqvDB[i].first) != -1){
-					if(largestMatchingEqv == NULL){
-						largestMatchingEqv = &eqvDB[i];
-					}else{
-						if(largestMatchingEqv->first.length() < eqvDB[i].first.length()){
-							largestMatchingEqv = &eqvDB[i];
-						}
-					}
+					replacedBack = parser.replace(replacedBack, eqvDB[i].first, eqvDB[i].second);
+					program[laterlineNum].text = immuneFront + replacedBack;
 				}
-			}
-			if(largestMatchingEqv != NULL){
-				replacedBack = parser.replace(replacedBack, largestMatchingEqv->first, largestMatchingEqv->second);
-				program[laterlineNum].text = immuneFront + replacedBack;
 			}
 		}
 	}
@@ -1193,9 +1192,11 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 
 
 void Assembler::addException(AssemblerException const &e){
-	//CONDITIONS TO ACTUALLY ADD
+	//CONDITIONS TO REJECT ADDING
+	//line is pseudo instruction pad line
 	if(e.programLine->text == ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD){
 		return;
 	}
+	//Add
 	recoverableExceptions.push_back(e);
 }

@@ -56,7 +56,7 @@ int main(){
 	assembler.setEncoder(&encoder);
 	
 	
-	string programName = "EXCEPTIONTEST.txt";
+	//string programName = "EXCEPTIONTEST.txt";
 	//string programName = "99bottles.txt";
 	//string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "includetest.txt";
@@ -66,8 +66,8 @@ int main(){
 	//string programName = "hw2MACROS.txt";
 	//string programName = "macrotest.txt";
 	//string programName = "recursiontest.txt";
-	//tring programName = "prime-1.txt";
-	//string programName = "prime-2.s";
+	//string programName = "prime-1.txt";
+	string programName = "prime-2.s";
 	//string programName = "fact.s";
 	//string programName = "testProgram2.txt";
 	string objectFileName;
