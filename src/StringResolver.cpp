@@ -31,7 +31,7 @@ void StringResolver::addInstructionDataBank(InstructionDataBank* bank){
 InstructionData* StringResolver::getInstructionData(string instructionString){
 	string hashedInstructionString = getHashableStringFromInstructionString(instructionString);
 	int bin = hash(hashedInstructionString);
-	for(unsigned int i=0; i<table[bin].size(); i++){
+	for(int i=0; i<table[bin].size(); i++){
 		if(instructionStrIsMatch(table[bin][i], instructionString)){
 			return table[bin][i];
 		}
@@ -71,7 +71,7 @@ string StringResolver::getHashableStringFromInstructionTokens(string name, vecto
 	stringstream ss;
 	ss << name << ":";
 
-	for(unsigned int i=0; i<arguments.size(); i++){
+	for(int i=0; i<arguments.size(); i++){
 		string tmpArg = arguments[i];
 		string tmpTokStr;
 		bool isNestedByParentheses = Parser::isNestedByParentheses(tmpArg);
@@ -103,7 +103,7 @@ string StringResolver::getHashableStringFromInstructionData(InstructionData* id)
 	stringstream ss;
 	ss << id->getName() << ":";
 
-	for(unsigned int i=0; i<id->getNumParameters(); i++){
+	for(int i=0; i<id->getNumParameters(); i++){
 		string tmpTokStr;
 		if(id->parameterIsGPRegister(i)){
 			tmpTokStr = "g$";

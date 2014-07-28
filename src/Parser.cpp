@@ -110,7 +110,7 @@ string Parser::trim(string str){
 }
 
 string Parser::replaceChar(string str, char before, char after){
-	for(unsigned int i=0; i<str.length(); i++){
+	for(int i=0; i<str.length(); i++){
 		if(str[i] == before){
 			str[i] = after;
 		}
@@ -200,7 +200,7 @@ vector<string> Parser::tokenizeInstruction(string str){
 	}
 	ss.clear();
 	//split tokens by parenthises
-	for(unsigned int i=0; i<tokensBeforeParenSplit.size(); i++){
+	for(int i=0; i<tokensBeforeParenSplit.size(); i++){
 		stringstream ss(tokensBeforeParenSplit[i]);
 		string beforeParen, afterParen;
 		getline(ss, beforeParen, '(');
@@ -318,6 +318,7 @@ bool Parser::extractAndRemoveFirstToken(string &src, string &token){
 	}
 	while(isWhiteSpace(src[i]) && i<src.length()){i++;}
 	src = src.substr(i);
+	return trim(src) != "";
 }
 
 

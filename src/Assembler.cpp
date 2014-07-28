@@ -840,25 +840,46 @@ void Assembler::pseudoInstructionReplace(){
 					case 1:
 						{
 							//bgt
-
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string labelName = tokenizedInstruction[3];
+							string line1 = "slt\t$at, " + registerName2 + ", " + registerName1;
+							string line2 = "bne\t$at, $zero, " + labelName;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
 						}
 						break;
 					case 2:
 						{
 							//ble
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string labelName = tokenizedInstruction[3];
+							string line1 = "slt\t$at, " + registerName2 + ", " + registerName1;
+							string line2 = "beq\t$at, $zero, " + labelName;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
 
 						}
 						break;
 					case 3:
 						{
 							//blt
-
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string labelName = tokenizedInstruction[3];
+							string line1 = "slt\t$at, " + registerName1 + ", " + registerName2;
+							string line2 = "bne\t$at, $zero, " + labelName;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
 						}
 						break;
 					case 4:
 						{
 							//clear
-
+							string registerName1 = tokenizedInstruction[1];
+							string line1 = "add\t" + registerName1 + ", $zero, $zero";
+							alignedProgram[i].token = line1;
 						}
 						break;
 					case 5:
@@ -1016,7 +1037,7 @@ void Assembler::replaceLabels(){
 				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
-				virtualAddr immediateVal;
+				virtualAddr immediateVal = 0;
 				if(isBranch){
 					int32_t offset = labelAddr - instructionAddr - 4;	//pc still increments by 4 on branches
 					offset >>= 2;

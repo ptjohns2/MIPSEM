@@ -58,7 +58,7 @@ Literals::Literals(){
 	StandardCharacterStringRepresentations[29] = "\\x1D";
 	StandardCharacterStringRepresentations[30] = "\\x1E";
 	StandardCharacterStringRepresentations[31] = "\\x1F";
-	for(unsigned int i = ' '; i<NUM_CHARACTERS; i++){
+	for(int i = ' '; i<NUM_CHARACTERS; i++){
 		string tmp;
 		tmp += (char)i;
 		StandardCharacterStringRepresentations[i] = tmp;
@@ -139,7 +139,7 @@ bool Literals::tokenIsDecimalLiteral(string token){
 	int start = 0;
 	if(token[0] == '0' && token.length() > 1){return false;}//if octal return false
 	if(token[0] == '-'){start++;}
-	for(unsigned int i=start; i<token.length(); i++){
+	for(int i=start; i<token.length(); i++){
 		if(!isDecimalDigit(token[i])){return false;}
 	}
 	return true;
@@ -159,7 +159,7 @@ int Literals::getDecimalLiteralValue(string token){
 	bool isNeg = token[0] == '-';
 	int start = isNeg? 1 : 0;
 	int retVal = 0;
-	for(unsigned int i=start; i<token.length(); i++){
+	for(int i=start; i<token.length(); i++){
 		retVal *= 10;
 		retVal += getDecimalDigitValue(token[i]);
 	}
@@ -186,7 +186,7 @@ bool Literals::tokenIsFloatLiteral(string token){
 	int start = 0;
 	if(token[0] == '-'){start++;}
 	bool decimalFound = false;
-	for(unsigned int i=start; i<token.length(); i++){
+	for(int i=start; i<token.length(); i++){
 		if(token[i] == '.'){
 			if(decimalFound == true){
 				return false;
@@ -242,7 +242,7 @@ bool Literals::isHexDigit(char c){
 		|| (c >= 'A' && c <= 'F');
 }
 bool Literals::tokenIsRawHexLiteral(string token){
-	for(unsigned int i=0; i<token.length(); i++){
+	for(int i=0; i<token.length(); i++){
 		if(!isHexDigit(token[i])){
 			return false;
 		}
@@ -269,7 +269,7 @@ int Literals::getHexLiteralValue(string token){
 }
 int Literals::getRawHexLiteralValue(string token){
 	int retVal = 0;
-	for(unsigned int i=0; i<token.length(); i++){
+	for(int i=0; i<token.length(); i++){
 		retVal <<= 4;
 		retVal |= getHexDigitValue(token[i]);
 	}
@@ -304,7 +304,7 @@ bool Literals::isBinaryDigit(char c){
 	return c == '0' || c == '1';
 }
 bool Literals::tokenIsRawBinaryLiteral(string token){
-	for(unsigned int i=0; i<token.length(); i++){
+	for(int i=0; i<token.length(); i++){
 		if(!isBinaryDigit(token[i])){return false;}
 	}
 	return true;
@@ -372,7 +372,7 @@ string Literals::incBitStrByOne(string binStr){
 	return binStr;
 }
 string Literals::onesComplement(string binStr){
-	for(unsigned int i=0; i<binStr.length(); i++){
+	for(int i=0; i<binStr.length(); i++){
 		binStr[i] = flipBit(binStr[i]);
 	}
 	return binStr;
@@ -398,7 +398,7 @@ bool Literals::isOctalDigit(char c){
 	return c >= '0' && c <= '7';
 }
 bool Literals::tokenIsRawOctalLiteral(string token){
-	for(unsigned int i=0; i<token.length(); i++){
+	for(int i=0; i<token.length(); i++){
 		if(!isOctalDigit(token[i])){return false;}
 	}
 	return true;
