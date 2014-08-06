@@ -131,7 +131,7 @@ class Parser{
 		static string const JumpInstructionNames[];
 		unordered_map<string, int> JumpInstructionNameMap;
 
-		#define NUM_PSEUDO_INSTRUCTION_NAMES	18
+		#define NUM_PSEUDO_INSTRUCTION_NAMES	16
 		static pair<string, int> const PseudoInstructionNamesAndNumberOfLinesToInsert[];
 		unordered_map<string, int> PseudoInstructionNameMap;
 

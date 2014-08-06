@@ -884,12 +884,6 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 5:
 						{
-							//div
-
-						}
-						break;
-					case 6:
-						{
 							//la
 							string labelName = tokenizedInstruction[2];
 							if(!tokenIsInLabelDB(labelName)){
@@ -911,7 +905,7 @@ void Assembler::pseudoInstructionReplace(){
 							alignedProgram[i+1].token = line2;
 						}
 						break;
-					case 7:
+					case 6:
 						{
 							//li
 							string immediateString = tokenizedInstruction[2];
@@ -939,7 +933,7 @@ void Assembler::pseudoInstructionReplace(){
 
 						}
 						break;
-					case 8:
+					case 7:
 						{
 							//move
 							string registerName1 = tokenizedInstruction[1];
@@ -948,55 +942,74 @@ void Assembler::pseudoInstructionReplace(){
 							alignedProgram[i].token = line1;
 						}
 						break;
-					case 9:
-						{
-							//mul
-
-						}
-						break;
-					case 10:
+					case 8:
 						{
 							//neg
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string line1 = "sub\t" + registerName1 + ", $zero, " + registerName2;
+							alignedProgram[i].token = line1;
+						}
+						break;
+					case 9:
+						{
+							//not
+							string registerName1 = tokenizedInstruction[1];
+							string registerName2 = tokenizedInstruction[2];
+							string line1 = "addi\t" + registerName1 + ", $zero, -1";
+							string line2 = "xor\t" + registerName1 + ", " + registerName1 + "," + registerName2;
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
+						}
+						break;
+						/*
+						PUSH:
+						sub $sp,$sp,4
+						sw $t2,($sp)
 
+						POP:
+						lw $t2,($sp)
+						addiu $sp,$sp,4
+						*/
+					case 10:
+						{
+							//push
+							string registerName1 = tokenizedInstruction[i];
+							string line1 = "sub\t$sp, $sp, 4";
+							string line2 = "sw\t" + registerName1 + ", 0($sp)";
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
 						}
 						break;
 					case 11:
 						{
-							//not
-
+							//pop
+							string registerName1 = tokenizedInstruction[i];
+							string line1 = "lw\t" + registerName1 + ", 0($sp)";
+							string line2 = "addi\t$sp, $sp, 4";
+							alignedProgram[i].token = line1;
+							alignedProgram[i+1].token = line2;
 						}
 						break;
 					case 12:
-						{
-							//push
-
-						}
-						break;
-					case 13:
-						{
-							//pop
-
-						}
-						break;
-					case 14:
 						{
 							//peak
 
 						}
 						break;
-					case 15:
+					case 13:
 						{
 							//rem
 
 						}
 						break;
-					case 16:
+					case 14:
 						{
 							//sge
 
 						}
 						break;
-					case 17:
+					case 15:
 						{
 							//sgt
 

@@ -13,7 +13,8 @@
 5. Object file assembly from .asm sources	-	*stable*   
 6. Instruction emulation from memory	-	  nearly complete for most commonly used instructions    
 7. Pseudoinstruction replacement	-	*stable*    
-8. Macro replacement	-	*stable*       
+8. Macro replacement	-	*stable*     
+9. MIPS32 asm source error detection	-	*stable*  
      
 ###Example MIPS32 program:               
       
