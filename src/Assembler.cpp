@@ -974,7 +974,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 10:
 						{
 							//push
-							string registerName1 = tokenizedInstruction[i];
+							string registerName1 = tokenizedInstruction[1];
 							string line1 = "sub\t$sp, $sp, 4";
 							string line2 = "sw\t" + registerName1 + ", 0($sp)";
 							alignedProgram[i].token = line1;
@@ -984,7 +984,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 11:
 						{
 							//pop
-							string registerName1 = tokenizedInstruction[i];
+							string registerName1 = tokenizedInstruction[1];
 							string line1 = "lw\t" + registerName1 + ", 0($sp)";
 							string line2 = "addi\t$sp, $sp, 4";
 							alignedProgram[i].token = line1;
@@ -994,7 +994,9 @@ void Assembler::pseudoInstructionReplace(){
 					case 12:
 						{
 							//peak
-
+							string registerName = tokenizedInstruction[1];
+							string line = "lw\t" + registerName + ", 0($sp)";
+							alignedProgram[i].token = line;
 						}
 						break;
 					case 13:
