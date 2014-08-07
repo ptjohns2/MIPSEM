@@ -4,29 +4,25 @@
 #include <stdint.h>
 #include <utility>
 
-#define INSTRUCTION_DATA_HASH_TABLE_SIZE	(1009)
 #define NUMBER_OF_OPCODES					(64)
-#define WORDSIZE							(32)
-#define INSTRUCTIONSIZE						(WORDSIZE)
-#define HWORDSIZE							(WORDSIZE / 2)
-#define BYTESIZE							(8)
-#define OPCODESIZE							(6)
-#define NUMBER_OF_PARAMETERS					(4)
+#define NUMBER_OF_INSTRUCTION_PARAMETERS	(4)
 #define NUMBER_OF_INSTRUCTIONS				(377)
 
-#define SIZE_BYTE (1)
-#define SIZE_WORD (4 * SIZE_BYTE)
-#define SIZE_HALF (SIZE_WORD / 2)
-#define SIZE_FLOAT (SIZE_WORD)
-#define SIZE_DOUBLE (2 * SIZE_FLOAT)
+#define SIZE_BYTES_BYTE						(1)
+#define SIZE_BYTES_WORD						(4 * SIZE_BYTES_BYTE)
+#define SIZE_BYTES_HWORD					(SIZE_BYTES_WORD / 2)
+#define SIZE_BYTES_FLOAT					(SIZE_BYTES_WORD)
+#define SIZE_BYTES_DOUBLE					(2 * SIZE_BYTES_FLOAT)
 
-#define DONTCAREREPLACEMENT					('0')
+#define SIZE_BITS_BYTE						(8 * SIZE_BYTES_BYTE)
+#define SIZE_BITS_WORD						(SIZE_BYTES_WORD * SIZE_BITS_BYTE)
+#define SIZE_BITS_HWORD						(SIZE_BITS_WORD / 2)
+#define SIZE_BITS_FLOAT						(SIZE_BITS_WORD)
+#define SIZE_BITS_DOUBLE					(2 * SIZE_BITS_FLOAT)
 
-#define MEMORY_SECTION_RESERVED				(0x0)
-#define MEMORY_SECTION_TEXT					(0x00400000)
-#define MEMORY_SECTION_STATIC_DATA			(0x10000000)
-#define MEMORY_SECTION_DYNAMIC_DATA			(0x10008000)
-#define MEMORY_SECTION_STACK				(0x7ffffffc)
+#define SIZE_BITS_OPCODE					(6)
+
+
 
 typedef uint32_t		instr;
 typedef unsigned char	byte;

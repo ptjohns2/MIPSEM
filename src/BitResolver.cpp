@@ -26,7 +26,7 @@ void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
 
 
 InstructionData* BitResolver::getInstructionData(instr ins){
-	int opcode = ins >> (INSTRUCTIONSIZE - OPCODESIZE);
+	int opcode = ins >> (SIZE_BITS_WORD - SIZE_BITS_OPCODE);
 	for(int i=0; i<table[opcode].size(); i++){
 		if(instrIsMatch(table[opcode][i], ins)){
 			return table[opcode][i];

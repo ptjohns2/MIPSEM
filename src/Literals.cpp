@@ -335,7 +335,7 @@ string Literals::getBinaryLiteralString(int val){
 	if(isNeg){
 		val = -1 * val;
 	}
-	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(val);
+	bitset<SIZE_BITS_WORD> tmpBitset = bitset<SIZE_BITS_WORD>(val);
 	string binStr = tmpBitset.to_string();
 	if(isNeg){
 		binStr = twosComplement(binStr);
@@ -345,7 +345,7 @@ string Literals::getBinaryLiteralString(int val){
 
 //utilities
 uint32_t Literals::binStrToUnsignedDecInt(string binStr){
-	bitset<INSTRUCTIONSIZE> tmpBitset = bitset<INSTRUCTIONSIZE>(binStr);
+	bitset<SIZE_BITS_WORD> tmpBitset = bitset<SIZE_BITS_WORD>(binStr);
 	uint32_t retVal = (uint32_t)(tmpBitset.to_ulong());
 	return retVal;
 }

@@ -35,7 +35,7 @@ class MemoryMap{
 	public:
 		MemoryMap();
 		MemoryMap(string fileName);
-		MemoryMap(MemoryMap const & obj);
+		MemoryMap(MemoryMap const &obj);
 		~MemoryMap();
 		const MemoryMap& operator=(const MemoryMap &rhs);
 		void deepCopy(const MemoryMap* obj);

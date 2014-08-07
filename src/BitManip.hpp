@@ -9,7 +9,6 @@
 
 extern inline int32_t signExtendWord(uint32_t, size_t);
 
-extern void printbin(const void* p, int len);
 
 
 //===============Template functions:

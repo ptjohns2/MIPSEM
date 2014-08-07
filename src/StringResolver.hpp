@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#define INSTRUCTION_DATA_HASH_TABLE_SIZE	(1009)
 
 class StringResolver{
 	public:

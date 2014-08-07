@@ -53,9 +53,9 @@ class InstructionData{
 		instr face;
 		instr mask;
 
-		char parameterTypes[NUMBER_OF_PARAMETERS];
-		bool parameterParenthises[NUMBER_OF_PARAMETERS];
-		bitrange parameterBitranges[NUMBER_OF_PARAMETERS];
+		char parameterTypes[NUMBER_OF_INSTRUCTION_PARAMETERS];
+		bool parameterParenthises[NUMBER_OF_INSTRUCTION_PARAMETERS];
+		bitrange parameterBitranges[NUMBER_OF_INSTRUCTION_PARAMETERS];
 		int numParameters;
 
 		bool normalEncoding;

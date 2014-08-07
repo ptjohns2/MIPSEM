@@ -55,7 +55,7 @@ InstructionData::InstructionData(int id, string name, int opcode, instr face, in
 	this->instructionIsBranch = isBranch;
 
 	int numParameters = 0;
-	for(int i=0; i<NUMBER_OF_PARAMETERS; i++){
+	for(int i=0; i<NUMBER_OF_INSTRUCTION_PARAMETERS; i++){
 		if(parameterTypes[i] == TOKEN_NO_PARAM){
 			break;
 		}

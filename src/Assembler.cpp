@@ -128,7 +128,7 @@ void Assembler::init(){
 	currentMemorySegment = DIRECTIVE_DATA;
 	currentValueTypeSpecifier = DIRECTIVE_WORD;
 	currentAction = ACTION_INIT;
-	currentByteAlignment = SIZE_WORD;
+	currentByteAlignment = SIZE_BYTES_WORD;
 	
 	defaultObjectNamePostfix = "tmpObj.obj"; 
 	defaultAlignedProgramNamePostfix = ".obj.txt"; 
@@ -416,39 +416,39 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 		//Memory value type specifiers (integral)
 		case DIRECTIVE_BYTE:
 			currentValueTypeSpecifier = DIRECTIVE_BYTE;
-			currentByteAlignment = SIZE_BYTE;
+			currentByteAlignment = SIZE_BYTES_BYTE;
 			currentAction = ACTION_MEMWRITE_INTEGRAL;
 			break;
 		case DIRECTIVE_HALF:
 			currentValueTypeSpecifier = DIRECTIVE_HALF;
-			currentByteAlignment = SIZE_HALF;
+			currentByteAlignment = SIZE_BYTES_HWORD;
 			currentAction = ACTION_MEMWRITE_INTEGRAL;
 			break;
 		case DIRECTIVE_WORD:
 			currentValueTypeSpecifier = DIRECTIVE_WORD;
-			currentByteAlignment = SIZE_WORD;
+			currentByteAlignment = SIZE_BYTES_WORD;
 			currentAction = ACTION_MEMWRITE_INTEGRAL;
 			break;
 		case DIRECTIVE_FLOAT:
 			currentValueTypeSpecifier = DIRECTIVE_FLOAT;
-			currentByteAlignment = SIZE_FLOAT;
+			currentByteAlignment = SIZE_BYTES_FLOAT;
 			currentAction = ACTION_MEMWRITE_INTEGRAL;
 			break;
 		case DIRECTIVE_DOUBLE:
 			currentValueTypeSpecifier = DIRECTIVE_DOUBLE;
-			currentByteAlignment = SIZE_DOUBLE;
+			currentByteAlignment = SIZE_BYTES_DOUBLE;
 			currentAction = ACTION_MEMWRITE_INTEGRAL;
 			break;
 
 		//Memory value type specifiers (string)
 		case DIRECTIVE_ASCII:
 			currentValueTypeSpecifier = DIRECTIVE_ASCII;
-			currentByteAlignment = SIZE_BYTE;
+			currentByteAlignment = SIZE_BYTES_BYTE;
 			currentAction = ACTION_MEMWRITE_STRING;
 			break;
 		case DIRECTIVE_ASCIIZ:
 			currentValueTypeSpecifier = DIRECTIVE_ASCIIZ;
-			currentByteAlignment = SIZE_BYTE;
+			currentByteAlignment = SIZE_BYTES_BYTE;
 			currentAction = ACTION_MEMWRITE_STRING;
 			break;
 
@@ -457,7 +457,7 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 			currentAction = ACTION_ALIGN;
 			break;
 		case DIRECTIVE_SPACE:
-			currentByteAlignment = SIZE_BYTE;
+			currentByteAlignment = SIZE_BYTES_BYTE;
 			currentAction = ACTION_SPACE;
 			break;
 		case DIRECTIVE_INCLUDE:
@@ -581,7 +581,7 @@ void Assembler::alignRawProgram(){
 					atom.programLine = &program[lineNum];
 					alignedProgram.push_back(atom);
 					
-					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTE;
+					virtualAddr segmentIncrementSize = rawString.length() * SIZE_BYTES_BYTE;
 					if(currentValueTypeSpecifier == DIRECTIVE_ASCIIZ){
 						segmentIncrementSize+=2;
 					}
@@ -606,7 +606,7 @@ void Assembler::alignRawProgram(){
 				break;
 			case ACTION_SPACE:
 				{
-					currentByteAlignment = SIZE_BYTE;
+					currentByteAlignment = SIZE_BYTES_BYTE;
 					alignSegmentTop();
 					flushLabelBuffer();
 
@@ -634,7 +634,7 @@ void Assembler::alignRawProgram(){
 				break;
 			case ACTION_INSTRUCTION_ENCODE:
 				{
-					currentByteAlignment = SIZE_WORD;
+					currentByteAlignment = SIZE_BYTES_WORD;
 					alignSegmentTop();
 					flushLabelBuffer();
 
@@ -644,7 +644,7 @@ void Assembler::alignRawProgram(){
 					atom.programLine = &program[lineNum];
 					alignedProgram.push_back(atom);
 
-					incrementSegmentTop(SIZE_WORD);
+					incrementSegmentTop(SIZE_BYTES_WORD);
 				}
 				break;
 			default:
@@ -709,14 +709,14 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 				//TODO: semi-redundant case switch, fix with array to index into to find SIZE of token
 				case DIRECTIVE_BYTE:
 					{
-						memorySegmentTopIncrementationSize = SIZE_BYTE;
+						memorySegmentTopIncrementationSize = SIZE_BYTES_BYTE;
 						char val = parser.literals.getLiteralValue(currentLiteralToken);
 						mappedProgramString = parser.literals.getCharLiteralString(val);
 					}
 					break;
 				case DIRECTIVE_HALF:
 					{
-						memorySegmentTopIncrementationSize = SIZE_HALF;
+						memorySegmentTopIncrementationSize = SIZE_BYTES_HWORD;
 						uint16_t val = parser.literals.getLiteralValue(currentLiteralToken);
 						mappedProgramString = parser.literals.getDecimalLiteralString(val);
 					}
@@ -724,7 +724,7 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 				case DIRECTIVE_WORD:
 					{
 						//Standard literal value + instructions addon
-						memorySegmentTopIncrementationSize = SIZE_WORD;
+						memorySegmentTopIncrementationSize = SIZE_BYTES_WORD;
 						if(parser.tokenIsInstructionName(currentLiteralToken)){
 							//Add instruction
 							mappedProgramString = currentLine;
@@ -737,14 +737,14 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 					break;
 				case DIRECTIVE_FLOAT:
 					{
-						memorySegmentTopIncrementationSize = SIZE_FLOAT;
+						memorySegmentTopIncrementationSize = SIZE_BYTES_FLOAT;
 						float val = parser.literals.getFloatLiteralValue(currentLiteralToken);
 						mappedProgramString = parser.literals.getFloatLiteralString(val);
 					}
 					break;
 				case DIRECTIVE_DOUBLE:
 					{
-						memorySegmentTopIncrementationSize = SIZE_DOUBLE;
+						memorySegmentTopIncrementationSize = SIZE_BYTES_DOUBLE;
 						double val = parser.literals.getDoubleLiteralValue(currentLiteralToken);
 						mappedProgramString = parser.literals.getFloatLiteralString(val);
 					}

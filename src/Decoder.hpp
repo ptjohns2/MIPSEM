@@ -24,7 +24,7 @@ class Decoder{
 		static int32_t decodeArgumentToValue(instr ins, InstructionData* id, int parameterNumber);
 		
 		static string decodeInstruction(InstructionData* id, instr ins);
-		static string decodeAbnormalInstruction(InstructionData* id, instr ins, int32_t argumentValues[NUMBER_OF_PARAMETERS]);
+		static string decodeAbnormalInstruction(InstructionData* id, instr ins, int32_t argumentValues[NUMBER_OF_INSTRUCTION_PARAMETERS]);
 
 
 	private:		

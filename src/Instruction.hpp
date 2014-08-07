@@ -13,7 +13,7 @@ class Instruction{
 	public:
 		//Methods
 		Instruction();
-		Instruction(InstructionData* instructionData, string asmString, instr bin, int32_t arguments[NUMBER_OF_PARAMETERS]);
+		Instruction(InstructionData* instructionData, string asmString, instr bin, int32_t arguments[NUMBER_OF_INSTRUCTION_PARAMETERS]);
 		~Instruction();
 
 		InstructionData* getInstructionData() const;
@@ -26,7 +26,7 @@ class Instruction{
 		InstructionData* instructionData;
 		string asmString;
 		instr bin;
-		int32_t arguments[NUMBER_OF_PARAMETERS];
+		int32_t arguments[NUMBER_OF_INSTRUCTION_PARAMETERS];
 		
 
 	private:

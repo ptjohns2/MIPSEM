@@ -21,7 +21,7 @@ Instruction Decoder::buildInstruction(instr ins){
 	}
 
 	string asmString;
-	int32_t argumentValues[NUMBER_OF_PARAMETERS];
+	int32_t argumentValues[NUMBER_OF_INSTRUCTION_PARAMETERS];
 	if(id->isDecodedNormally()){
 		//get argument values
 		for(int i=0; i<id->getNumParameters(); i++){
@@ -29,7 +29,7 @@ Instruction Decoder::buildInstruction(instr ins){
 			int32_t argVal = decodeArgumentToValue(ins, id, i);
 			argumentValues[i] = argVal;
 		}
-		for(int i=id->getNumParameters(); i<NUMBER_OF_PARAMETERS; i++){
+		for(int i=id->getNumParameters(); i<NUMBER_OF_INSTRUCTION_PARAMETERS; i++){
 			argumentValues[i] = 0;
 		}
 		//decode normal instr
@@ -46,8 +46,8 @@ Instruction Decoder::buildInstruction(instr ins){
 
 
 int32_t Decoder::extractBitrangeUnsigned(instr value, unsigned int start, unsigned int end){
-	value = value << (INSTRUCTIONSIZE - 1 - start);	/*	shift out high bits	*/
-	value = value >> (INSTRUCTIONSIZE - 1 - start);	/*	shift back into place	*/
+	value = value << (SIZE_BITS_WORD - 1 - start);	/*	shift out high bits	*/
+	value = value >> (SIZE_BITS_WORD - 1 - start);	/*	shift back into place	*/
 	value = value >> end;		/*	shift out low bits	*/
 	return (int32_t)value;
 	//return (value & ((1 << start) - 1)) & (value & ~((1 << end) - 1)) >> end;
@@ -58,8 +58,8 @@ int32_t Decoder::extractBitrangeUnsigned(instr value, bitrange range){
 
 int32_t Decoder::extractBitrangeSigned(instr value, unsigned int start, unsigned int end){
 	int32_t signedValue = (int32_t)(value);
-	signedValue = signedValue << (INSTRUCTIONSIZE - 1 - start);	/*	shift out high bits	*/
-	signedValue = signedValue >> (INSTRUCTIONSIZE - 1 - start);	/*	shift back into place	*/
+	signedValue = signedValue << (SIZE_BITS_WORD - 1 - start);	/*	shift out high bits	*/
+	signedValue = signedValue >> (SIZE_BITS_WORD - 1 - start);	/*	shift back into place	*/
 	signedValue = signedValue >> end;		/*	shift out low bits	*/
 	return signedValue;
 	//return (value & ((1 << start) - 1)) & (value & ~((1 << end) - 1)) >> end;
@@ -124,7 +124,7 @@ string Decoder::decodeInstruction(InstructionData* id, instr ins){
 	return ss.str();
 }
 
-string Decoder::decodeAbnormalInstruction(InstructionData* id, instr ins, int32_t argumentValues[NUMBER_OF_PARAMETERS]){
+string Decoder::decodeAbnormalInstruction(InstructionData* id, instr ins, int32_t argumentValues[NUMBER_OF_INSTRUCTION_PARAMETERS]){
 	stringstream asmString;
 	switch(id->getID()){
 		case 179:
