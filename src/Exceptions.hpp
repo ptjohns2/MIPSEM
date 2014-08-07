@@ -16,6 +16,7 @@
 #define ERROR_INVALID_LITERAL			("Invalid literal")
 #define ERROR_INVALID_IMMEDIATE_LI		("Invalid immediate on \"li\" pseudoinstruction")
 #define ERROR_INVALID_INSTRUCTION		("Unable to encode instruction")
+#define ERROR_INVALID_PSEUDOINSTRUCTION	("Unable to translate pseudoinstruction")
 
 using std::exception;
 using std::string;

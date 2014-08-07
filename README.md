@@ -2,7 +2,7 @@
 
 ##Assembler and emulator for MIPS32 assembly   
    
->Decodes and encodes all MIPS32 instructions.  MIPS32 asm programs can be mapped to a custom .mmap file which can be mapped to MIPSEM's 32-bit addressable virtual memory system.  The virtual CPU can then execute instructions from memory by using a decoded instruction cache to speed up execution.  This results in no additional instruction decoding overhead within loops or function calls, as well as the ability to write self modifying code.   
+>Decodes and encodes all MIPS32 instructions.  MIPS32 asm programs can be mapped to a custom file format which can be mapped to MIPSEM's 32-bit addressable virtual memory system.  The virtual CPU can then execute instructions from memory by using a decoded instruction cache to speed up execution.  This results in no additional instruction decoding overhead within loops or consecutively called function calls.  Cache coherency is also implemented in the instruction decoder cache to make sure that self modifying MIPS32 code can be written.   
    
    
 ##Progress:   
@@ -11,7 +11,7 @@
 3. Virtual memory system	-	*stable*     
 4. Object file disk serialization	-	*stable*     
 5. Object file assembly from .asm sources	-	*stable*   
-6. Instruction emulation from memory	-	  nearly complete for most commonly used instructions    
+6. Instruction emulation from memory	-	  *stable for majority of MIPS32 instructions*       
 7. Pseudoinstruction replacement	-	*stable*    
 8. Macro replacement	-	*stable*     
 9. MIPS32 asm source error detection	-	*stable*  
@@ -23,14 +23,14 @@
 
 ####### MACROS
 
-.eqv	INSTRUCTION_ENCODING__addi_$v0_$0_0	0x20020000	
+.eqv	INSTRUCTION_ENCODING__addi_$v0_$0_0	0x20020000	#all text after .eqv name included in the macro, including spaces separated tokens (trimmed after) to allow for instructions to be .eqv'd
 
-.macro printString(%label)
+.macro printString(%label)	#macro parameters separated by comma, no required naming conventions
 	li	$t1, INSTRUCTION_ENCODING__addi_$v0_$0_0
-	addi	$t1, $t1, 0b0100
+	addi	$t1, $t1, 0b0100	#binary literals supported
 	la	$t0, nopAddr1
 	sw	$t1, 0($t0)
-	nopAddr1:	nop
+	nopAddr1:	nop		#labels renamed during macro replacement section of assembly to prevent label name collisions when a macro is used multiple times
 	la	$a0, %label
 	la	$t2, instructionAddr	#$t2 = instructionAddr
 	lw	$t1, 0($t2)		#$t1 = *$t2 = *instructionAddr
@@ -44,17 +44,17 @@
 	syscall
 .end_macro
 	
-####### .DATA SECTION
-.data
+.data	####### .DATA SECTION
+
 stringAddr:		.asciiz	"Hello, World!"
 
 #encode "syscall" instruction to this word in .data section
 instructionAddr:	.word	syscall	
 
-####### .TEXT SECTION
-.text
+.text	####### .TEXT SECTION
+main:
 	printString(stringAddr)
-	exit					
+	exit	# syscall #10
 ```    
       
 

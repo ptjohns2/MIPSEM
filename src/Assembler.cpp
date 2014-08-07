@@ -825,9 +825,11 @@ void Assembler::pseudoInstructionReplace(){
 				int numInsertedLines = parser.getPseudoInstructionNumberOfLinesToInsert(mnemonic);
 				vector<string> tokenizedInstruction = parser.tokenizeInstruction(line);
 				switch(pseudoInstructionNumber){
+					//TODO: add exceptions for incorrect number of instruction arguments
 					case 0:
 						{
-							//bge
+							//bge	$reg1, $reg2, label
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -839,7 +841,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 1:
 						{
-							//bgt
+							//bgt	$reg1, $reg2, label
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -851,7 +854,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 2:
 						{
-							//ble
+							//ble	$reg1, $reg2, label
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -864,7 +868,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 3:
 						{
-							//blt
+							//blt	$reg1, $reg2, label
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -876,7 +881,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 4:
 						{
-							//clear
+							//clear	$reg
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string line1 = "add\t" + registerName1 + ", $zero, $zero";
 							alignedProgram[i].token = line1;
@@ -884,7 +890,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 5:
 						{
-							//la
+							//la	$reg, label
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string labelName = tokenizedInstruction[2];
 							if(!tokenIsInLabelDB(labelName)){
 								//EXCEPTION
@@ -907,7 +914,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 6:
 						{
-							//li
+							//li	$reg, imm
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string immediateString = tokenizedInstruction[2];
 
 							//EXCEPTION
@@ -935,7 +943,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 7:
 						{
-							//move
+							//move	$reg1, $reg2
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "add\t" + registerName1 + ", " + registerName2 + ", $zero";
@@ -944,7 +953,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 8:
 						{
-							//neg
+							//neg	$reg1, $reg2
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "sub\t" + registerName1 + ", $zero, " + registerName2;
@@ -953,7 +963,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 9:
 						{
-							//not
+							//not	$reg1, $reg2
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "addi\t" + registerName1 + ", $zero, -1";
@@ -973,7 +984,8 @@ void Assembler::pseudoInstructionReplace(){
 						*/
 					case 10:
 						{
-							//push
+							//push	$reg
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string line1 = "sub\t$sp, $sp, 4";
 							string line2 = "sw\t" + registerName1 + ", 0($sp)";
@@ -983,7 +995,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 11:
 						{
-							//pop
+							//pop	$reg
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string line1 = "lw\t" + registerName1 + ", 0($sp)";
 							string line2 = "addi\t$sp, $sp, 4";
@@ -993,7 +1006,8 @@ void Assembler::pseudoInstructionReplace(){
 						break;
 					case 12:
 						{
-							//peak
+							//peak	$reg
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName = tokenizedInstruction[1];
 							string line = "lw\t" + registerName + ", 0($sp)";
 							alignedProgram[i].token = line;
