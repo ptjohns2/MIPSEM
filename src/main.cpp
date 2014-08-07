@@ -58,7 +58,7 @@ int main(){
 	
 	//string programName = "EXCEPTIONTEST.txt";
 	//string programName = "99bottles.txt";
-	//string programName = "selfModifyingHelloWorld.txt";
+	string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "includetest.txt";
 	//string programName = "myTest.txt";
 	//string programName = "fakeFile.txt";
@@ -67,7 +67,7 @@ int main(){
 	//string programName = "macrotest.txt";
 	//string programName = "recursiontest.txt";
 	//string programName = "prime-1.txt";
-	string programName = "prime-2.s";
+	//string programName = "prime-2.s";
 	//string programName = "fact.s";
 	//string programName = "testProgram2.txt";
 	string objectFileName;

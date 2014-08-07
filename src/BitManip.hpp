@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h> // memcpy
 
-extern inline int32_t signExtend(uint32_t, size_t);
+extern inline int32_t signExtendWord(uint32_t, size_t);
 
 extern void printbin(const void* p, int len);
 

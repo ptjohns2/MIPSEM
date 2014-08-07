@@ -14,6 +14,12 @@
 #define NUMBER_OF_PARAMETERS					(4)
 #define NUMBER_OF_INSTRUCTIONS				(377)
 
+#define SIZE_BYTE (1)
+#define SIZE_WORD (4 * SIZE_BYTE)
+#define SIZE_HALF (SIZE_WORD / 2)
+#define SIZE_FLOAT (SIZE_WORD)
+#define SIZE_DOUBLE (2 * SIZE_FLOAT)
+
 #define DONTCAREREPLACEMENT					('0')
 
 #define MEMORY_SECTION_RESERVED				(0x0)
