@@ -512,11 +512,11 @@ inline void CPU::executeInstructionID_6(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_7(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	7	=	ADDI	:	$rt,	$rs,	-.imm,	_		
-	GPR[a0] = GPR[a1] + signExtendWord(a2, 16);
+	GPR[a0] = GPR[a1] + signExtendWord(a2, SIZE_BYTES_INSTRUCTION_FIELD_IMM);
 }
 inline void CPU::executeInstructionID_8(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	8	=	ADDIU	:	$rt,	$rs,	+.imm,	_		
-	GPR[a0] = GPR[a1] + signExtendWord(a2, 16);
+	GPR[a0] = GPR[a1] + signExtendWord(a2, SIZE_BYTES_INSTRUCTION_FIELD_IMM);
 }
 inline void CPU::executeInstructionID_9(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	9	=	ADDU	:	$rd,	$rs,	$rt,	_		
@@ -536,13 +536,13 @@ inline void CPU::executeInstructionID_12(uint32_t a0, uint32_t a1, uint32_t a2, 
 }
 inline void CPU::executeInstructionID_13(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	13	=	B	:	-.imm,	_,	_,	_		
-	PC += (signExtendWord(a0, 16) << 2);
+	PC += (signExtendWord(a0, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 }
 inline void CPU::executeInstructionID_14(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	14	=	BAL	:	-.imm,	_,	_,	_		
 	//TOD: +4 or 8?
 	GPR[31] = PC + 4;
-	PC += (signExtendWord(a0, 16) << 2);
+	PC += (signExtendWord(a0, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 }
 inline void CPU::executeInstructionID_15(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	15	=	BC1F	:	-.imm,	_,	_,	_		
@@ -611,102 +611,102 @@ inline void CPU::executeInstructionID_30(uint32_t a0, uint32_t a1, uint32_t a2, 
 inline void CPU::executeInstructionID_31(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	31	=	BEQ	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] == GPR[a1]){
-		uint32_t PCoffset = (signExtendWord(a2, 16) << 2);
+		uint32_t PCoffset = (signExtendWord(a2, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 		PC += PCoffset;
 	}
 }
 inline void CPU::executeInstructionID_32(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	32	=	BEQL	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] == GPR[a1]){
-		PC += (signExtendWord(a2, 16) << 2);
+		PC += (signExtendWord(a2, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_33(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	33	=	BGEZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] >= 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_34(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	34	=	BGEZAL	:	$rs,	-.imm,	_,	_		
 	GPR[31] = PC;
 	if((int32_t)GPR[a0] >= 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_35(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	35	=	BGEZALL	:	$rs,	-.imm,	_,	_		
 	GPR[31] = PC;
 	if((int32_t)GPR[a0] >= 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_36(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	36	=	BGEZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] >= 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_37(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	37	=	BGTZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] > 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_38(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	38	=	BGTZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] > 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_39(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	39	=	BLEZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] <= 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_40(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	40	=	BLEZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] <= 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_41(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	41	=	BLTZ	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] < 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_42(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	42	=	BLTZAL	:	$rs,	-.imm,	_,	_		
 	GPR[31] = PC;
 	if((int32_t)GPR[a0] < 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_43(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	43	=	BLTZALL	:	$rs,	-.imm,	_,	_		
 	GPR[31] = PC;
 	if((int32_t)GPR[a0] < 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_44(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	44	=	BLTZL	:	$rs,	-.imm,	_,	_		
 	if((int32_t)GPR[a0] < 0){
-		PC += (signExtendWord(a1, 16) << 2);
+		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_45(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	45	=	BNE	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] != GPR[a1]){
-		PC += (signExtendWord(a2, 16) << 2);
+		PC += (signExtendWord(a2, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_46(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	46	=	BNEL	:	$rs,	$rt,	-.imm,	_		
 	if(GPR[a0] != GPR[a1]){
-		PC += (signExtendWord(a2, 16) << 2);
+		PC += (signExtendWord(a2, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
 }
 inline void CPU::executeInstructionID_47(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1146,7 +1146,7 @@ inline void CPU::executeInstructionID_152(uint32_t a0, uint32_t a1, uint32_t a2,
 	//ABNORMAL_ENCODE/DECODE	
 	int32_t val = GPR[a1];
 	int num = 0;
-	for(int i=0; i<32; i++){
+	for(int i=0; i<SIZE_BITS_WORD; i++){
 		if(!(val < 0)){break;}
 		val <<= 1;
 		num++;
@@ -1158,7 +1158,7 @@ inline void CPU::executeInstructionID_153(uint32_t a0, uint32_t a1, uint32_t a2,
 	//ABNORMAL_ENCODE/DECODE	
 	int32_t val = GPR[a1];
 	int num = 0;
-	for(int i=0; i<32; i++){
+	for(int i=0; i<SIZE_BITS_WORD; i++){
 		if(val < 0){break;}
 		val <<= 1;
 		num++;
@@ -1406,7 +1406,7 @@ inline void CPU::executeInstructionID_206(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_207(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	207	=	LUI	:	$rt,	-.imm,	_,	_
-	int32_t shiftedVal = a1 << (NUM_BITS_IN_WORD / 2);
+	int32_t shiftedVal = a1 << (SIZE_BITS_WORD / 2);
 	GPR[a0] = shiftedVal;
 }
 inline void CPU::executeInstructionID_208(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1712,6 +1712,7 @@ inline void CPU::executeInstructionID_281(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_282(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	282	=	NOP	:	_,	_,	_,	_		
+	//do nothing	==	sll $zero, $zero, 0
 }
 inline void CPU::executeInstructionID_283(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	283	=	NOR	:	$rd,	$rs,	$rt,	_		
@@ -1868,8 +1869,8 @@ inline void CPU::executeInstructionID_318(uint32_t a0, uint32_t a1, uint32_t a2,
 inline void CPU::executeInstructionID_319(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	319	=	SLLV	:	$rd,	$rt,	$rs,	_		
 	uint32_t shamt = (uint32_t)GPR[a2];
-	shamt <<= 32 - 5;
-	shamt >>= 32 - 5;
+	shamt <<= SIZE_BITS_WORD - 5;
+	shamt >>= SIZE_BITS_WORD - 5;
 	GPR[a0] = GPR[a1] << shamt;
 }
 inline void CPU::executeInstructionID_320(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1903,8 +1904,8 @@ inline void CPU::executeInstructionID_326(uint32_t a0, uint32_t a1, uint32_t a2,
 inline void CPU::executeInstructionID_327(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	327	=	SRAV	:	$rd,	$rt,	$rs,	_		
 	uint32_t shamt = (uint32_t)GPR[a2];
-	shamt <<= 32 - 5;
-	shamt >>= 32 - 5;
+	shamt <<= SIZE_BITS_WORD - 5;
+	shamt >>= SIZE_BITS_WORD - 5;
 	GPR[a0] = GPR[a1] << shamt;
 }
 inline void CPU::executeInstructionID_328(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1916,8 +1917,8 @@ inline void CPU::executeInstructionID_329(uint32_t a0, uint32_t a1, uint32_t a2,
 	//	329	=	SRLV	:	$rd,	$rt,	$rs,	_		
 	uint32_t val = (uint32_t)GPR[a1];
 	uint32_t shamt = (uint32_t)GPR[a2];
-	shamt <<= 32 - 5;
-	shamt >>= 32 - 5;
+	shamt <<= SIZE_BITS_WORD - 5;
+	shamt >>= SIZE_BITS_WORD - 5;
 	GPR[a0] = val << shamt;
 }
 inline void CPU::executeInstructionID_330(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1968,14 +1969,14 @@ inline void CPU::executeInstructionID_340(uint32_t a0, uint32_t a1, uint32_t a2,
 inline void CPU::executeInstructionID_341(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	341	=	SWL	:	$rt,	-.imm,	($rs),	_		
 	uint32_t val = GPR[a0];
-	val = val >> 16;
+	val = val >> SIZE_BITS_HWORD;
 	uint16_t rightVal = (uint16_t)val;
 	MEM.writePOD<uint16_t>(GPR[a2] + a1, rightVal);
 }
 inline void CPU::executeInstructionID_342(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	342	=	SWLE	:	$rt,	-.[15,7],	($rs),	_		
 	uint32_t val = GPR[a0];
-	val = val >> 16;
+	val = val >> SIZE_BITS_HWORD;
 	uint16_t rightVal = (uint16_t)val;
 	MEM.writePOD<uint16_t>(GPR[a2] + a1, rightVal);
 }
@@ -2222,11 +2223,11 @@ inline void CPU::executeInstructionID_373(uint32_t a0, uint32_t a1, uint32_t a2,
 inline void CPU::executeInstructionID_374(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	374	=	WSBH	:	$rd,	$rt,	_,	_		
 	uint32_t val = GPR[a1];
-	uint32_t msb = val >> 16;
+	uint32_t msb = val >> SIZE_BITS_HWORD;
 	uint32_t lsb = val & 0x0000FFFF;
-	uint32_t newMsb = ((msb << 8) & 0x0000FFFF) | (msb >> 8);
-	uint32_t newLsb = ((lsb << 8) & 0x0000FFFF) | (lsb >> 8);
-	uint32_t newVal = (newLsb << 16) | newMsb;
+	uint32_t newMsb = ((msb << SIZE_BITS_BYTE) & 0x0000FFFF) | (msb >> SIZE_BITS_BYTE);
+	uint32_t newLsb = ((lsb << SIZE_BITS_BYTE) & 0x0000FFFF) | (lsb >> SIZE_BITS_BYTE);
+	uint32_t newVal = (newLsb << SIZE_BITS_HWORD) | newMsb;
 	GPR[a0] = newVal;
 }
 inline void CPU::executeInstructionID_375(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){

@@ -901,7 +901,7 @@ void Assembler::pseudoInstructionReplace(){
 								continue;
 							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
-							virtualAddr msb = labelAddr >> (NUM_BITS_IN_VIRTUAL_ADDR / 2);
+							virtualAddr msb = labelAddr >> (SIZE_BITS_VIRTUAL_ADDR / 2);
 							virtualAddr lsb = labelAddr & 0x0000FFFF;
 							string msbHex = parser.literals.getHexLiteralString(msb);
 							string lsbHex = parser.literals.getHexLiteralString(lsb);
@@ -929,7 +929,7 @@ void Assembler::pseudoInstructionReplace(){
 								addException(AssemblerException(atom.programLine, error, offendingToken));
 								continue;
 							}
-							virtualAddr msb = immediateVal >> (NUM_BITS_IN_WORD / 2);
+							virtualAddr msb = immediateVal >> (SIZE_BITS_WORD / 2);
 							virtualAddr lsb = immediateVal & 0x0000FFFF;
 							string msbHex = parser.literals.getHexLiteralString(msb);
 							string lsbHex = parser.literals.getHexLiteralString(lsb);

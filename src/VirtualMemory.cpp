@@ -148,7 +148,7 @@ void VirtualMemoryPageTable::init(){
 }
 
 uint32_t VirtualMemoryPageTable::calculatePageNumber(virtualAddr address){
-	return (address >> NUM_BITS_IN_PAGE_OFFSET);
+	return (address >> SIZE_BITS_PAGE_OFFSET);
 }
 
 VirtualMemoryPage* VirtualMemoryPageTable::getPageAddr(virtualAddr address){
@@ -175,7 +175,7 @@ VirtualMemoryPage::VirtualMemoryPage(uint32_t pageNumber){
 	init();
 	this->pageNumber = pageNumber;
 
-	lowerBound = (pageNumber << NUM_BITS_IN_PAGE_OFFSET);
+	lowerBound = (pageNumber << SIZE_BITS_PAGE_OFFSET);
 	upperBound = lowerBound + MAX_PAGE_OFFSET;
 }
 VirtualMemoryPage::~VirtualMemoryPage(){
@@ -204,8 +204,8 @@ MemorySegment VirtualMemoryPage::readMemorySegment(){
 	return MemorySegment(segFileSize, segVirtualMemoryStart, (h_byte*)rawData);
 }
 uint32_t VirtualMemoryPage::calculatePageOffset(virtualAddr address){
-	address <<= (NUM_BITS_IN_VIRTUAL_ADDR - NUM_BITS_IN_PAGE_OFFSET);
-	address >>= (NUM_BITS_IN_VIRTUAL_ADDR - NUM_BITS_IN_PAGE_OFFSET);
+	address <<= (SIZE_BITS_VIRTUAL_ADDR - SIZE_BITS_PAGE_OFFSET);
+	address >>= (SIZE_BITS_VIRTUAL_ADDR - SIZE_BITS_PAGE_OFFSET);
 	return address;
 }
 
