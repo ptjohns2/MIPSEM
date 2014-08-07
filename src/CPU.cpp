@@ -481,7 +481,7 @@ inline void CPU::executeInstructionID_0(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_1(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	1	=	ABS.D	:	$fd,	$fs,	_,	_
-	double doubleVal = concatenateBitPair<float, double>(FPR[a1], FPR[(a1+1) % 32]);
+	double doubleVal = regReadDouble(a1);
 	doubleVal = std::abs(doubleVal);
 	regStoreDouble(doubleVal, a0);
 }
@@ -500,8 +500,8 @@ inline void CPU::executeInstructionID_4(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_5(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	5	=	ADD.D	:	$fd,	$ft,	$fs,	_		
-	double doubleVal1 = concatenateBitPair<float, double>(FPR[a1], FPR[(a1+1) % 32]);
-	double doubleVal2 = concatenateBitPair<float, double>(FPR[a2], FPR[(a2+1) % 32]);
+	double doubleVal1 = regReadDouble(a1);
+	double doubleVal2 = regReadDouble(a2);
 	double sum = doubleVal1 + doubleVal2;
 	regStoreDouble(sum, a0);
 }
@@ -1959,19 +1959,31 @@ inline void CPU::executeInstructionID_340(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_341(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	341	=	SWL	:	$rt,	-.imm,	($rs),	_		
-	
+	uint32_t val = GPR[a0];
+	val = val >> 16;
+	uint16_t rightVal = (uint16_t)val;
+	MEM.writePOD<uint16_t>(GPR[a2] + a1, rightVal);
 }
 inline void CPU::executeInstructionID_342(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	342	=	SWLE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	uint32_t val = GPR[a0];
+	val = val >> 16;
+	uint16_t rightVal = (uint16_t)val;
+	MEM.writePOD<uint16_t>(GPR[a2] + a1, rightVal);
 }
 inline void CPU::executeInstructionID_343(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	343	=	SWR	:	$rt,	-.imm,	($rs),	_		
-	
+	int32_t val = GPR[a0];
+	val = val & 0x0000FFFF;
+	uint16_t rightVal = (uint16_t)val;
+	MEM.writePOD<uint16_t>(GPR[a2] + a1, rightVal);
 }
 inline void CPU::executeInstructionID_344(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	344	=	SWRE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	int32_t val = GPR[a0];
+	val = val & 0x0000FFFF;
+	uint16_t rightVal = (uint16_t)val;
+	MEM.writePOD<uint16_t>(GPR[a2] + a1, rightVal);
 }
 inline void CPU::executeInstructionID_345(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	345	=	SWXC1	:	$fs,	$rt,	($rs),	_		
@@ -2200,7 +2212,13 @@ inline void CPU::executeInstructionID_373(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_374(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	374	=	WSBH	:	$rd,	$rt,	_,	_		
-	
+	uint32_t val = GPR[a1];
+	uint32_t msb = val >> 16;
+	uint32_t lsb = val & 0x0000FFFF;
+	uint32_t newMsb = ((msb << 8) & 0x0000FFFF) | (msb >> 8);
+	uint32_t newLsb = ((lsb << 8) & 0x0000FFFF) | (lsb >> 8);
+	uint32_t newVal = (newLsb << 16) | newMsb;
+	GPR[a0] = newVal;
 }
 inline void CPU::executeInstructionID_375(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	375	=	XOR	:	$rd,	$rs,	$rt,	_		
