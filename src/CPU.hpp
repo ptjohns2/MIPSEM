@@ -20,6 +20,8 @@ class CPU{
 		inline void regStoreDouble(double val, uint32_t index);
 		inline double regReadDouble(uint32_t index);
 
+		inline void regStorePairedSingle(pairedSingle val, uint32_t index);
+		inline pairedSingle regReadPairedSingle(uint32_t index);
 
 	//private:
 		//CPU internal states

@@ -7,6 +7,8 @@
 #define NUMBER_OF_OPCODES					(64)
 #define NUMBER_OF_INSTRUCTION_PARAMETERS	(4)
 #define NUMBER_OF_INSTRUCTIONS				(377)
+#define NUMBER_OF_GP_REGISTERS				(32)
+#define NUMBER_OF_FP_REGISTERS				(32)
 
 #define SIZE_BYTES_BYTE						(1)
 #define SIZE_BYTES_WORD						(4)
@@ -36,5 +38,6 @@ typedef uint32_t		virtualAddr;
 
 
 typedef std::pair<int,int> bitrange;
+typedef std::pair<float, float> pairedSingle;
 
 #endif

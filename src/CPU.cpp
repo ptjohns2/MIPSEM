@@ -463,6 +463,17 @@ inline double CPU::regReadDouble(uint32_t index){
 	return readMemAs<double>(&arr[0]);
 }
 
+inline void CPU::regStorePairedSingle(pairedSingle val, uint32_t index){
+	FPR[index] = val.first;
+	FPR[(index + 1) % NUMBER_OF_FP_REGISTERS] = val.second;
+}
+
+inline pairedSingle CPU::regReadPairedSingle(uint32_t index){
+	pairedSingle val;
+	val.first = FPR[index];
+	val.second = FPR[(index + 1) % NUMBER_OF_FP_REGISTERS];
+	return val;
+}
 
 
 
@@ -481,6 +492,7 @@ inline void CPU::executeInstructionID_0(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_1(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	1	=	ABS.D	:	$fd,	$fs,	_,	_
+	//regStoreDouble(std::abs(regReadDouble(a1)), a0);
 	double doubleVal = regReadDouble(a1);
 	doubleVal = std::abs(doubleVal);
 	regStoreDouble(doubleVal, a0);

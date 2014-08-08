@@ -2,14 +2,14 @@
 
 ####### MACROS
 
-.eqv	INSTRUCTION_ENCODING__addi_$v0_$0_0	0x20020000	#all text after .eqv name included in the macro, including spaces separated tokens (trimmed after) to allow for instructions to be .eqv'd
+.eqv	INSTRUCTION_ENCODING__addi_$v0_$0_0	0x20020000	
 
-.macro printString(%label)	#macro parameters separated by comma, no required naming conventions
+.macro printString(%label)	
 	li	$t1, INSTRUCTION_ENCODING__addi_$v0_$0_0
 	addi	$t1, $t1, 0b0100	#binary literals supported
 	la	$t0, nopAddr1
 	sw	$t1, 0($t0)
-	nopAddr1:	nop		#labels renamed during macro replacement section of assembly to prevent label name collisions when a macro is used multiple times
+	nopAddr1:	nop		
 	la	$a0, %label
 	la	$t2, instructionAddr	#$t2 = instructionAddr
 	lw	$t1, 0($t2)		#$t1 = *$t2 = *instructionAddr
