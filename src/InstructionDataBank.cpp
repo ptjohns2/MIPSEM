@@ -176,7 +176,7 @@ InstructionDataBank::InstructionDataBank()
 	bank[	164	] = InstructionData(	164	,	"cvt.s.w"	,	0x11	,	0x46800020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
 	bank[	165	] = InstructionData(	165	,	"cvt.s.l"	,	0x11	,	0x46A00020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
 	bank[	166	] = InstructionData(	166	,	"cvt.s.pl"	,	0x11	,	0x46C00028	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
-	bank[	167	] = InstructionData(	167	,	"cvt.s.pl"	,	0x11	,	0x46C00020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
+	bank[	167	] = InstructionData(	167	,	"cvt.s.pu"	,	0x11	,	0x46C00020	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
 	bank[	168	] = InstructionData(	168	,	"cvt.w.s"	,	0x11	,	0x46000024	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
 	bank[	169	] = InstructionData(	169	,	"cvt.w.d"	,	0x11	,	0x46200024	,	0xFFFF003F	,	'f'	,	false	,	10	,	6	,	'f'	,	false	,	15	,	11	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	false	,	false	);
 	bank[	170	] = InstructionData(	170	,	"deret"	,	0x10	,	0x4200001F	,	0xFFFFFFFF	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	'x'	,	false	,	-1	,	-1	,	true	,	true	,	true	,	false	);

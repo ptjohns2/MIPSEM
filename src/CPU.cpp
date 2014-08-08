@@ -492,15 +492,12 @@ inline void CPU::executeInstructionID_0(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_1(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	1	=	ABS.D	:	$fd,	$fs,	_,	_
-	//regStoreDouble(std::abs(regReadDouble(a1)), a0);
-	double doubleVal = regReadDouble(a1);
-	doubleVal = std::abs(doubleVal);
-	regStoreDouble(doubleVal, a0);
+	regStoreDouble(std::abs(regReadDouble(a1)), a0);
 }
 inline void CPU::executeInstructionID_2(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	2	=	ABS.PS	:	$fd,	$fs,	_,	_			
 	FPR[a0] = std::abs(FPR[a1]);
-	FPR[(a0+1) % 32] = std::abs(FPR[(a1+1) % 32]);
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = std::abs(FPR[(a1+1) % NUMBER_OF_FP_REGISTERS]);
 }
 inline void CPU::executeInstructionID_3(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	3	=	ADD	:	$rd,	$rs,	$rt,	_		
@@ -512,15 +509,12 @@ inline void CPU::executeInstructionID_4(uint32_t a0, uint32_t a1, uint32_t a2, u
 }
 inline void CPU::executeInstructionID_5(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	5	=	ADD.D	:	$fd,	$ft,	$fs,	_		
-	double doubleVal1 = regReadDouble(a1);
-	double doubleVal2 = regReadDouble(a2);
-	double sum = doubleVal1 + doubleVal2;
-	regStoreDouble(sum, a0);
+	regStoreDouble(regReadDouble(a1) + regReadDouble(a2), a0);
 }
 inline void CPU::executeInstructionID_6(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	6	=	ADD.PS	:	$fd,	$ft,	$fs,	_	
 	FPR[a0] = FPR[a1] + FPR[a2];
-	FPR[(a0+1) % 32] = FPR[(a1+1) % 32] + FPR[(a2+1) % 32];
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = FPR[(a1+1) % NUMBER_OF_FP_REGISTERS] + FPR[(a2+1) % NUMBER_OF_FP_REGISTERS];
 }
 inline void CPU::executeInstructionID_7(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	7	=	ADDI	:	$rt,	$rs,	-.imm,	_		
@@ -1119,10 +1113,10 @@ inline void CPU::executeInstructionID_145(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_146(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	146	=	CEIL.L.S	:	$fd,	$fs,	_,	_		
-	int64_t roundedDouble = (int64_t)FPR[a1];
-	double test = (double)roundedDouble;
-	if(test != FPR[a1]){roundedDouble++;}	//round up
-	regStoreDouble(readMemAs<double>(&roundedDouble), a0);
+	int64_t roundedFloat = (int64_t)FPR[a1];
+	double test = (double)roundedFloat;
+	if(test != FPR[a1]){roundedFloat++;}	//round up
+	regStoreDouble(readMemAs<double>(&roundedFloat), a0);
 }
 inline void CPU::executeInstructionID_147(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	147	=	CEIL.L.D	:	$fd,	$fs,	_,	_		
@@ -1133,10 +1127,10 @@ inline void CPU::executeInstructionID_147(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_148(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	148	=	CEIL.W.S	:	$fd,	$fs,	_,	_		
-	int32_t roundedDouble = (int32_t)FPR[a1];
-	double test = (double)roundedDouble;
-	if(test != FPR[a1]){roundedDouble++;}	//round up
-	FPR[a0] = readMemAs<float>(&roundedDouble);
+	int32_t roundedFloat = (int32_t)FPR[a1];
+	float test = (float)roundedFloat;
+	if(test != FPR[a1]){roundedFloat++;}	//round up
+	FPR[a0] = readMemAs<float>(&roundedFloat);
 }
 inline void CPU::executeInstructionID_149(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	149	=	CEIL.W.D	:	$fd,	$fs,	_,	_		
@@ -1208,43 +1202,52 @@ inline void CPU::executeInstructionID_159(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_160(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	160	=	CVT.L.S	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)FPR[a1];
+	regStoreDouble(readMemAs<double>(&newVal), a0);
 }
 inline void CPU::executeInstructionID_161(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	161	=	CVT.L.D	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)regReadDouble(a1);
+	regStoreDouble(readMemAs<double>(&newVal), a0);
 }
 inline void CPU::executeInstructionID_162(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	162	=	CVT.PS.S	:	$fd,	$fs,	$ft,	_		
-	
+	FPR[a0] = FPR[a1];
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = FPR[a1];
 }
 inline void CPU::executeInstructionID_163(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	163	=	CVT.S.D	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = (float)regReadDouble(a1);
 }
 inline void CPU::executeInstructionID_164(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	164	=	CVT.S.W	:	$fd,	$fs,	_,	_		
-	
+	int32_t word = readMemAs<int32_t>(&FPR[a0]);
+	float newVal = (float)word;
+	FPR[a0] = newVal;
 }
 inline void CPU::executeInstructionID_165(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	165	=	CVT.S.L	:	$fd,	$fs,	_,	_		
-	
+	double rawVal = regReadDouble(a1);
+	int64_t longVal = readMemAs<int64_t>(&rawVal);
+	FPR[a0] = (float)longVal;
 }
 inline void CPU::executeInstructionID_166(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	166	=	CVT.S.PL	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = FPR[(a1+1) % NUMBER_OF_FP_REGISTERS];
 }
 inline void CPU::executeInstructionID_167(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
-	//	167	=	CVT.S.PL	:	$fd,	$fs,	_,	_		
-	
+	//	167	=	CVT.S.PU	:	$fd,	$fs,	_,	_		
+	FPR[a0] = FPR[a1];
 }
 inline void CPU::executeInstructionID_168(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	168	=	CVT.W.S	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)FPR[a1];
+	FPR[a0] = readMemAs<float>(&newVal);
 }
 inline void CPU::executeInstructionID_169(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	169	=	CVT.W.D	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)regReadDouble(a1);
+	FPR[a0] = readMemAs<float>(&newVal);
 }
 inline void CPU::executeInstructionID_170(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	170	=	DERET	:	_,	_,	_,	_		
