@@ -51,10 +51,11 @@ stringAddr:		.asciiz	"Hello, World!"
 #encode "syscall" instruction to this word in .data section
 instructionAddr:	.word	syscall	
 
-.text	####### .TEXT SECTION
+.text	####### .TEXT SECTION  
 main:
-	printString(stringAddr)
-	exit	# syscall #10```    
+	printString(stringAddr)   
+	exit	# syscall #10   
+```    
       
 
 ###MIPSEM output:      
