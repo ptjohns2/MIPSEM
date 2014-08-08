@@ -1300,19 +1300,27 @@ inline void CPU::executeInstructionID_179(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_180(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	180	=	FLOOR.L.S	:	$fd,	$fs,	_,	_		
-	
+	int64_t roundedFloat = (int64_t)FPR[a1];
+	double test = (double)roundedFloat;
+	regStoreDouble(readMemAs<double>(&roundedFloat), a0);
 }
 inline void CPU::executeInstructionID_181(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	181	=	FLOOR.L.D	:	$fd,	$fs,	_,	_		
-	
+	int64_t roundedDouble = (int64_t)regReadDouble(a1);
+	double test = (double)roundedDouble;
+	regStoreDouble(readMemAs<double>(&roundedDouble), a0);
 }
 inline void CPU::executeInstructionID_182(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	182	=	FLOOR.W.S	:	$fd,	$fs,	_,	_		
-	
+	int32_t roundedFloat = (int32_t)FPR[a1];
+	float test = (float)roundedFloat;
+	FPR[a0] = readMemAs<float>(&roundedFloat);
 }
 inline void CPU::executeInstructionID_183(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	183	=	FLOOR.W.D	:	$fd,	$fs,	_,	_		
-	
+	int32_t roundedDouble = (int32_t)regReadDouble(a1);
+	double test = (double)roundedDouble;
+	FPR[a0] = readMemAs<float>(&roundedDouble);
 }
 inline void CPU::executeInstructionID_184(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	184	=	INS	:	$rt,	$rs,	+.[10,6],	+.[15,11]	
@@ -1330,7 +1338,7 @@ inline void CPU::executeInstructionID_186(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_187(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	187	=	JALR	:	$rs,	_,	_,	_		
-	
+
 }
 inline void CPU::executeInstructionID_188(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	188	=	JALR	:	$rd,	$rs,	_,	_		
@@ -1413,11 +1421,11 @@ inline void CPU::executeInstructionID_204(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_205(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	205	=	LL	:	$rt,	-.imm,	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<int32_t>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_206(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	206	=	LLE	:	$rt,	-.imm,	($rs),	_		
-	
+	GPR[a0] = MEM.readPOD<int32_t>(GPR[a2] + a1);
 }
 inline void CPU::executeInstructionID_207(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	207	=	LUI	:	$rt,	-.imm,	_,	_

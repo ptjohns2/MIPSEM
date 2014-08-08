@@ -5,6 +5,7 @@
 
 
 #include "Assembler.hpp"
+#include "BitManip.hpp"
 #include "CPU.hpp"
 #include "Decoder.hpp"
 #include "Exceptions.hpp"
@@ -42,6 +43,24 @@ int main(){
 	assert(sizeof(int64_t) == 8);
 
 	srand((unsigned int)time(NULL));
+
+	int test1 = 0xF0000000;
+	int test2 = 0xAAAAAAAA;
+	int test3 = 0x00000000;
+	int test1res = rotatePOD<int>(test1, 4);
+	int test2res = rotatePOD<int>(test2, 4);
+	int test3res = rotatePOD<int>(test3, 4);
+	cout << std::hex << test1res << '\n';
+	cout << std::hex << test2res << '\n';
+	cout << std::hex << test3res << '\n';
+
+
+
+
+
+	int ajfdlksdfdsfk = 1;
+
+
 
 	InstructionDataBank bank = InstructionDataBank();
 	Decoder decoder = Decoder(&bank);
