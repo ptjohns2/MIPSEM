@@ -95,11 +95,24 @@ template float		splitToLowerHalf<float, double>		(double val);
 */
 
 template<typename T>
-T rotatePOD(T val, uint32_t shamt){
+T rotatePODRight(T val, uint32_t shamt){
 	uint32_t numBitsInT = sizeof(val) * SIZE_BITS_BYTE;
 	shamt = shamt % numBitsInT;
-	//TODO: wrong
-	return (val >> shamt) | (val << numBitsInT - shamt);
+	if(shamt == 0){
+		return val;
+	}else{
+		T back = val >> shamt;
+
+		T frontMask = 0;
+		for(int i=0; i<numBitsInT - shamt; i++){
+			frontMask <<= 1;
+			frontMask |= 1;
+		}
+		back &= frontMask;
+		
+		T front = val << (numBitsInT - shamt);
+		return front | back;
+	}
 }
 
 
