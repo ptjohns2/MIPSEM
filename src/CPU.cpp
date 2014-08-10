@@ -531,6 +531,8 @@ inline void CPU::executeInstructionID_9(uint32_t a0, uint32_t a1, uint32_t a2, u
 inline void CPU::executeInstructionID_10(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	10	=	ALNV.PS	:	$fd,	$fs,	$ft,	$rs		
 
+
+
 }
 inline void CPU::executeInstructionID_11(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	11	=	AND	:	$rd,	$rs,	$rt,	_		
@@ -1434,7 +1436,7 @@ inline void CPU::executeInstructionID_207(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_208(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	208	=	LUXC1	:	$fd,	g$[20,16],	(g$[25,21]),	_		
-	virtualAddr addr = (GPR[a1] + GPR[a2]) & 0xFFFFFFFF8;
+	virtualAddr addr = (GPR[a1] + GPR[a2]) & 0xFFFFFFF8;
 	regStoreDouble(MEM.readPOD<double>(addr), a0);
 }
 inline void CPU::executeInstructionID_209(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -1799,27 +1801,31 @@ inline void CPU::executeInstructionID_297(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_298(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	298	=	ROTR	:	$rd,	$rt,	+.shamt,	_		
-	
+	GPR[a0] = rotatePODRight<int32_t>(GPR[a1], a2);
 }
 inline void CPU::executeInstructionID_299(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	299	=	ROTRV	:	$rd,	$rt,	$rs,	_		
-	
+	GPR[a0] = rotatePODRight<int32_t>(GPR[a1], GPR[a2]);
 }
 inline void CPU::executeInstructionID_300(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	300	=	ROUND.L.S	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)FPR[a1];
+	regStoreDouble(readMemAs<double>(&newVal), a0);
 }
 inline void CPU::executeInstructionID_301(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	301	=	ROUND.L.D	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)regReadDouble(a1);
+	regStoreDouble(readMemAs<double>(&newVal), a0);
 }
 inline void CPU::executeInstructionID_302(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	302	=	ROUND.W.S	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)FPR[a1];
+	FPR[a0] = readMemAs<float>(&newVal);
 }
 inline void CPU::executeInstructionID_303(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	303	=	ROUND.W.D	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)regReadDouble(a1);
+	FPR[a0] = readMemAs<float>(&newVal);
 }
 inline void CPU::executeInstructionID_304(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	304	=	RSQRT.S	:	$fd,	$fs,	_,	_		
@@ -1831,11 +1837,17 @@ inline void CPU::executeInstructionID_305(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_306(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	306	=	SB	:	$rt,	-.imm,	($rs),	_		
-	
+	uint32_t val = GPR[a0];
+	val = val & 0x000000FF;
+	uint8_t newVal = (uint8_t)val;
+	MEM.writePOD<uint8_t>(GPR[a2] + a1, newVal);
 }
 inline void CPU::executeInstructionID_307(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	307	=	SBE	:	$rt,	-.[15,7],	($rs),	_		
-	
+	uint32_t val = GPR[a0];
+	val = val & 0x000000FF;
+	uint8_t newVal = (uint8_t)val;
+	MEM.writePOD<uint8_t>(GPR[a2] + a1, newVal);
 }
 inline void CPU::executeInstructionID_308(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	308	=	SC	:	$rt,	-.imm,	($rs),	_		
@@ -1859,17 +1871,15 @@ inline void CPU::executeInstructionID_312(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_313(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	313	=	SDXC1	:	$fs,	$rt,	$rs,	_		
-	
+	MEM.writePOD<double>(GPR[a2] + GPR[a1], regReadDouble(a0));
 }
 inline void CPU::executeInstructionID_314(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	314	=	SEB	:	$rd,	$rt,	_,	_		
-	//TODO:
-	//GPR[a0] = signExtendWord(GPR[a1], 
+	GPR[a0] = signExtendWord(GPR[a1], SIZE_BYTES_BYTE);
 }
 inline void CPU::executeInstructionID_315(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	315	=	SEH	:	$rd,	$rt,	_,	_		
-	//TODO:
-	//GPR[a0] = signExtendWord(GPR[a1], );
+	GPR[a0] = signExtendWord(GPR[a1], SIZE_BYTES_HWORD);
 }
 inline void CPU::executeInstructionID_316(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	316	=	SH	:	$rt,	-.imm,	($rs),	_		
@@ -1971,7 +1981,8 @@ inline void CPU::executeInstructionID_335(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_336(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	336	=	SUXC1	:	$fs,	$rt,	($rs),	_		
-	
+	virtualAddr addr = (GPR[a1] + GPR[a2]) & 0xFFFFFFF8;
+	MEM.writePOD<double>(addr, regReadDouble(a0));
 }
 inline void CPU::executeInstructionID_337(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	337	=	SW	:	$rt,	-.imm,	($rs),	_		
