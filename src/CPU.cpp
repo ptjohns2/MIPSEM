@@ -1863,7 +1863,7 @@ inline void CPU::executeInstructionID_310(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_311(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	311	=	SDC1	:	$ft,	-.imm,	($rs),	_		
-	
+	MEM.writePOD<double>(GPR[a2] + a1, regReadDouble(a0));
 }
 inline void CPU::executeInstructionID_312(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	312	=	SDC2	:	$rt,	-.imm,	($rs),	_		
@@ -1990,7 +1990,7 @@ inline void CPU::executeInstructionID_337(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_338(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	338	=	SWC1	:	$ft,	-.imm,	($fmt),	_		
-	
+	MEM.writePOD<float>(GPR[a2] + a1, FPR[a0]);
 }
 inline void CPU::executeInstructionID_339(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	339	=	SWC2	:	$rt,	-.imm,	($rs),	_		
@@ -2030,7 +2030,7 @@ inline void CPU::executeInstructionID_344(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_345(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	345	=	SWXC1	:	$fs,	$rt,	($rs),	_		
-	
+	MEM.writePOD<float>(GPR[a2] + GPR[a1], FPR[a0]);
 }
 inline void CPU::executeInstructionID_346(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	346	=	SYNC	:	_,	_,	_,	_		
@@ -2232,19 +2232,23 @@ inline void CPU::executeInstructionID_367(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_368(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	368	=	TRUNC.L.S	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)FPR[a1];
+	regStoreDouble(readMemAs<double>(&newVal), a0);
 }
 inline void CPU::executeInstructionID_369(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	369	=	TRUNC.L.D	:	$fd,	$fs,	_,	_		
-	
+	int64_t newVal = (int64_t)regReadDouble(a1);
+	regStoreDouble(readMemAs<double>(&newVal), a0);
 }
 inline void CPU::executeInstructionID_370(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	370	=	TRUNC.W.S	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)FPR[a1];
+	FPR[a0] = readMemAs<float>(&newVal);
 }
 inline void CPU::executeInstructionID_371(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	371	=	TRUNC.W.D	:	$fd,	$fs,	_,	_		
-	
+	int32_t newVal = (int32_t)regReadDouble(a1);
+	FPR[a0] = readMemAs<float>(&newVal);
 }
 inline void CPU::executeInstructionID_372(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	372	=	WAIT	:	_,	_,	_,	_		
