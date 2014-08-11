@@ -1757,11 +1757,21 @@ inline void CPU::executeInstructionID_286(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_287(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	287	=	PLL.PS	:	$fd,	$fs,	$ft,	_		
-	
+	uint32_t rawWord = readMemAs<uint32_t>(&FPR[(a1+1) % NUMBER_OF_FP_REGISTERS]);
+	uint64_t rawVal = (uint64_t)rawWord;
+	rawVal <<= SIZE_BITS_FLOAT;
+	rawWord = readMemAs<uint32_t>(&FPR[(a2+1) % NUMBER_OF_FP_REGISTERS]);
+	rawVal |= rawWord;
+	regStoreDouble(readMemAs<double>(&rawVal), a0);	
 }
 inline void CPU::executeInstructionID_288(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
-	//	288	=	PLU.PS	:	$fd,	$fs,	$ft,	_		
-	
+	//	288	=	PLU.PS	:	$fd,	$fs,	$ft,	_			
+	uint32_t rawWord = readMemAs<uint32_t>(&FPR[(a1+1) % NUMBER_OF_FP_REGISTERS]);
+	uint64_t rawVal = (uint64_t)rawWord;
+	rawVal <<= SIZE_BITS_FLOAT;
+	rawWord = readMemAs<uint32_t>(&FPR[a2]);
+	rawVal |= rawWord;
+	regStoreDouble(readMemAs<double>(&rawVal), a0);	
 }
 inline void CPU::executeInstructionID_289(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	289	=	PREF	:	+.[20,16],	-.imm,	($rs),	_		
