@@ -1,6 +1,7 @@
 #include "CPU.hpp"
 
 #include "BitManip.hpp"
+#include "Encoder.hpp"
 #include "VirtualMemory.hpp"
 
 #include <bitset>
@@ -552,8 +553,7 @@ inline void CPU::executeInstructionID_13(uint32_t a0, uint32_t a1, uint32_t a2, 
 }
 inline void CPU::executeInstructionID_14(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	14	=	BAL	:	-.imm,	_,	_,	_		
-	//TOD: +4 or 8?
-	GPR[31] = PC + 4;
+	GPR[$ra] = PC + 4;
 	PC += (signExtendWord(a0, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 }
 inline void CPU::executeInstructionID_15(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
@@ -641,14 +641,15 @@ inline void CPU::executeInstructionID_33(uint32_t a0, uint32_t a1, uint32_t a2, 
 }
 inline void CPU::executeInstructionID_34(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	34	=	BGEZAL	:	$rs,	-.imm,	_,	_		
-	GPR[31] = PC;
+	GPR[$ra] = PC + 4;
 	if((int32_t)GPR[a0] >= 0){
 		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
+	
 }
 inline void CPU::executeInstructionID_35(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	35	=	BGEZALL	:	$rs,	-.imm,	_,	_		
-	GPR[31] = PC;
+	GPR[$ra] = PC + 4;
 	if((int32_t)GPR[a0] >= 0){
 		PC += (signExtendWord(a1, SIZE_BYTES_INSTRUCTION_FIELD_IMM) << 2);
 	}
@@ -1302,7 +1303,14 @@ inline void CPU::executeInstructionID_178(uint32_t a0, uint32_t a1, uint32_t a2,
 inline void CPU::executeInstructionID_179(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	179	=	EXT	:	$rt,	$rs,	+.[10,6],	+.[15,11]	
 	//ABNORMAL_ENCODE/DECODE	
-	
+	int msbd = a3 - 1;
+	int lsb = a2;
+	if(lsb + msbd > 31){
+		//unpredictable = return
+		return;
+	}
+	int32_t val = Decoder::extractBitrangeSigned(GPR[a1], msbd+lsb, lsb);
+	GPR[a0] = val;
 }
 inline void CPU::executeInstructionID_180(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	180	=	FLOOR.L.S	:	$fd,	$fs,	_,	_		
@@ -1331,7 +1339,15 @@ inline void CPU::executeInstructionID_183(uint32_t a0, uint32_t a1, uint32_t a2,
 inline void CPU::executeInstructionID_184(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	184	=	INS	:	$rt,	$rs,	+.[10,6],	+.[15,11]	
 	//ABNORMAL_ENCODE/DECODE	
-	
+	int msb = a2 + a3 - 1;
+	int lsb = a2;
+	if(lsb > msb){
+		//unpreditable = return
+		return;
+	}
+	int32_t insertVal = Decoder::extractBitrangeSigned(GPR[a1], msb-lsb, 0);
+	int32_t newVal = Encoder::setBitrange(GPR[a0], insertVal, msb, lsb);
+	GPR[a0] = newVal;
 }
 inline void CPU::executeInstructionID_185(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	185	=	J	:	+.addr,	_,	_,	_		
@@ -1344,19 +1360,23 @@ inline void CPU::executeInstructionID_186(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_187(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	187	=	JALR	:	$rs,	_,	_,	_		
-
+	GPR[$ra] = PC + 4;
+	PC = GPR[a0];
 }
 inline void CPU::executeInstructionID_188(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	188	=	JALR	:	$rd,	$rs,	_,	_		
-	
+	GPR[a0] = PC + 4;
+	PC = GPR[a1];
 }
 inline void CPU::executeInstructionID_189(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	189	=	JALR.HB	:	$rs,	_,	_,	_		
-	
+	GPR[$ra] = PC + 4;
+	PC = GPR[a0];
 }
 inline void CPU::executeInstructionID_190(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	190	=	JALR.HB	:	$rd,	$rs,	_,	_		
-	
+	GPR[a0] = PC + 4;
+	PC = GPR[a1];
 }
 inline void CPU::executeInstructionID_191(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	191	=	JALX	:	+.addr,	_,	_,	_		
@@ -1368,7 +1388,7 @@ inline void CPU::executeInstructionID_192(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_193(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	193	=	JR.HB	:	$rs,	_,	_,	_		
-	
+	PC = GPR[a0];
 }
 inline void CPU::executeInstructionID_194(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	194	=	LB	:	$rt,	-.imm,	($rs),	_		

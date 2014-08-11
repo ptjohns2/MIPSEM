@@ -138,8 +138,10 @@ string Decoder::decodeAbnormalInstruction(InstructionData* id, instr ins, int32_
 
 			int msbd_int = decodeArgumentToValue(ins, id, 3);
 			int size_int = msbd_int + 1;
+			/*
 			while(size_int < 0){size_int += 32;}
 			while(size_int > 31){size_int -= 32;}
+			*/
 			string size = std::to_string(size_int);
 			
 			argumentValues[0] = decodeArgumentToValue(ins, id, 0);
@@ -160,8 +162,10 @@ string Decoder::decodeAbnormalInstruction(InstructionData* id, instr ins, int32_
 			int msb_int = decodeArgumentToValue(ins, id, 3);
 
 			int size_int = msb_int - pos_int + 1;
+			/*
 			while(size_int < 0){size_int += 32;}
 			while(size_int > 31){size_int -= 32;}
+			*/
 			string size = std::to_string(size_int);
 
 			argumentValues[0] = decodeArgumentToValue(ins, id, 0);
