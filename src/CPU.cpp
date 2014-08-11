@@ -1777,11 +1777,21 @@ inline void CPU::executeInstructionID_291(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_292(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	292	=	PUL.PS	:	$fd,	$fs,	$ft,	_		
-	
+	uint32_t rawWord = readMemAs<uint32_t>(&FPR[a1]);
+	uint64_t rawVal = (uint64_t)rawWord;
+	rawVal <<= SIZE_BITS_FLOAT;
+	rawWord = readMemAs<uint32_t>(&FPR[(a2+1) % NUMBER_OF_FP_REGISTERS]);
+	rawVal |= rawWord;
+	regStoreDouble(readMemAs<double>(&rawVal), a0);	
 }
 inline void CPU::executeInstructionID_293(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	293	=	PUU.PS	:	$fd,	$fs,	$ft,	_		
-	
+	uint32_t rawWord = readMemAs<uint32_t>(&FPR[a1]);
+	uint64_t rawVal = (uint64_t)rawWord;
+	rawVal <<= SIZE_BITS_FLOAT;
+	rawWord = readMemAs<uint32_t>(&FPR[a2]);
+	rawVal |= rawWord;
+	regStoreDouble(readMemAs<double>(&rawVal), a0);	
 }
 inline void CPU::executeInstructionID_294(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	294	=	RDHWR	:	$rt,	$rd,	_,	_		
@@ -1956,7 +1966,7 @@ inline void CPU::executeInstructionID_329(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_330(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	330	=	SSNOP	:	_,	_,	_,	_		
-	
+	//do nothing
 }
 inline void CPU::executeInstructionID_331(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	331	=	SUB	:	$rd,	$rs,	$rt,	_		
