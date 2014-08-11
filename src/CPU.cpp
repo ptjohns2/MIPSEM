@@ -1701,39 +1701,45 @@ inline void CPU::executeInstructionID_272(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_273(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	273	=	NEG.S	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = -1.0 * FPR[a1];
 }
 inline void CPU::executeInstructionID_274(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	274	=	NEG.D	:	$fd,	$fs,	_,	_		
-	
+	double newVal = -1.0 * regReadDouble(a1);
+	regStoreDouble(newVal, a0);
 }
 inline void CPU::executeInstructionID_275(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	275	=	NEG.PS	:	$fd,	$fs,	_,	_		
-	
+	FPR[a0] = -1.0 * FPR[a1];
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = -1.0 * FPR[(a1+1) % NUMBER_OF_FP_REGISTERS];
 }
 inline void CPU::executeInstructionID_276(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	276	=	NMADD.S	:	$fd,	$fmt,	$fs,	$ft		
-	
+	FPR[a0] = (FPR[a2] * FPR[a3]) + FPR[a1];
 }
 inline void CPU::executeInstructionID_277(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	277	=	NMADD.D	:	$fd,	$fmt,	$fs,	$ft		
-	
+	double newVal = (regReadDouble(a2) * regReadDouble(a3)) + regReadDouble(a1);
+	regStoreDouble(newVal, a0);
 }
 inline void CPU::executeInstructionID_278(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	278	=	NMADD.PS	:	$fd,	$fmt,	$fs,	$ft		
-	
+	FPR[a0] = (FPR[a2] * FPR[a3]) - FPR[a1];
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = (FPR[(a2+1) % NUMBER_OF_FP_REGISTERS] * FPR[(a3+1) % NUMBER_OF_FP_REGISTERS]) + FPR[(a1+1) % NUMBER_OF_FP_REGISTERS];
 }
 inline void CPU::executeInstructionID_279(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	279	=	NMSUB.S	:	$fd,	$fmt,	$fs,	$ft		
-	
+	FPR[a0] = (FPR[a2] * FPR[a3]) - FPR[a1];
 }
 inline void CPU::executeInstructionID_280(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	280	=	NMSUB.D	:	$fd,	$fmt,	$fs,	$ft		
-	
+	double newVal = (regReadDouble(a2) * regReadDouble(a3)) - regReadDouble(a1);
+	regStoreDouble(newVal, a0);
 }
 inline void CPU::executeInstructionID_281(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	281	=	NMSUB.PS	:	$fd,	$fmt,	$fs,	$ft		
-	
+	FPR[a0] = (FPR[a2] * FPR[a3]) - FPR[a1];
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = (FPR[(a2+1) % NUMBER_OF_FP_REGISTERS] * FPR[(a3+1) % NUMBER_OF_FP_REGISTERS]) - FPR[(a1+1) % NUMBER_OF_FP_REGISTERS];
 }
 inline void CPU::executeInstructionID_282(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	282	=	NOP	:	_,	_,	_,	_		
@@ -1976,7 +1982,7 @@ inline void CPU::executeInstructionID_329(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_330(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	330	=	SSNOP	:	_,	_,	_,	_		
-	//do nothing
+	//do nothing	==	sll $zero, $zero, 0
 }
 inline void CPU::executeInstructionID_331(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	331	=	SUB	:	$rd,	$rs,	$rt,	_		
