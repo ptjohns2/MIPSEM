@@ -17,6 +17,8 @@ class CPU{
 
 		//Helper functions
 		
+		inline void aluStoreLong(uint64_t val);
+
 		inline void regStoreDouble(double val, uint32_t index);
 		inline double regReadDouble(uint32_t index);
 

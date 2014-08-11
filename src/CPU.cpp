@@ -450,6 +450,10 @@ void CPU::executeInstruction(Instruction* instruction){
 	GPR[$zero] = 0;
 }
 
+inline void CPU::aluStoreLong(uint64_t val){
+	LO = val & 0x00000000FFFFFFFF;
+	HI = val << SIZE_BITS_WORD;
+}
 
 inline void CPU::regStoreDouble(double val, uint32_t index){
 	FPR[index] = splitToUpperHalf<float, double>(val);
@@ -1677,27 +1681,35 @@ inline void CPU::executeInstructionID_266(uint32_t a0, uint32_t a1, uint32_t a2,
 }
 inline void CPU::executeInstructionID_267(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	267	=	MUL	:	$rd,	$rs,	$rt,	_		
-	
+	GPR[a0] = GPR[a1] * GPR[a2];
 }
 inline void CPU::executeInstructionID_268(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	268	=	MUL.S	:	$fd,	$fs,	$ft,	_		
-	
+	FPR[a0] = FPR[a1] * FPR[a2];
 }
 inline void CPU::executeInstructionID_269(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	269	=	MUL.D	:	$fd,	$fs,	$ft,	_		
-	
+	double product = regReadDouble(a1) * regReadDouble(a2);
+	regStoreDouble(product, a0);
 }
 inline void CPU::executeInstructionID_270(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	270	=	MUL.PS	:	$fd,	$fs,	$ft,	_		
-	
+	FPR[a0] = FPR[a1] * FPR[a2];
+	FPR[(a0+1) % NUMBER_OF_FP_REGISTERS] = FPR[(a1+1) % NUMBER_OF_FP_REGISTERS] * FPR[(a2+1) % NUMBER_OF_FP_REGISTERS];
 }
 inline void CPU::executeInstructionID_271(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	271	=	MULT	:	$rs,	$rt,	_,	_		
-	
+	uint64_t operand1 = GPR[a0];
+	uint64_t operand2 = GPR[a1];
+	uint64_t product = operand1 * operand2;
+	aluStoreLong(product);
 }
 inline void CPU::executeInstructionID_272(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	272	=	MULTU	:	$rs,	$rt,	_,	_		
-	
+	uint64_t operand1 = GPR[a0];
+	uint64_t operand2 = GPR[a1];
+	uint64_t product = operand1 * operand2;
+	aluStoreLong(product);
 }
 inline void CPU::executeInstructionID_273(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3){
 	//	273	=	NEG.S	:	$fd,	$fs,	_,	_		
