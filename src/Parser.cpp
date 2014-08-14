@@ -170,7 +170,37 @@ bool Parser::isWhiteSpace(char c){
 
 string Parser::removeComment(string str){
 	int i = 0;
-	while(i<str.length() && str[i] != '#'){
+	bool inCharLiteral = false;
+	bool inStringLiteral = false;
+	while(i<str.length()){
+		if(!inStringLiteral && str[i] == '\''){
+			if(!inCharLiteral){
+				//start char literal
+				inCharLiteral = true;
+			}else{
+				if(str[i-1] != '\\'){
+					//exit char literal
+					inCharLiteral = false;
+				}
+			}
+		}
+		if(!inCharLiteral && str[i] == '"'){
+			if(!inStringLiteral){
+				//start string literal
+				inStringLiteral = true;
+			}else{
+				if(str[i-1] != '\\'){
+					//exit string literal
+					inStringLiteral = false;
+				}
+			}
+		}
+
+		if(!inCharLiteral && !inStringLiteral && str[i] == '#'){
+			//real comment start, not a # in string "#$#@$" or char literal '#'
+			break;
+		}
+
 		if(str[i] == '\t'){str[i] = ' ';}
 		i++;	
 	}

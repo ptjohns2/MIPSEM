@@ -55,8 +55,8 @@ int main(){
 	Parser parser = Parser();
 	Assembler assembler = Assembler();
 	assembler.setEncoder(&encoder);
-	
-	
+
+
 	//string programName = "EXCEPTIONTEST.txt";
 	//string programName = "99bottles.txt";
 	string programName = "selfModifyingHelloWorld.txt";
