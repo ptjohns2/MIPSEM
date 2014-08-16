@@ -86,6 +86,12 @@ bool TabbedFileEditor::requestCloseTab(int index){
     delete editor;
 }
 
+bool TabbedFileEditor::requestCloseAllTabs(){
+    for(int i=0; i<this->count(); i++){
+        if(!requestCloseTab(i)){return false;}   
+    }   
+}
+
 
 
 void TabbedFileEditor::slotRequestCloseTab(int index){

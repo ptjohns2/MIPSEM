@@ -20,7 +20,8 @@ class TabbedFileEditor : public QTabWidget{
         void focusOnFile(QString const &dir);
         FileEditor* getDirectoryFileEditor(QString const &dir);
         bool requestCloseTab(int index);
-    
+        bool requestCloseAllTabs();
+        
         QVector<FileEditor*> editors;
         
     public slots:
