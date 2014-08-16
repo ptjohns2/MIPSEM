@@ -15,7 +15,12 @@
 7. Pseudoinstruction replacement	-	*stable*    
 8. Macro replacement	-	*stable*     
 9. MIPS32 asm source error detection	-	*stable*  
-     
+10. MIPS32 asm file editing GUI	-	*stable*  
+        
+###Current GUI layout:        
+![Screenshot](/demos/GUI.png?raw=true)   
+   
+   
 ###Example MIPS32 program:               
       
  ```Assembly
