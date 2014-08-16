@@ -24,7 +24,8 @@
 #define DEFAULT_COLOR_DIRECTIVE                 (Qt::cyan)
 #define DEFAULT_COLOR_LABEL                     (Qt::red)
 
-#define DEFAULT_COLOR_COMMENT                   (Qt::green)
+#define DEFAULT_COLOR_COMMENT_SINGLE            (Qt::green)
+#define DEFAULT_COLOR_COMMENT_DOUBLE            (Qt::darkGreen)
 
 
 class MIPS32SyntaxHighlighter: public QSyntaxHighlighter{
@@ -59,7 +60,8 @@ class MIPS32SyntaxHighlighter: public QSyntaxHighlighter{
             FPRegisterFormat,
             directiveFormat, 
             labelFormat, 
-            commentFormat
+            commentSingleFormat,
+            commentDoubleFormat
         ;
 
     protected:
@@ -83,7 +85,8 @@ class MIPS32SyntaxHighlighter: public QSyntaxHighlighter{
             FPRegisterRegex, 
             directiveRegex, 
             labelRegex,  
-            commentRegex
+            commentSingleRegex,
+            commentDoubleRegex
         ;
        
         

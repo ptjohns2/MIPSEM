@@ -33,7 +33,8 @@ QTextCharFormat MIPS32SyntaxHighlighter::GPRegisterNumericFormat;
 QTextCharFormat MIPS32SyntaxHighlighter::FPRegisterFormat;
 QTextCharFormat MIPS32SyntaxHighlighter::directiveFormat;
 QTextCharFormat MIPS32SyntaxHighlighter::labelFormat;
-QTextCharFormat MIPS32SyntaxHighlighter::commentFormat;
+QTextCharFormat MIPS32SyntaxHighlighter::commentSingleFormat;
+QTextCharFormat MIPS32SyntaxHighlighter::commentDoubleFormat;
 
 QRegExp MIPS32SyntaxHighlighter::literalStringRegex;
 QRegExp MIPS32SyntaxHighlighter::literalDecimalRegex;
@@ -45,7 +46,8 @@ QRegExp MIPS32SyntaxHighlighter::GPRegisterNumericRegex;
 QRegExp MIPS32SyntaxHighlighter::FPRegisterRegex;
 QRegExp MIPS32SyntaxHighlighter::directiveRegex;
 QRegExp MIPS32SyntaxHighlighter::labelRegex;
-QRegExp MIPS32SyntaxHighlighter::commentRegex;
+QRegExp MIPS32SyntaxHighlighter::commentSingleRegex;
+QRegExp MIPS32SyntaxHighlighter::commentDoubleRegex;
 
 QVector<MIPS32SyntaxHighlighter::HighlightingRule> MIPS32SyntaxHighlighter::highlightingRules;
 
@@ -70,7 +72,7 @@ void MIPS32SyntaxHighlighter::refreshEditor(){
     editor->setFont(font);
     
     QFontMetrics metrics = QFontMetrics(font);
-    editor->setTabStopWidth(4 * metrics.width(' '));
+    editor->setTabStopWidth(6 * metrics.width(' '));
     
     //Background color
     QPalette palette = editor->palette();
@@ -105,7 +107,7 @@ void MIPS32SyntaxHighlighter::setTextColor(QColor const &color){
 void MIPS32SyntaxHighlighter::setDefaultHighlightingRules(){    //Build regexes
     literalStringRegex = QRegExp("\".*\"");
     
-    literalDecimalRegex = QRegExp("0|[1-9][0-9]+");
+    literalDecimalRegex = QRegExp("0|(^|[^0])[0-9]+");
     literalOctalRegex = QRegExp("(^|[^1-9])0[0-9]+");
     literalBinRegex = QRegExp("0b[0-1]+");
     literalHexRegex = QRegExp("0x[0-9a-fA-F]+");
@@ -125,7 +127,8 @@ void MIPS32SyntaxHighlighter::setDefaultHighlightingRules(){    //Build regexes
     directiveRegex = QRegExp(directiveRegexString);
     
     labelRegex = QRegExp("[0-9a-zA-Z_]+:");
-    commentRegex = QRegExp("#[^\n]*");
+    commentSingleRegex = QRegExp("#[^\n]*");
+    commentDoubleRegex = QRegExp("##[^\n]*");
     
     //Build formats
     literalStringFormat.setForeground(DEFAULT_COLOR_LITERAL_STRING);
@@ -143,7 +146,8 @@ void MIPS32SyntaxHighlighter::setDefaultHighlightingRules(){    //Build regexes
     directiveFormat.setForeground(DEFAULT_COLOR_DIRECTIVE);
     labelFormat.setForeground(DEFAULT_COLOR_LABEL);
     
-    commentFormat.setForeground(DEFAULT_COLOR_COMMENT);
+    commentSingleFormat.setForeground(DEFAULT_COLOR_COMMENT_SINGLE);
+    commentDoubleFormat.setForeground(DEFAULT_COLOR_COMMENT_DOUBLE);
     
 }
 
@@ -166,8 +170,9 @@ void MIPS32SyntaxHighlighter::rebuildHighlightingRules(){
             
     highlightingRules.push_back(HighlightingRule(literalStringRegex, literalStringFormat));  
             
-    highlightingRules.push_back(HighlightingRule(commentRegex, commentFormat));    
-   
+    highlightingRules.push_back(HighlightingRule(commentSingleRegex, commentSingleFormat));    
+    highlightingRules.push_back(HighlightingRule(commentDoubleRegex, commentDoubleFormat));    
+    
             
 }
 

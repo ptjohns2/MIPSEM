@@ -7,8 +7,23 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QSplitter>
+#include <QTextEdit>
 #include <QTreeView>
 
+class DirectorySelector : public QWidget{
+    Q_OBJECT
+    
+    public:
+        DirectorySelector(QWidget *parent = NULL);    
+  
+        QTextEdit directoryEdit;
+        QPushButton directorySelect;
+        
+    signals:
+        void directorySelected(QString const &dir);    
+        
+        
+};
 
 class FileSelector : public QWidget{
     Q_OBJECT
