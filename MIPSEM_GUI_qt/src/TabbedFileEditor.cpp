@@ -46,7 +46,8 @@ void TabbedFileEditor::editFile(QString const &dir){
     
     FileEditor *editor = new FileEditor(dir);
     editors.push_back(editor);
-    this->addTab(editor, fileName);
+    int index = this->addTab(editor, fileName);
+    this->setCurrentIndex(index);
     
 }
 

@@ -9,7 +9,8 @@ FileBrowser::FileBrowser(QWidget *parent)
     
     this->addWidget(&fileSelector);
     this->addWidget(&tabbedFileEditor);
-    
+    this->setStretchFactor(1, 1);
+    this->setStretchFactor(0, 0);
     connect(&fileSelector, SIGNAL(fileSelected(QString const &)), &tabbedFileEditor, SLOT(editFile(QString const &)));
     
 }
