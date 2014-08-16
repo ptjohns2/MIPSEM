@@ -9,6 +9,8 @@
 #include <QSplitter>
 #include <QTreeView>
 
+#define DEFAULT_DIR    ("")
+
 class FileSelector : public QWidget{
     Q_OBJECT
     
@@ -18,10 +20,11 @@ class FileSelector : public QWidget{
         
         QGridLayout layout;
         
-        #define BUTTONROOTDIRSELECT_TEXT    ("root directory")
         QPushButton buttonRootDirSelect;
         QToolButton buttonNew;
         QMenu buttonNewMenu;
+        QAction newDirAction;
+        QAction newFileAction;
         
         QFileSystemModel fileSystemModel;
         QTreeView treeView;
@@ -30,8 +33,12 @@ class FileSelector : public QWidget{
     signals:
         void fileSelected(QString const &dir);
         
+        
     public slots:
         void slotRootDirSelect();
+        void slotTreeViewIndexSelected(QModelIndex const &index);
+        void slotNewDir();
+        void slotNewFile();
     
 };
 

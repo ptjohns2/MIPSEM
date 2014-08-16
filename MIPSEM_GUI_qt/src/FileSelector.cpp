@@ -1,24 +1,41 @@
 #include "FileSelector.hpp"
 
 #include <QFileDialog>
+#include <QInputDialog>
 
 FileSelector::FileSelector(QWidget *parent)
     :   QWidget(parent), layout(this),
       buttonRootDirSelect(), 
-      buttonNew(), buttonNewMenu(),
+      buttonNew(), buttonNewMenu(), newDirAction(this), newFileAction(this),
       fileSystemModel(), treeView()
 {
     
     //buttons
-    buttonRootDirSelect.setText(BUTTONROOTDIRSELECT_TEXT);
+    buttonRootDirSelect.setText("root directory");
     buttonRootDirSelect.setStyleSheet("font-weight:bold");
     connect(&buttonRootDirSelect, SIGNAL(clicked()), this, SLOT(slotRootDirSelect()));
-    layout.addWidget(&buttonRootDirSelect);
+    layout.addWidget(&buttonRootDirSelect, 0, 0, 1, 3);
        
     
+    newDirAction.setText("new directory");
+    buttonNewMenu.addAction(&newDirAction);
+    connect(&newDirAction, SIGNAL(triggered()), this, SLOT(slotNewDir()));
+    //connect(&newDirAction, SIGNAL(triggered()), this, SLOT(slotRootDirSelect()));
     
+    newFileAction.setText("new file");
+    buttonNewMenu.addAction(&newFileAction);
+    connect(&newFileAction, SIGNAL(triggered()), this, SLOT(slotNewFile()));
     
-    rootDir = "";
+        
+    buttonNew.setText("+");
+    buttonNew.setStyleSheet("font-weight:bold");
+    buttonNew.setMenu(&buttonNewMenu);
+    buttonNew.setPopupMode(QToolButton::InstantPopup);
+    
+    layout.addWidget(&buttonNew, 0, 3, 1, 1);
+    
+    //treeView
+    rootDir = DEFAULT_DIR;
     fileSystemModel.setRootPath(rootDir);
     
     treeView.setModel(&fileSystemModel);
@@ -32,26 +49,40 @@ FileSelector::FileSelector(QWidget *parent)
     treeView.setIndentation(10);
     treeView.setSortingEnabled(true);
     
-    layout.addWidget(&treeView);
+    connect(&treeView, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(slotTreeViewIndexSelected(QModelIndex const &)));
+    
+    layout.addWidget(&treeView, 1, 0, 1, 4);
     
 }
 FileSelector::~FileSelector(){
        
 }
 
-
 void FileSelector::slotRootDirSelect(){
     rootDir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                 "/home",
+                                                 DEFAULT_DIR,
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
     fileSystemModel.setRootPath(rootDir);
     treeView.setRootIndex(fileSystemModel.index(rootDir));
 }
 
-\
+void FileSelector::slotTreeViewIndexSelected(QModelIndex const &index){
+    QFileInfo info = fileSystemModel.fileInfo(index);
+    if(info.isFile()){
+        //file double clicked!
+        QString fileName = info.absoluteFilePath();
+        emit fileSelected(fileName);
+    }
+}
 
+void FileSelector::slotNewDir(){
+    //TODO: get file name etc
+}
 
+void FileSelector::slotNewFile(){
+    //TODO: get file name etc
+}
 
 
 
