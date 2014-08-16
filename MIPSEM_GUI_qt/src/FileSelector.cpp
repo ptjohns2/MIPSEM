@@ -35,7 +35,7 @@ FileSelector::FileSelector(QWidget *parent)
     layout.addWidget(&buttonNew, 0, 3, 1, 1);
     
     //treeView
-    rootDir = DEFAULT_DIR;
+    rootDir = QDir::currentPath();
     fileSystemModel.setRootPath(rootDir);
     
     treeView.setModel(&fileSystemModel);
@@ -60,7 +60,7 @@ FileSelector::~FileSelector(){
 
 void FileSelector::slotRootDirSelect(){
     rootDir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                 DEFAULT_DIR,
+                                                 rootDir,
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
     fileSystemModel.setRootPath(rootDir);
@@ -77,12 +77,49 @@ void FileSelector::slotTreeViewIndexSelected(QModelIndex const &index){
 }
 
 void FileSelector::slotNewDir(){
-    //TODO: get file name etc
+    QString dirName = QFileDialog::getExistingDirectory(this, tr("Open file"),
+                                                    rootDir);
+    QDir dir;
+    dir.mkpath(dirName);
 }
 
 void FileSelector::slotNewFile(){
-    //TODO: get file name etc
+    QString fileName = QFileDialog::getSaveFileName(this, 
+                                                    tr("Open file"),
+                                                    rootDir);
+    if(!fileName.isEmpty()){
+        QFile newFile(fileName);
+        newFile.resize(0);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -9,7 +9,6 @@
 #include <QSplitter>
 #include <QTreeView>
 
-#define DEFAULT_DIR    ("")
 
 class FileSelector : public QWidget{
     Q_OBJECT

@@ -15,7 +15,6 @@ class TabbedFileEditor : public QTabWidget{
         TabbedFileEditor(QWidget *parent = NULL);    
         ~TabbedFileEditor();
         
-        bool editFile(QString const &dir);
         bool hasFileOpen(QString const &dir);
         void focusOnFile(QString const &dir);
         FileEditor* getDirectoryFileEditor(QString const &dir);
@@ -25,6 +24,7 @@ class TabbedFileEditor : public QTabWidget{
         QVector<FileEditor*> editors;
         
     public slots:
+        void editFile(QString const &dir);
         void slotRequestCloseTab(int index);
         
         

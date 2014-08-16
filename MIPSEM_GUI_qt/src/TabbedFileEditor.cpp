@@ -16,10 +16,11 @@ TabbedFileEditor::~TabbedFileEditor(){
     }   
 }
 
-bool TabbedFileEditor::editFile(QString const &dir){
+void TabbedFileEditor::editFile(QString const &dir){
     if(hasFileOpen(dir)){
         focusOnFile(dir);
-        return true;
+        //return true;
+        return;
     }
     QFile file(dir);
     if(!file.open(QFile::ReadOnly | QFile::Text)){
@@ -27,7 +28,8 @@ bool TabbedFileEditor::editFile(QString const &dir){
                              tr("Cannot open file %1:\n%2.")
                              .arg(dir)
                              .arg(file.errorString()));
-        return false;
+        //return false;
+        return;
     }
     file.close();
     
