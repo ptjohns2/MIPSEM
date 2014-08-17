@@ -30,6 +30,7 @@ class FileEditor : public QPlainTextEdit{
     public slots:
         void refreshSyntaxHighlighter();
         void slotSaveFile();
+        void highlightCurrentLine();
         
     protected:
        virtual void	paintEvent(QPaintEvent *event);

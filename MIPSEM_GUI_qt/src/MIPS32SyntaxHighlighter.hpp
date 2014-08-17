@@ -9,6 +9,7 @@
 #define DEFAULT_SIZE_FONT                       (10)
 #define DEFAULT_COLOR_TEXT                      (QColor(255, 255, 255))
 #define DEFAULT_COLOR_BACKGROUND                (QColor(0, 0, 0))
+#define DEFAULT_COLOR_BACKGROUND_HIGHLIGHT_RATIO   (0.10)
 
 #define DEFAULT_COLOR_LITERAL                   (QColor(255, 0, 255))
 #define DEFAULT_COLOR_LITERAL_STRING            DEFAULT_COLOR_LITERAL
@@ -52,6 +53,7 @@ class MIPS32SyntaxHighlighter: public QSyntaxHighlighter{
         static unsigned int fontSize;
         static QColor textColor;
         static QColor backgroundColor;
+        static QColor backgroundHighlightColor;
         
         static QTextCharFormat 
             literalStringFormat,

@@ -13,6 +13,8 @@ FileEditor::FileEditor(QString const &dir, QWidget *parent)
     shortcutSave = new QShortcut(QKeySequence("Ctrl+s"), this);
     connect(shortcutSave, SIGNAL(activated()), this, SLOT(slotSaveFile()));
     readFile(dir);
+
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
 }
 
 FileEditor::~FileEditor(){
@@ -120,6 +122,21 @@ void FileEditor::paintEvent(QPaintEvent *event){
     QPlainTextEdit::paintEvent(event);
 }
 
+void FileEditor::highlightCurrentLine(){
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (!isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+        selection.format.setBackground(highlighter->backgroundHighlightColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
+    }
+
+    setExtraSelections(extraSelections);
+}
+    
 void FileEditor::wheelEvent(QWheelEvent *event){
     if(QApplication::keyboardModifiers() == Qt::KeyboardModifier::ControlModifier){
            if(event->delta() < 0){

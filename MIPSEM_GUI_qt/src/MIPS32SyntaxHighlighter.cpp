@@ -22,6 +22,7 @@ bool MIPS32SyntaxHighlighter::instantiated = false;
 unsigned int MIPS32SyntaxHighlighter::fontSize;
 QColor MIPS32SyntaxHighlighter::textColor;
 QColor MIPS32SyntaxHighlighter::backgroundColor;
+QColor MIPS32SyntaxHighlighter::backgroundHighlightColor;
 
 QTextCharFormat MIPS32SyntaxHighlighter::literalStringFormat;
 QTextCharFormat MIPS32SyntaxHighlighter::literalDecimalFormat;
@@ -97,6 +98,28 @@ void MIPS32SyntaxHighlighter::decreaseFontSize(){
 
 void MIPS32SyntaxHighlighter::setBackgroundColor(QColor const &color){
     MIPS32SyntaxHighlighter::backgroundColor = color;
+    
+    int red = color.red();
+    int blue = color.blue();
+    int green = color.green();
+    int offset = (int)(DEFAULT_COLOR_BACKGROUND_HIGHLIGHT_RATIO * 256.0);
+    
+    if(offset < 0){
+        if(red+offset < 0){red-=offset;}else{red+=offset;}
+        if(green+offset < 0){green-=offset;}else{green+=offset;}
+        if(blue+offset < 0){blue-=offset;}else{blue+=offset;}
+    }else if(offset > 0){
+        if(red+offset > 255){red-=offset;}else{red+=offset;}
+        if(green+offset > 255){green-=offset;}else{green+=offset;}
+        if(blue+offset > 255){blue-=offset;}else{blue+=offset;}
+    }else{
+        //don't change color
+    }
+    QColor tmpColor;
+    tmpColor.setRed(red);
+    tmpColor.setBlue(blue);
+    tmpColor.setGreen(green);
+    MIPS32SyntaxHighlighter::backgroundHighlightColor = tmpColor;
 }
 void MIPS32SyntaxHighlighter::setTextColor(QColor const &color){
     MIPS32SyntaxHighlighter::textColor = color;
@@ -106,8 +129,7 @@ void MIPS32SyntaxHighlighter::setTextColor(QColor const &color){
 
 void MIPS32SyntaxHighlighter::setDefaultHighlightingRules(){    //Build regexes
     literalStringRegex = QRegExp("\".*\"");
-    
-    literalDecimalRegex = QRegExp("0|(^|[^0])[0-9]+");
+    literalDecimalRegex = QRegExp("0|[1-9]|[1-9][0-9]+");
     literalOctalRegex = QRegExp("(^|[^1-9])0[0-9]+");
     literalBinRegex = QRegExp("0b[0-1]+");
     literalHexRegex = QRegExp("0x[0-9a-fA-F]+");
