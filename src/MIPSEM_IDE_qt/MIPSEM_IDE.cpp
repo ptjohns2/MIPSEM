@@ -43,6 +43,7 @@ void MIPSEM_IDE::init(){
     bottom->setStretchFactor(0, 1);
     connect(assemblerExceptionView, SIGNAL(programLineSelected(const ProgramLine)),
             tabbedFileEditor, SLOT(selectFileLine(const ProgramLine)));
+    
     layout->addWidget(bottom);
 }
 

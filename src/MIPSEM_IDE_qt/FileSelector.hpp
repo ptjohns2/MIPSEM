@@ -10,6 +10,7 @@
 #include <QTextEdit>
 #include <QTreeView>
 
+/*
 class DirectorySelector : public QWidget{
     Q_OBJECT
     
@@ -24,6 +25,7 @@ class DirectorySelector : public QWidget{
         
         
 };
+*/
 
 class FileSelector : public QWidget{
     Q_OBJECT

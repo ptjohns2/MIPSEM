@@ -83,14 +83,15 @@ bool TabbedFileEditor::requestCloseTab(int index){
     this->removeTab(index);
     for(int i=0; i<editors.size(); i++){
        if(editors[i] == editor){
-            editors.erase(editors.begin() + i);   
+            editors.erase(editors.begin() + i); 
+            break;
        }
     }
     delete editor;
 }
 
 bool TabbedFileEditor::requestCloseAllTabs(){
-    for(int i=0; i<this->count(); i++){
+    for(int i=0; i<this->count();){//no i++ because count is lowering each time one's closed
         if(!requestCloseTab(i)){return false;}   
     }   
 }
