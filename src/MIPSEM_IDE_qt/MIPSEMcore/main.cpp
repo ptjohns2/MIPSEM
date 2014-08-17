@@ -6,6 +6,7 @@
 
 #include "Assembler.hpp"
 #include "BitManip.hpp"
+#include "Core.hpp"
 #include "CPU.hpp"
 #include "Decoder.hpp"
 #include "Exceptions.hpp"
@@ -32,8 +33,6 @@ int main(){
     _CrtSetBreakAlloc(NUM);	//allocation number ex {123} etc shown in objdump as NUM
 	{
 	*/
-
-
 	assert(sizeof(float) == 4);
 	assert(sizeof(int) == 4);
 	assert(sizeof(unsigned int) == 4);
@@ -41,19 +40,18 @@ int main(){
 	assert(sizeof(int32_t) == 4);
 	assert(sizeof(uint64_t) == 8);
 	assert(sizeof(int64_t) == 8);
-
 	srand((unsigned int)time(NULL));
-
-	CPU cpu = CPU();
-	Assembler assembler = Assembler();
-	assembler.setRootDirectory("D:\\Programming\\WORKSPACES\\WS_GitHub\\MIPSEM\\MIPSEM\\src\\MIPSEM_IDE_qt\\MIPSEMcore");
-
-
+	
 	//string programName = "99bottles.txt";
 	//string programName = "fact.s";
 	//string programName = "prime-1.txt";
 	//string programName = "prime-2.s";
 	string programName = "selfModifyingHelloWorld.txt";
+
+	/*
+	CPU cpu = CPU();
+	Assembler assembler = Assembler();
+	assembler.setRootDirectory("D:\\Programming\\WORKSPACES\\WS_GitHub\\MIPSEM\\MIPSEM\\src\\MIPSEM_IDE_qt\\MIPSEMcore");
 
 
 	if(!assembler.assemble("programs/" + programName)){
@@ -61,12 +59,19 @@ int main(){
 		getchar();
 		return 0;
 	}
-
 	cpu.MEM.deserialize(assembler.builtObjectFileName);
-	
 	cpu.run();
+	*/
+	Core core = Core();
+	core.setRootDirectory("D:\\Programming\\WORKSPACES\\WS_GitHub\\MIPSEM\\MIPSEM\\src\\MIPSEM_IDE_qt\\MIPSEMcore");
 
-
+	if(!core.assemble("programs/" + programName)){
+		cout << "COULD NOT ASSEMBLE. HIT ENTER\n";
+		getchar();
+		return 1;
+	}
+	core.MEM.deserialize(core.builtObjectFileName);
+	core.run();
 
 	/*
 	}

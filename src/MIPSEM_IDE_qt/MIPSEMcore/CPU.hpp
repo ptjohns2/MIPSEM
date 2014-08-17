@@ -10,7 +10,7 @@
 class CPU{
 	public:
 		CPU();
-		~CPU();
+		virtual ~CPU();
 		void run();
 		void executeInstructionAtPC();
 		void executeInstruction(Instruction* instruction);
