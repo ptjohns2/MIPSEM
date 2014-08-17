@@ -6,7 +6,7 @@ SOURCES += \
     TabbedFileEditor.cpp \
     FileEditor.cpp \
     FileSelector.cpp \
-    FileBrowser.cpp \
+    MIPSEM_IDE.cpp \
     AssemblerExceptionView.cpp \
     MIPSEMcore/Assembler.cpp \
     MIPSEMcore/BitManip.cpp \
@@ -19,11 +19,10 @@ SOURCES += \
     MIPSEMcore/InstructionData.cpp \
     MIPSEMcore/InstructionDataBank.cpp \
     MIPSEMcore/Literals.cpp \
-    MIPSEMcore/main.cpp \
     MIPSEMcore/MemoryMap.cpp \
     MIPSEMcore/Parser.cpp \
     MIPSEMcore/StringResolver.cpp \
-    MIPSEMcore/VirtualMemory.cpp
+    MIPSEMcore/VirtualMemory.cpp 
 
 
 
@@ -32,7 +31,7 @@ HEADERS += \
     TabbedFileEditor.hpp \
     FileEditor.hpp \
     FileSelector.hpp \
-    FileBrowser.hpp \
+    MIPSEM_IDE.hpp \
     AssemblerExceptionView.hpp \
     MIPSEMcore/Assembler.hpp \
     MIPSEMcore/BitManip.hpp \
@@ -49,4 +48,4 @@ HEADERS += \
     MIPSEMcore/Parser.hpp \
     MIPSEMcore/StringResolver.hpp \
     MIPSEMcore/types.hpp \
-    MIPSEMcore/VirtualMemory.hpp
+    MIPSEMcore/VirtualMemory.hpp 

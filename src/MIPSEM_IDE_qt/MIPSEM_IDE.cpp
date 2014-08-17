@@ -1,8 +1,8 @@
-#include "FileBrowser.hpp"
+#include "MIPSEM_IDE.hpp"
 
 
 
-FileBrowser::FileBrowser(QWidget *parent)
+MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     :   QSplitter(parent), fileEditSection(Qt::Horizontal)
       //tabbedFileEditor(), fileSelector()
 {
@@ -13,8 +13,9 @@ FileBrowser::FileBrowser(QWidget *parent)
     this->setOrientation(Qt::Vertical);
     this->addWidget(&fileEditSection);
     this->addWidget(&assemblerExceptionView);
-    //this->setStretchFactor(1, 1);
-    //this->setStretchFactor(0, 0);
+    
+    this->setStretchFactor(1, 0);
+    this->setStretchFactor(0, 1);
     connect(&fileSelector, SIGNAL(fileSelected(QString const &)), &tabbedFileEditor, SLOT(editFile(QString const &)));
     
     

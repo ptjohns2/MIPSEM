@@ -5,11 +5,11 @@
 #include "FileSelector.hpp"
 #include "TabbedFileEditor.hpp"
 
-class FileBrowser : public QSplitter{
+class MIPSEM_IDE : public QSplitter{
     Q_OBJECT
     
     public:
-        FileBrowser(QWidget *parent = NULL);
+        MIPSEM_IDE(QWidget *parent = NULL);
         
         QSplitter fileEditSection;
         

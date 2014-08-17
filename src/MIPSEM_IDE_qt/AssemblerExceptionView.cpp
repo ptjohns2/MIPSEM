@@ -19,7 +19,7 @@ void AssemblerExceptionView::setAssemblerExceptionList(vector<AssemblerException
         QString lineString(str.c_str());
         this->addItem(lineString);
     }   
-    this->update();
+    this->show();
 }
 
 
