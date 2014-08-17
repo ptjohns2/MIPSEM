@@ -82,7 +82,7 @@ class MacroAtom{
 class Assembler{
 	public:
 		Assembler();
-		~Assembler();
+		virtual ~Assembler();
 		void init();
 		void deinit();
 		void reset();
