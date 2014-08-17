@@ -12,7 +12,10 @@ class FileEditor : public QPlainTextEdit{
     
     public:
         FileEditor(QString const &dir, QWidget *parent = NULL);
+        void init();
+        void init_pointers(); 
         ~FileEditor();
+        void deinit();
         
         QString dir;
         bool saveFile();

@@ -7,19 +7,30 @@
 FileEditor::FileEditor(QString const &dir, QWidget *parent)
     :   QPlainTextEdit(parent), dir(dir)
 {
-    highlighter = new MIPS32SyntaxHighlighter(this);
-    connect(this, SIGNAL(signalRefreshSyntaxHighlighter()), this, SLOT(refreshSyntaxHighlighter()));
+    init_pointers();
+    init();
+}
+void FileEditor::init(){
+    connect(this, SIGNAL(signalRefreshSyntaxHighlighter()), 
+            this, SLOT(refreshSyntaxHighlighter()));
+    connect(shortcutSave, SIGNAL(activated()), 
+            this, SLOT(slotSaveFile()));
+    connect(this, SIGNAL(cursorPositionChanged()), 
+            this, SLOT(highlightCurrentLine()));
     
-    shortcutSave = new QShortcut(QKeySequence("Ctrl+s"), this);
-    connect(shortcutSave, SIGNAL(activated()), this, SLOT(slotSaveFile()));
     readFile(dir);
-
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+}
+void FileEditor::init_pointers(){
+    highlighter = new MIPS32SyntaxHighlighter(this);
+    shortcutSave = new QShortcut(QKeySequence("Ctrl+s"), this);
 }
 
-FileEditor::~FileEditor(){
+FileEditor::~FileEditor(){ 
+    deinit();
+}
+void FileEditor::deinit(){
     delete highlighter;
-    delete shortcutSave;   
+    delete shortcutSave;  
 }
 
 

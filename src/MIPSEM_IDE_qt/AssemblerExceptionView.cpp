@@ -4,8 +4,8 @@
 
 AssemblerExceptionView::AssemblerExceptionView(QWidget *parent)
     :   QListWidget(parent)
-{
-    connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotListItemSelected(QListWidgetItem*)));
+{    connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), 
+             this, SLOT(slotListItemSelected(QListWidgetItem*)));
 }
 
 
