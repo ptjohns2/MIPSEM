@@ -127,8 +127,16 @@ class Assembler{
 		Parser parser;
 		Encoder encoder;
 		
-		string defaultObjectNamePostfix;
-		string defaultAlignedProgramNamePostfix;
+		void setRootDirectory(string);
+		void setProgramName(string);
+		string rootDirectory;
+		#define DEFAULT_PROGRAMNAME	("out")
+		string programName;
+		#define DEFAULT_OBJECTNAMEPOSTFIX	(".MIPSEMcoreObj")
+		string objectNamePostfix;
+		#define DEFAULT_ALIGNEDPROGRAMNAMEPOSTFIX	(DEFAULT_OBJECTNAMEPOSTFIX + std::string(".txt"))
+		string alignedProgramNamePostfix;
+		string builtObjectFileName;
 		
 		virtualAddr memorySegmentTopArray[NUMBER_OF_MEMORY_SEGMENTS];
 		DIRECTIVE currentMemorySegment;
@@ -148,15 +156,11 @@ class Assembler{
 		vector<string> labelNames;
 		unordered_map<string, virtualAddr> labelMap;
 
-		vector<string> globalLabelNames;
-		unordered_map<string, virtualAddr> globalLabelMap;
 
 		//EXCEPTIONS
 		void addException(AssemblerException const &e);
 		vector<AssemblerException> recoverableExceptions;
 		ProgramLine* currentProgramLine;
-		string objectFileName;
-
 
 
 };

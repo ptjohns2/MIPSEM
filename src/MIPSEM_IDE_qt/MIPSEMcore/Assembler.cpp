@@ -130,8 +130,9 @@ void Assembler::init(){
 	currentAction = ACTION_INIT;
 	currentByteAlignment = SIZE_BYTES_WORD;
 	
-	defaultObjectNamePostfix = "tmpObj.obj"; 
-	defaultAlignedProgramNamePostfix = ".obj.txt"; 
+	objectNamePostfix = DEFAULT_OBJECTNAMEPOSTFIX; 
+	alignedProgramNamePostfix = DEFAULT_ALIGNEDPROGRAMNAMEPOSTFIX; 
+	programName = DEFAULT_PROGRAMNAME;
 
 }
 void Assembler::deinit(){
@@ -143,6 +144,18 @@ void Assembler::reset(){
 	init();
 }
 
+void Assembler::setRootDirectory(string dir){
+	for(int i=0; i<dir.length(); i++){
+		if(dir[i] == '\\'){dir[i] = '/';}
+	}
+	if(dir[dir.length()-1] != '/'){
+		dir += "/";
+	}
+	rootDirectory = dir;
+}
+void Assembler::setProgramName(string name){
+	programName = name;
+}
 bool Assembler::assemble(string fileName){
 	Assembler* ptr = this;
 	bool invalidateAssembly = false;
@@ -158,11 +171,14 @@ bool Assembler::assemble(string fileName){
 		alignRawProgram();
 		pseudoInstructionReplace();
 		replaceLabels();
-		
-		writeAlignedRawProgramToDisk(fileName + defaultAlignedProgramNamePostfix);
+
+		string name = (programName == "")? fileName : programName;
+
+		writeAlignedRawProgramToDisk(rootDirectory + name + alignedProgramNamePostfix);
 		mapAlignedProgramToVirtualMemory();
 
-		virtualMemory.serialize(defaultObjectNamePostfix);
+		builtObjectFileName = rootDirectory + name + objectNamePostfix;
+		virtualMemory.serialize(builtObjectFileName);
 	}catch(AssemblerException &e){
 		string message = e.toString();
 		cout << '\n' << message << '\n';
@@ -177,17 +193,16 @@ bool Assembler::assemble(string fileName){
 		}
 		return false;
 	}
-	
-	objectFileName = defaultObjectNamePostfix;
 	return true;
 }
 
 void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
-	fstream file = fstream(fileName);
+	string programFileDir = rootDirectory + fileName;
+	fstream file = fstream(programFileDir);
 	if(!file.is_open()){
 		//EXCEPTION
 		string error = "I'm sorry Dave, I'm afraid I can't open that file";
-		string offendingToken = fileName;
+		string offendingToken = rootDirectory + fileName;
 		throw AssemblerException(*programLine, error, offendingToken);
 		return;
 	}
@@ -784,7 +799,9 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 
 void Assembler::writeAlignedRawProgramToDisk(string fileName){
 	ofstream file = ofstream(fileName);
-	if(!file.is_open()){return;}
+	if(!file.is_open()){
+		return;
+	}
 	for(int i=0; i<alignedProgram.size(); i++){
 		ProgramAtom atom = alignedProgram[i];
 		DIRECTIVE type = atom.type;

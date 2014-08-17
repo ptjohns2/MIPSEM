@@ -5,6 +5,8 @@
 #include "FileSelector.hpp"
 #include "TabbedFileEditor.hpp"
 
+#include <QToolBar>
+
 
 class MIPSEM_IDE : public QWidget{
     Q_OBJECT
@@ -19,6 +21,7 @@ class MIPSEM_IDE : public QWidget{
         
         QGridLayout *layout;
         
+        QToolBar *toolbar;
         QSplitter *middle;
            TabbedFileEditor *tabbedFileEditor;
            FileSelector *fileSelector;

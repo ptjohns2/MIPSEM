@@ -46,6 +46,7 @@ int main(){
 
 	CPU cpu = CPU();
 	Assembler assembler = Assembler();
+	assembler.setRootDirectory("D:\\Programming\\WORKSPACES\\WS_GitHub\\MIPSEM\\MIPSEM\\src\\MIPSEM_IDE_qt\\MIPSEMcore");
 
 
 	//string programName = "99bottles.txt";
@@ -61,7 +62,7 @@ int main(){
 		return 0;
 	}
 
-	cpu.MEM.deserialize(assembler.objectFileName);
+	cpu.MEM.deserialize(assembler.builtObjectFileName);
 	
 	cpu.run();
 

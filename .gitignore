@@ -1,4 +1,6 @@
 loc
+undo
+
 *.lnk
 
 
@@ -20,6 +22,8 @@ programs
 *.vcxproj.filters
 *.obj
 *.obj.txt
+*.MIPSEMcoreObj
+*.MIPSEMcoreObj.txt
 
 
 

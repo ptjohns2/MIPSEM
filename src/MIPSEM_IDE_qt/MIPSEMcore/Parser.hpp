@@ -16,6 +16,7 @@ class Parser{
 		Parser();
 		~Parser();
 		
+
 		//Methods
 		static string toLower(string);
 		static string toUpper(string);

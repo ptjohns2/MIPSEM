@@ -49,6 +49,7 @@ void MIPSEM_IDE::init(){
 
 void MIPSEM_IDE::init_pointers(){
     layout = new QGridLayout(this);
+        toolbar = new QToolBar();
         middle = new QSplitter(Qt::Horizontal);
             tabbedFileEditor = new TabbedFileEditor();
             fileSelector = new FileSelector();
