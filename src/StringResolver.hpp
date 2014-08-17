@@ -14,16 +14,16 @@
 class StringResolver{
 	public:
 		//Constructors
-		StringResolver(InstructionDataBank* bank);
+		StringResolver();
 		~StringResolver();
 
 		//Methods
-		void addInstructionDataBank(InstructionDataBank* bank);
+		void addInstructionDataBank(InstructionDataBank &bank);
 		InstructionData* getInstructionData(string instructionString);
 
 	private:
 		//Methods
-		void addInstructionData(InstructionData* id);
+		void addInstructionData(InstructionData id);
 		bool instructionStrIsMatch(InstructionData* id, string rightInstrStr);
 
 		int hash(string);	
@@ -34,7 +34,7 @@ class StringResolver{
 
 		//Members
 		std::hash<string> hasher;
-		vector<InstructionData*> table[INSTRUCTION_DATA_HASH_TABLE_SIZE];
+		vector<InstructionData> table[INSTRUCTION_DATA_HASH_TABLE_SIZE];
 		Parser parser;
 };
 

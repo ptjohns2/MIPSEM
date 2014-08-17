@@ -402,8 +402,8 @@ int InstructionDataBank::size() const{
 }
 
 
-InstructionData* InstructionDataBank::get(int index){
-	return &bank[index];
+InstructionData InstructionDataBank::get(int index){
+	return bank[index];
 }
 
 

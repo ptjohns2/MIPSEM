@@ -44,17 +44,8 @@ int main(){
 
 	srand((unsigned int)time(NULL));
 
-	InstructionDataBank bank = InstructionDataBank();
-	Decoder decoder = Decoder(&bank);
-	Encoder encoder = Encoder(&bank, &decoder);
-	BitResolver bitResolver = BitResolver(&bank);
-	StringResolver stringResolver = StringResolver(&bank);
 	CPU cpu = CPU();
-	VirtualMemory vm = VirtualMemory();
-	vm.setDecoder(&decoder);
-	Parser parser = Parser();
 	Assembler assembler = Assembler();
-	assembler.setEncoder(&encoder);
 
 
 	//string programName = "EXCEPTIONTEST.txt";

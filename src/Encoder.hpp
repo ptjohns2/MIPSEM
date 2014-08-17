@@ -10,7 +10,7 @@
 class Encoder{
 	public:
 		//Constructors
-		Encoder(InstructionDataBank* bank, Decoder* decoder);
+		Encoder();
 		~Encoder();
 
 		//Methods
@@ -22,14 +22,14 @@ class Encoder{
 		//Members
 		StringResolver resolver;
 
-private:
+	private:
 		//Methods
 		instr encodeArgument(instr bin, string argument, bitrange br);
 		instr encodeInstruction(InstructionData* id, vector<string> arguments);
 		instr encodeAbnormalInstruction(InstructionData* id, vector<string> arguments);
 		
 		//Members
-		Decoder* decoder;
+		Decoder decoder;
 		Parser parser;
 
 };

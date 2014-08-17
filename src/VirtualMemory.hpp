@@ -57,8 +57,6 @@ class VirtualMemory{
 		void init();
 		void deinit();
 		void reset();
-		
-		void setDecoder(Decoder* decoder);
 
 		void serialize(string fileName);
 		void deserialize(string fileName);
@@ -150,7 +148,7 @@ class VirtualMemoryPage{
 
 		//InstructionCache members
 		pair<bool, Instruction>* instructionCache;
-		static Decoder* decoder;
+		static Decoder decoder;
 };
 
 

@@ -7,7 +7,7 @@
 #include <sstream>
 
 //	Constructors
-Decoder::Decoder(InstructionDataBank* bank)	: resolver(bank){}
+Decoder::Decoder(){}
 
 Decoder::~Decoder(){}
 

@@ -142,9 +142,6 @@ void Assembler::reset(){
 
 	init();
 }
-void Assembler::setEncoder(Encoder* encoder){
-	this->encoder = encoder;
-}
 
 bool Assembler::assemble(string fileName){
 	bool invalidateAssembly = false;
@@ -1155,7 +1152,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 					if(parser.tokenIsInstructionName(parser.extractFirstToken(atom.token))){
 						instr bin;
 						try{
-							bin = encoder->buildInstruction(atom.token).getBin();
+							bin = encoder.buildInstruction(atom.token).getBin();
 						}catch(InvalidTokenException &e){
 							//EXCEPTION
 							string error = ERROR_INVALID_INSTRUCTION;
@@ -1218,7 +1215,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 				{
 					instr bin = 0;
 					try{
-						Instruction instruction = encoder->buildInstruction(atom.token);
+						Instruction instruction = encoder.buildInstruction(atom.token);
 						bin = instruction.getBin();
 					}catch(InvalidTokenException &e){
 						string error = ERROR_INVALID_INSTRUCTION;

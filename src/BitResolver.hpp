@@ -11,11 +11,11 @@
 class BitResolver{
 	public:
 		//Constructors
-		BitResolver(InstructionDataBank* bank);
+		BitResolver();
 		~BitResolver();
 		
 		//Methods
-		void addInstructionDataBank(InstructionDataBank* bank);
+		void addInstructionDataBank(InstructionDataBank &bank);
 		InstructionData* getInstructionData(instr ins);
 		
 
@@ -24,7 +24,7 @@ class BitResolver{
 		static bool instrIsMatch(InstructionData* id, instr ins);
 
 		//Members
-		vector<InstructionData*> table[NUMBER_OF_OPCODES];
+		vector<InstructionData> table[NUMBER_OF_OPCODES];
 };
 
 

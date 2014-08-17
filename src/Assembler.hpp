@@ -86,7 +86,6 @@ class Assembler{
 		void init();
 		void deinit();
 		void reset();
-		void setEncoder(Encoder*);
 
 		bool assemble(string fileName);
 		void loadProgramFromFile(string fileName, ProgramLine* programLine = NULL);
@@ -126,7 +125,7 @@ class Assembler{
 
 
 		Parser parser;
-		Encoder* encoder;
+		Encoder encoder;
 		
 		string defaultObjectNamePostfix;
 		string defaultAlignedProgramNamePostfix;

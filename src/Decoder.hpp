@@ -9,7 +9,7 @@
 class Decoder{
 	public:
 		//Constructors
-		Decoder(InstructionDataBank* bank);
+		Decoder();
 		~Decoder();
 		
 		//Methods

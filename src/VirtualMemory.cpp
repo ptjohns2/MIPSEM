@@ -21,10 +21,6 @@ void VirtualMemory::reset(){
 	this->pageTable = new VirtualMemoryPageTable();
 }
 
-void VirtualMemory::setDecoder(Decoder* decoder){
-	VirtualMemoryPage::setDecoder(decoder);
-}
-
 
 void VirtualMemory::serialize(string fileName){
 	exportMemoryMap().serialize(fileName);
@@ -178,6 +174,7 @@ VirtualMemoryPage::VirtualMemoryPage(uint32_t pageNumber){
 	lowerBound = (pageNumber << SIZE_BITS_PAGE_OFFSET);
 	upperBound = lowerBound + MAX_PAGE_OFFSET;
 }
+Decoder VirtualMemoryPage::decoder;
 VirtualMemoryPage::~VirtualMemoryPage(){
 	deallocInstructionCache();
 }
@@ -194,7 +191,6 @@ void VirtualMemoryPage::deinit(){
 	deallocInstructionCache();
 }
 
-Decoder* VirtualMemoryPage::decoder = NULL;
 
 MemorySegment VirtualMemoryPage::readMemorySegment(){
 	virtualAddr segVirtualMemoryStart = lowerBound;
@@ -218,9 +214,6 @@ bool VirtualMemoryPage::memSpaceIsInBounds(virtualAddr address, size_t size){
 }
 
 
-void VirtualMemoryPage::setDecoder(Decoder* newDecoder){
-	decoder = newDecoder;
-}
 bool VirtualMemoryPage::instructionCacheIsAllocated(){
 	return instructionCache != NULL;
 }
@@ -264,7 +257,7 @@ void VirtualMemoryPage::revalidateInstruction(virtualAddr address){
 	uint32_t pageOffset = calculatePageOffset(virtualWordAddr);
 	uint32_t readWord = readMemAs<uint32_t>(&rawMem[pageOffset]);
 	
-	instructionCache[pageOffset >> 2] = make_pair<bool, Instruction>(true, decoder->buildInstruction(readWord));
+	instructionCache[pageOffset >> 2] = make_pair<bool, Instruction>(true, decoder.buildInstruction(readWord));
 }
 
 Instruction* VirtualMemoryPage::readInstruction(virtualAddr address){

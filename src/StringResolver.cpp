@@ -9,10 +9,10 @@
 #include <sstream>
 
 //	Constructors
-StringResolver::StringResolver(InstructionDataBank* bank)
+StringResolver::StringResolver()
 	:	parser()
 {
-	addInstructionDataBank(bank);
+	addInstructionDataBank(InstructionDataBank());
 }
 StringResolver::~StringResolver()
 {
@@ -22,9 +22,9 @@ StringResolver::~StringResolver()
 
 //	public Methods
 
-void StringResolver::addInstructionDataBank(InstructionDataBank* bank){
-	for(int i=0; i<bank->size(); i++){
-		addInstructionData(bank->get(i));
+void StringResolver::addInstructionDataBank(InstructionDataBank &bank){
+	for(int i=0; i<bank.size(); i++){
+		addInstructionData(bank.get(i));
 	}
 }
 
@@ -32,8 +32,8 @@ InstructionData* StringResolver::getInstructionData(string instructionString){
 	string hashedInstructionString = getHashableStringFromInstructionString(instructionString);
 	int bin = hash(hashedInstructionString);
 	for(int i=0; i<table[bin].size(); i++){
-		if(instructionStrIsMatch(table[bin][i], instructionString)){
-			return table[bin][i];
+		if(instructionStrIsMatch(&table[bin][i], instructionString)){
+			return &table[bin][i];
 		}
 	}
 	return NULL;
@@ -41,8 +41,8 @@ InstructionData* StringResolver::getInstructionData(string instructionString){
 
 
 //	private Methods
-void StringResolver::addInstructionData(InstructionData* id){
-	int bin = hash(getHashableStringFromInstructionData(id));
+void StringResolver::addInstructionData(InstructionData id){
+	int bin = hash(getHashableStringFromInstructionData(&id));
 	table[bin].push_back(id);
 }
 

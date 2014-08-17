@@ -7,8 +7,8 @@
 #include <iostream>
 
 //	Constructors
-BitResolver::BitResolver(InstructionDataBank* bank){
-	addInstructionDataBank(bank);
+BitResolver::BitResolver(){
+	addInstructionDataBank(InstructionDataBank());
 }
 BitResolver::~BitResolver(){
 	//no heap data
@@ -16,10 +16,10 @@ BitResolver::~BitResolver(){
 
 
 //	public Methods
-void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
-	for(int i=0; i<bank->size(); i++){
-		InstructionData* tmpInstructionData = bank->get(i);
-		int opcode = tmpInstructionData->getOpcode();
+void BitResolver::addInstructionDataBank(InstructionDataBank &bank){
+	for(int i=0; i<bank.size(); i++){
+		InstructionData tmpInstructionData = bank.get(i);
+		int opcode = tmpInstructionData.getOpcode();
 		table[opcode].push_back(tmpInstructionData);
 	}
 }
@@ -28,8 +28,8 @@ void BitResolver::addInstructionDataBank(InstructionDataBank* bank){
 InstructionData* BitResolver::getInstructionData(instr ins){
 	int opcode = ins >> (SIZE_BITS_WORD - SIZE_BITS_OPCODE);
 	for(int i=0; i<table[opcode].size(); i++){
-		if(instrIsMatch(table[opcode][i], ins)){
-			return table[opcode][i];
+		if(instrIsMatch(&table[opcode][i], ins)){
+			return &table[opcode][i];
 		}
 	}
 	return NULL;

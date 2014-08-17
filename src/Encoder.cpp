@@ -10,10 +10,7 @@
 #include <tuple>
 
 //	Constructors
-Encoder::Encoder(InstructionDataBank* bank, Decoder* decoder) 
-	:	resolver(bank), parser(){
-	this->decoder = decoder;	
-}
+Encoder::Encoder(){}
 
 Encoder::~Encoder(){}
 
@@ -38,7 +35,7 @@ Instruction Encoder::buildInstruction(string asmString){
 		bin = encodeAbnormalInstruction(id, arguments);
 	}
 
-	return decoder->buildInstruction(bin);
+	return decoder.buildInstruction(bin);
 }
 
 instr Encoder::setBitrange(instr bin, uint32_t value, unsigned int start, unsigned int end){

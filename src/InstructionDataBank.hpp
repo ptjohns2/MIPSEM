@@ -14,7 +14,7 @@ class InstructionDataBank{
 		~InstructionDataBank();
 		int size() const;
 
-		InstructionData* get(int);
+		InstructionData get(int);
 
 
 	private:
