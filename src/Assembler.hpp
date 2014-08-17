@@ -88,7 +88,7 @@ class Assembler{
 		void reset();
 		void setEncoder(Encoder*);
 
-		string assemble(string fileName);
+		bool assemble(string fileName);
 		void loadProgramFromFile(string fileName, ProgramLine* programLine = NULL);
 
 	//private:
@@ -156,6 +156,7 @@ class Assembler{
 		void addException(AssemblerException const &e);
 		vector<AssemblerException> recoverableExceptions;
 		ProgramLine* currentProgramLine;
+		string objectFileName;
 
 
 

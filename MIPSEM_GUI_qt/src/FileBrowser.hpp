@@ -1,6 +1,7 @@
 #ifndef FILEBROWSER_HPP
 #define FILEBROWSER_HPP
 
+#include "AssemblerExceptionView.hpp"
 #include "FileSelector.hpp"
 #include "TabbedFileEditor.hpp"
 
@@ -10,8 +11,11 @@ class FileBrowser : public QSplitter{
     public:
         FileBrowser(QWidget *parent = NULL);
         
+        QSplitter fileEditSection;
+        
         TabbedFileEditor tabbedFileEditor;
         FileSelector fileSelector;
+        AssemblerExceptionView assemblerExceptionView;
     
     
 };

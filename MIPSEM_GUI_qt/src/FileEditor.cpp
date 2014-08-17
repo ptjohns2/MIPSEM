@@ -21,6 +21,15 @@ FileEditor::~FileEditor(){
 }
 
 
+void FileEditor::selectLine(unsigned int lineNum){
+    QTextCursor cursor(this->textCursor());
+    QTextBlock textBlock = this->document()->findBlockByLineNumber(lineNum);
+    cursor.setPosition(textBlock.position());
+    //cursor.setPosition(QTextCursor::atBlockStart());
+    this->setTextCursor(cursor);
+}
+
+
 bool FileEditor::saveFile(){
     if(!modifiedSinceLastSave()){return true;}
     

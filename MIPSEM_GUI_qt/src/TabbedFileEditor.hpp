@@ -2,6 +2,7 @@
 #define TabbedFileEditor_HPP
 
 #include "FileEditor.hpp"
+#include "AssemblerExceptionView.hpp"
 
 #include <QTabWidget>
 #include <QSplitter>
@@ -25,6 +26,7 @@ class TabbedFileEditor : public QTabWidget{
         
     public slots:
         void editFile(QString const &dir);
+        void selectFileLine(ProgramLine const &programLine);
         void slotRequestCloseTab(int index);
         
         

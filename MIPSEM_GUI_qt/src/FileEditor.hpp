@@ -22,6 +22,8 @@ class FileEditor : public QPlainTextEdit{
         bool modifiedSinceLastSave();
         QShortcut *shortcutSave;
         
+        void selectLine(unsigned int lineNum);
+        
     signals:
         void signalRefreshSyntaxHighlighter();
         

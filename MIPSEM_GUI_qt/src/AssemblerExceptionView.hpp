@@ -20,7 +20,7 @@ class AssemblerExceptionView : public QListWidget{
         void setAssemblerExceptionList(vector<AssemblerException> const &list);
         
     signals:
-        void programLineSelected(ProgramLine const *exception);
+        void programLineSelected(ProgramLine const &exception);
         
         
     public slots:

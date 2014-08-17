@@ -95,7 +95,11 @@ bool TabbedFileEditor::requestCloseAllTabs(){
     }   
 }
 
-
+void TabbedFileEditor::selectFileLine(ProgramLine const &programLine){
+    editFile(QString(programLine.fileName.c_str()));
+    FileEditor* editor = (FileEditor*)(this->currentWidget());
+    editor->selectLine(programLine.lineNumber);
+}
 
 void TabbedFileEditor::slotRequestCloseTab(int index){
     requestCloseTab(index);

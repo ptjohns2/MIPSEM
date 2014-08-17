@@ -71,15 +71,13 @@ int main(){
 	//string programName = "prime-2.s";
 	//string programName = "fact.s";
 	//string programName = "testProgram2.txt";
-	string objectFileName;
-	try{
-		objectFileName = assembler.assemble(programName);
-	}catch(AssemblerException &e){
-		cout << e.toString();
+	if(!assembler.assemble(programName)){
+		cout << "COULD NOT ASSEMBLE.  Hit enter\n";
+		getchar();
 		return 0;
 	}
 
-	cpu.MEM.deserialize(objectFileName);
+	cpu.MEM.deserialize(assembler.objectFileName);
 	
 	cpu.run();
 

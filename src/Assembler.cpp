@@ -146,17 +146,17 @@ void Assembler::setEncoder(Encoder* encoder){
 	this->encoder = encoder;
 }
 
-string Assembler::assemble(string fileName){
+bool Assembler::assemble(string fileName){
 	bool invalidateAssembly = false;
 	try{
 		loadProgramFromFile(fileName);
-
+		
 		splitLabels();
 		replaceEqv();
 		extractMacroDefinitions();
 		replaceMacros();
 		pseudoInstructionPad();
-
+		
 		alignRawProgram();
 		pseudoInstructionReplace();
 		replaceLabels();
@@ -177,10 +177,11 @@ string Assembler::assemble(string fileName){
 		for(int i=0; i<recoverableExceptions.size(); i++){
 			cout << recoverableExceptions[i].toString() << '\n';
 		}
-		throw AssemblerException(NULL, "Unable to assemble", fileName);
+		return false;
 	}
 	
-	return defaultObjectNamePostfix;
+	objectFileName = defaultObjectNamePostfix;
+	return true;
 }
 
 void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
@@ -189,7 +190,7 @@ void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
 		//EXCEPTION
 		string error = "I'm sorry Dave, I'm afraid I can't open that file";
 		string offendingToken = fileName;
-		throw AssemblerException(programLine, error, offendingToken);
+		throw AssemblerException(*programLine, error, offendingToken);
 		return;
 	}
 	string tmpProgramLine;
@@ -315,7 +316,7 @@ void Assembler::extractMacroDefinitions(){
 				//EXCEPTION
 				string error = "Macro not matched with .end_macro directive before EOF";
 				string offendingToken = programLine.text;
-				throw AssemblerException(&program[lineNum], error, offendingToken);
+				throw AssemblerException(program[lineNum], error, offendingToken);
 				return;
 			}
 			macroLines.push_back(program[lineNum]);
@@ -485,7 +486,7 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 			//EXCEPTION
 			string error = ERROR_UNRECOGNIZED_DIRECTIVE;
 			string offendingToken = directive;
-			addException(AssemblerException(programLine, error, offendingToken));
+			addException(AssemblerException(*programLine, error, offendingToken));
 			break;
 	}
 }
@@ -570,7 +571,7 @@ void Assembler::alignRawProgram(){
 						//EXCEPTION
 						string error = ERROR_INVALID_STRING_LITERAL;
 						string offendingToken = rawString;
-						addException(AssemblerException(&program[lineNum], error, offendingToken));
+						addException(AssemblerException(program[lineNum], error, offendingToken));
 						continue;
 					}
 
@@ -597,7 +598,7 @@ void Assembler::alignRawProgram(){
 					}catch(InvalidTokenException &e){
 						string error = ERROR_INVALID_ALIGNMENT_VALUE;
 						string offendingToken = token;
-						addException(AssemblerException(&program[lineNum], error, token));
+						addException(AssemblerException(program[lineNum], error, token));
 						continue;
 					}
 					alignSegmentTop();
@@ -618,7 +619,7 @@ void Assembler::alignRawProgram(){
 						//EXCEPTION
 						string error = ERROR_INVALID_SPACE_VALUE;
 						string offendingToken = token;
-						addException(AssemblerException(&program[lineNum], error, offendingToken));
+						addException(AssemblerException(program[lineNum], error, offendingToken));
 						continue;
 					}
 
@@ -667,7 +668,7 @@ void Assembler::flushLabelBuffer(){
 			//EXCEPTION
 			string error = ERROR_INVALID_LABEL;
 			string offendingToken = labelsToAssign[i]->text;
-			addException(AssemblerException(labelsToAssign[i], error, offendingToken));
+			addException(AssemblerException(*labelsToAssign[i], error, offendingToken));
 			continue;
 		}
 
@@ -757,7 +758,7 @@ void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, strin
 			//EXCEPTION
 			string error = ERROR_INVALID_LITERAL;
 			string offendingToken = currentLiteralToken;
-			addException(AssemblerException(programLine, error, offendingToken));
+			addException(AssemblerException(*programLine, error, offendingToken));
 			continue;
 		}
 		virtualAddr addr = getCurrentMemoryLocation();
@@ -829,7 +830,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 0:
 						{
 							//bge	$reg1, $reg2, label
-							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -842,7 +843,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 1:
 						{
 							//bgt	$reg1, $reg2, label
-							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -855,7 +856,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 2:
 						{
 							//ble	$reg1, $reg2, label
-							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -869,7 +870,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 3:
 						{
 							//blt	$reg1, $reg2, label
-							if(tokenizedInstruction.size() != 4){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 4){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string labelName = tokenizedInstruction[3];
@@ -882,7 +883,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 4:
 						{
 							//clear	$reg
-							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string line1 = "add\t" + registerName1 + ", $zero, $zero";
 							alignedProgram[i].token = line1;
@@ -891,13 +892,13 @@ void Assembler::pseudoInstructionReplace(){
 					case 5:
 						{
 							//la	$reg, label
-							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string labelName = tokenizedInstruction[2];
 							if(!tokenIsInLabelDB(labelName)){
 								//EXCEPTION
 								string error = ERROR_UNRECOGNIZED_LABEL;
 								string offendingToken = labelName;
-								addException(AssemblerException(atom.programLine, error, offendingToken));
+								addException(AssemblerException(*atom.programLine, error, offendingToken));
 								continue;
 							}
 							virtualAddr labelAddr = getLabelAddress(labelName);
@@ -915,7 +916,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 6:
 						{
 							//li	$reg, imm
-							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string immediateString = tokenizedInstruction[2];
 
 							//EXCEPTION
@@ -926,7 +927,7 @@ void Assembler::pseudoInstructionReplace(){
 							}catch(InvalidTokenException &e){
 								string error = ERROR_INVALID_IMMEDIATE_LI;
 								string offendingToken = immediateString;
-								addException(AssemblerException(atom.programLine, error, offendingToken));
+								addException(AssemblerException(*atom.programLine, error, offendingToken));
 								continue;
 							}
 							virtualAddr msb = immediateVal >> (SIZE_BITS_WORD / 2);
@@ -944,7 +945,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 7:
 						{
 							//move	$reg1, $reg2
-							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "add\t" + registerName1 + ", " + registerName2 + ", $zero";
@@ -954,7 +955,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 8:
 						{
 							//neg	$reg1, $reg2
-							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "sub\t" + registerName1 + ", $zero, " + registerName2;
@@ -964,7 +965,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 9:
 						{
 							//not	$reg1, $reg2
-							if(tokenizedInstruction.size() != 3){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 3){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string registerName2 = tokenizedInstruction[2];
 							string line1 = "addi\t" + registerName1 + ", $zero, -1";
@@ -985,7 +986,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 10:
 						{
 							//push	$reg
-							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string line1 = "sub\t$sp, $sp, 4";
 							string line2 = "sw\t" + registerName1 + ", 0($sp)";
@@ -996,7 +997,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 11:
 						{
 							//pop	$reg
-							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName1 = tokenizedInstruction[1];
 							string line1 = "lw\t" + registerName1 + ", 0($sp)";
 							string line2 = "addi\t$sp, $sp, 4";
@@ -1007,7 +1008,7 @@ void Assembler::pseudoInstructionReplace(){
 					case 12:
 						{
 							//peak	$reg
-							if(tokenizedInstruction.size() != 2){addException(AssemblerException(atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
+							if(tokenizedInstruction.size() != 2){addException(AssemblerException(*atom.programLine, ERROR_INVALID_PSEUDOINSTRUCTION, atom.programLine->text));continue;}
 							string registerName = tokenizedInstruction[1];
 							string line = "lw\t" + registerName + ", 0($sp)";
 							alignedProgram[i].token = line;
@@ -1062,7 +1063,7 @@ void Assembler::replaceLabels(){
 					//EXCEPTION
 					string error = ERROR_UNRECOGNIZED_LABEL;
 					string offendingToken = lastToken;
-					addException(AssemblerException(atom.programLine, error, offendingToken));
+					addException(AssemblerException(*atom.programLine, error, offendingToken));
 				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
@@ -1159,7 +1160,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 							//EXCEPTION
 							string error = ERROR_INVALID_INSTRUCTION;
 							string offendingToken = atom.token;
-							addException(AssemblerException(atom.programLine, error, offendingToken));
+							addException(AssemblerException(*atom.programLine, error, offendingToken));
 						}
 						val = readMemAs<int32_t>(&bin);
 					}else{
@@ -1222,7 +1223,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 					}catch(InvalidTokenException &e){
 						string error = ERROR_INVALID_INSTRUCTION;
 						string offendingToken = atom.token;
-						addException(AssemblerException(atom.programLine, error, offendingToken));
+						addException(AssemblerException(*atom.programLine, error, offendingToken));
 					}
 					size_t size = sizeof(bin);
 
@@ -1244,7 +1245,7 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 void Assembler::addException(AssemblerException const &e){
 	//CONDITIONS TO REJECT ADDING
 	//line is pseudo instruction pad line
-	if(e.programLine->text == ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD){
+	if(e.programLine.text == ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD){
 		return;
 	}
 	//Add

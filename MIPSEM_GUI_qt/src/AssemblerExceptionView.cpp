@@ -5,7 +5,7 @@
 AssemblerExceptionView::AssemblerExceptionView(QWidget *parent)
     :   QListWidget(parent)
 {
-    connect(this, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(slotListItemSelected(QListWidgetItem*)));
+    connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(slotListItemSelected(QListWidgetItem*)));
 }
 
 
@@ -25,6 +25,6 @@ void AssemblerExceptionView::setAssemblerExceptionList(vector<AssemblerException
 
 void AssemblerExceptionView::slotListItemSelected(QListWidgetItem *item){
     int index = this->row(item);
-    ProgramLine const *line = assemblerExceptions[index].programLine;
+    ProgramLine const line = assemblerExceptions[index].programLine;
     emit programLineSelected(line);
 }
