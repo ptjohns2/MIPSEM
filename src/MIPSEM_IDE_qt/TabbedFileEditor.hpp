@@ -22,7 +22,7 @@ class TabbedFileEditor : public QTabWidget{
         bool requestCloseTab(int index);
         bool requestCloseAllTabs();
         
-        QVector<FileEditor*> editors;
+        vector<FileEditor*> editors;
         
     public slots:
         void editFile(QString const &dir);

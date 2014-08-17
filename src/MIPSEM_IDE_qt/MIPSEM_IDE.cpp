@@ -3,20 +3,33 @@
 
 
 MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
-    :   QSplitter(parent), fileEditSection(Qt::Horizontal)
-      //tabbedFileEditor(), fileSelector()
+    :   QWidget(parent)
 {
-    fileEditSection.addWidget(&fileSelector);
-    fileEditSection.addWidget(&tabbedFileEditor);
-    fileEditSection.setStretchFactor(1, 1);
-    fileEditSection.setStretchFactor(0, 0);
-    this->setOrientation(Qt::Vertical);
-    this->addWidget(&fileEditSection);
-    this->addWidget(&assemblerExceptionView);
+    layout = new QGridLayout(this);
     
-    this->setStretchFactor(1, 0);
-    this->setStretchFactor(0, 1);
-    connect(&fileSelector, SIGNAL(fileSelected(QString const &)), &tabbedFileEditor, SLOT(editFile(QString const &)));
+    middle = new QSplitter(Qt::Horizontal);
+    fileSelector = new FileSelector();
+    middle->addWidget(fileSelector);
+    tabbedFileEditor = new TabbedFileEditor();
+    middle->addWidget(tabbedFileEditor);
+    
+    middle->setStretchFactor(1, 1);
+    middle->setStretchFactor(0, 0);
+    connect(fileSelector, SIGNAL(fileSelected(QString const &)), 
+            tabbedFileEditor, SLOT(editFile(QString const &)));
+
+    bottom = new QSplitter(Qt::Vertical);
+    bottom->addWidget(middle);
+    assemblerExceptionView = new AssemblerExceptionView();    
+    bottom->addWidget(assemblerExceptionView);
+    bottom->setStretchFactor(1, 0);
+    bottom->setStretchFactor(0, 1);
+    connect(assemblerExceptionView, SIGNAL(programLineSelected(const ProgramLine)),
+            tabbedFileEditor, SLOT(selectFileLine(const ProgramLine)));
+    layout->addWidget(bottom);
+    
+    
+    
     
     
     ProgramLine line1;
@@ -34,10 +47,41 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     vect.push_back(e1);
     vect.push_back(e2);
     
-    assemblerExceptionView.setAssemblerExceptionList(vect);
+    assemblerExceptionView->setAssemblerExceptionList(vect);
     
-    
-    connect(&assemblerExceptionView, SIGNAL(programLineSelected(const ProgramLine)),
-            &tabbedFileEditor, SLOT(selectFileLine(const ProgramLine)));
     
 }
+
+MIPSEM_IDE::~MIPSEM_IDE(){
+    delete 
+    layout;
+        middle,
+            tabbedFileEditor,
+            fileSelector,
+        bottom,
+            assemblerExceptionView
+    ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

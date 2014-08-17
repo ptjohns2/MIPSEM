@@ -22,7 +22,7 @@ SOURCES += \
     MIPSEMcore/MemoryMap.cpp \
     MIPSEMcore/Parser.cpp \
     MIPSEMcore/StringResolver.cpp \
-    MIPSEMcore/VirtualMemory.cpp 
+    MIPSEMcore/VirtualMemory.cpp  
 
 
 
@@ -48,4 +48,4 @@ HEADERS += \
     MIPSEMcore/Parser.hpp \
     MIPSEMcore/StringResolver.hpp \
     MIPSEMcore/types.hpp \
-    MIPSEMcore/VirtualMemory.hpp 
+    MIPSEMcore/VirtualMemory.hpp   

@@ -5,17 +5,22 @@
 #include "FileSelector.hpp"
 #include "TabbedFileEditor.hpp"
 
-class MIPSEM_IDE : public QSplitter{
+
+class MIPSEM_IDE : public QWidget{
     Q_OBJECT
     
     public:
         MIPSEM_IDE(QWidget *parent = NULL);
+        ~MIPSEM_IDE();
         
-        QSplitter fileEditSection;
         
-        TabbedFileEditor tabbedFileEditor;
-        FileSelector fileSelector;
-        AssemblerExceptionView assemblerExceptionView;
+        QGridLayout *layout;
+        
+        QSplitter *middle;
+           TabbedFileEditor *tabbedFileEditor;
+           FileSelector *fileSelector;
+        QSplitter *bottom;
+           AssemblerExceptionView *assemblerExceptionView;
     
     
 };
