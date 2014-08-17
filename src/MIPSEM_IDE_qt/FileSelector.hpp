@@ -30,7 +30,10 @@ class FileSelector : public QWidget{
     
     public:
         FileSelector(QWidget *parent = NULL);
+        void init();
+        void init_pointers();
         ~FileSelector();
+        void deinit();
         
         QGridLayout *layout;
         
