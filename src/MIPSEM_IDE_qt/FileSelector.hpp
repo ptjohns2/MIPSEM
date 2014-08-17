@@ -16,8 +16,8 @@ class DirectorySelector : public QWidget{
     public:
         DirectorySelector(QWidget *parent = NULL);    
   
-        QTextEdit directoryEdit;
-        QPushButton directorySelect;
+        QTextEdit *directoryEdit;
+        QPushButton *directorySelect;
         
     signals:
         void directorySelected(QString const &dir);    
@@ -32,16 +32,18 @@ class FileSelector : public QWidget{
         FileSelector(QWidget *parent = NULL);
         ~FileSelector();
         
-        QGridLayout layout;
+        QGridLayout *layout;
         
-        QPushButton buttonRootDirSelect;
-        QToolButton buttonNew;
-        QMenu buttonNewMenu;
-        QAction newDirAction;
-        QAction newFileAction;
+        QPushButton *buttonRootDirSelect;
+        QToolButton *buttonNew;
+            QMenu *buttonNewMenu;
+            QAction *newDirAction;
+            QAction *newFileAction;
+            
+        QTreeView *treeView;
+            QFileSystemModel *fileSystemModel;
         
-        QFileSystemModel fileSystemModel;
-        QTreeView treeView;
+        
         QString rootDir;
 
     signals:

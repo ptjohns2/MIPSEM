@@ -5,33 +5,10 @@
 MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     :   QWidget(parent)
 {
-    layout = new QGridLayout(this);
+    init_pointers();
+    init();
     
-    middle = new QSplitter(Qt::Horizontal);
-    fileSelector = new FileSelector();
-    middle->addWidget(fileSelector);
-    tabbedFileEditor = new TabbedFileEditor();
-    middle->addWidget(tabbedFileEditor);
-    
-    middle->setStretchFactor(1, 1);
-    middle->setStretchFactor(0, 0);
-    connect(fileSelector, SIGNAL(fileSelected(QString const &)), 
-            tabbedFileEditor, SLOT(editFile(QString const &)));
-
-    bottom = new QSplitter(Qt::Vertical);
-    bottom->addWidget(middle);
-    assemblerExceptionView = new AssemblerExceptionView();    
-    bottom->addWidget(assemblerExceptionView);
-    bottom->setStretchFactor(1, 0);
-    bottom->setStretchFactor(0, 1);
-    connect(assemblerExceptionView, SIGNAL(programLineSelected(const ProgramLine)),
-            tabbedFileEditor, SLOT(selectFileLine(const ProgramLine)));
-    layout->addWidget(bottom);
-    
-    
-    
-    
-    
+  
     ProgramLine line1;
     line1.fileName = "D:\\tmp\\test1.txt";
     line1.lineNumber = 2;
@@ -51,8 +28,37 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     
     
 }
+void MIPSEM_IDE::init(){
+    middle->addWidget(fileSelector);
+    middle->addWidget(tabbedFileEditor);
+    
+    middle->setStretchFactor(1, 1);
+    middle->setStretchFactor(0, 0);
+    connect(fileSelector, SIGNAL(fileSelected(QString const &)), 
+            tabbedFileEditor, SLOT(editFile(QString const &)));
+
+    bottom->addWidget(middle);   
+    bottom->addWidget(assemblerExceptionView);
+    bottom->setStretchFactor(1, 0);
+    bottom->setStretchFactor(0, 1);
+    connect(assemblerExceptionView, SIGNAL(programLineSelected(const ProgramLine)),
+            tabbedFileEditor, SLOT(selectFileLine(const ProgramLine)));
+    layout->addWidget(bottom);
+}
+
+void MIPSEM_IDE::init_pointers(){
+    layout = new QGridLayout(this);
+        middle = new QSplitter(Qt::Horizontal);
+            tabbedFileEditor = new TabbedFileEditor();
+            fileSelector = new FileSelector();
+        bottom = new QSplitter(Qt::Vertical);
+            assemblerExceptionView = new AssemblerExceptionView();
+}
 
 MIPSEM_IDE::~MIPSEM_IDE(){
+    deinit();
+}
+void MIPSEM_IDE::deinit(){
     delete 
     layout;
         middle,

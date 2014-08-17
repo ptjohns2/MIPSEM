@@ -4,58 +4,74 @@
 #include <QInputDialog>
 
 FileSelector::FileSelector(QWidget *parent)
-    :   QWidget(parent), layout(this),
-      buttonRootDirSelect(), 
-      buttonNew(), buttonNewMenu(), newDirAction(this), newFileAction(this),
-      fileSystemModel(), treeView()
+    :   QWidget(parent)
 {
     
+    layout = new QGridLayout(this);
+    
     //buttons
-    buttonRootDirSelect.setText("root directory");
-    buttonRootDirSelect.setStyleSheet("font-weight:bold");
-    connect(&buttonRootDirSelect, SIGNAL(clicked()), this, SLOT(slotRootDirSelect()));
-    layout.addWidget(&buttonRootDirSelect, 0, 0, 1, 3);
+    buttonRootDirSelect = new QPushButton();
+    buttonRootDirSelect->setText("root directory");
+    buttonRootDirSelect->setStyleSheet("font-weight:bold");
+    connect(buttonRootDirSelect, SIGNAL(clicked()), 
+            this, SLOT(slotRootDirSelect()));
+    layout->addWidget(buttonRootDirSelect, 0, 0, 1, 3);
        
+    newDirAction = new QAction(this);
+    newDirAction->setText("new directory");
+    buttonNewMenu = new QMenu();
+    buttonNewMenu->addAction(newDirAction);
+    connect(newDirAction, SIGNAL(triggered()), 
+            this, SLOT(slotNewDir()));
     
-    newDirAction.setText("new directory");
-    buttonNewMenu.addAction(&newDirAction);
-    connect(&newDirAction, SIGNAL(triggered()), this, SLOT(slotNewDir()));
-    //connect(&newDirAction, SIGNAL(triggered()), this, SLOT(slotRootDirSelect()));
+    newFileAction = new QAction(this);
+    newFileAction->setText("new file");
+    buttonNewMenu->addAction(newFileAction);
+    connect(newFileAction, SIGNAL(triggered()), 
+            this, SLOT(slotNewFile()));
     
-    newFileAction.setText("new file");
-    buttonNewMenu.addAction(&newFileAction);
-    connect(&newFileAction, SIGNAL(triggered()), this, SLOT(slotNewFile()));
+    buttonNew = new QToolButton;
+    buttonNew->setText("+");
+    buttonNew->setStyleSheet("font-weight:bold");
+    buttonNew->setMenu(buttonNewMenu);
+    buttonNew->setPopupMode(QToolButton::InstantPopup);
     
-        
-    buttonNew.setText("+");
-    buttonNew.setStyleSheet("font-weight:bold");
-    buttonNew.setMenu(&buttonNewMenu);
-    buttonNew.setPopupMode(QToolButton::InstantPopup);
-    
-    layout.addWidget(&buttonNew, 0, 3, 1, 1);
+    layout->addWidget(buttonNew, 0, 3, 1, 1);
     
     //treeView
     rootDir = QDir::currentPath();
-    fileSystemModel.setRootPath(rootDir);
+    fileSystemModel = new QFileSystemModel();
+    fileSystemModel->setRootPath(rootDir);
     
-    treeView.setModel(&fileSystemModel);
+    treeView = new QTreeView();
+    treeView->setModel(fileSystemModel);
     //remove the 3 columns after "Name" in file viewer
     for(int i=1; i<=3; i++){
-       treeView.hideColumn(i);
+       treeView->hideColumn(i);
     }
     
     // Demonstrating look and feel features
-    treeView.setAnimated(false);
-    treeView.setIndentation(10);
-    treeView.setSortingEnabled(true);
+    treeView->setAnimated(false);
+    treeView->setIndentation(10);
+    treeView->setSortingEnabled(true);
     
-    connect(&treeView, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(slotTreeViewIndexSelected(QModelIndex const &)));
+    connect(treeView, SIGNAL(doubleClicked(QModelIndex const &)), 
+            this, SLOT(slotTreeViewIndexSelected(QModelIndex const &)));
     
-    layout.addWidget(&treeView, 1, 0, 1, 4);
+    layout->addWidget(treeView, 1, 0, 1, 4);
     
 }
 FileSelector::~FileSelector(){
-       
+    delete
+    layout,
+        buttonRootDirSelect,
+        buttonNew,
+            buttonNewMenu,
+                newDirAction,
+                newFileAction,
+        treeView,
+            fileSystemModel
+    ;
 }
 
 void FileSelector::slotRootDirSelect(){
@@ -63,12 +79,12 @@ void FileSelector::slotRootDirSelect(){
                                                  rootDir,
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
-    fileSystemModel.setRootPath(rootDir);
-    treeView.setRootIndex(fileSystemModel.index(rootDir));
+    fileSystemModel->setRootPath(rootDir);
+    treeView->setRootIndex(fileSystemModel->index(rootDir));
 }
 
 void FileSelector::slotTreeViewIndexSelected(QModelIndex const &index){
-    QFileInfo info = fileSystemModel.fileInfo(index);
+    QFileInfo info = fileSystemModel->fileInfo(index);
     if(info.isFile()){
         //file double clicked!
         QString fileName = info.absoluteFilePath();

@@ -11,7 +11,10 @@ class MIPSEM_IDE : public QWidget{
     
     public:
         MIPSEM_IDE(QWidget *parent = NULL);
+        void init();
+        void init_pointers();
         ~MIPSEM_IDE();
+        void deinit();
         
         
         QGridLayout *layout;
