@@ -19,10 +19,12 @@ SOURCES += \
     MIPSEMcore/InstructionData.cpp \
     MIPSEMcore/InstructionDataBank.cpp \
     MIPSEMcore/Literals.cpp \
+    MIPSEMcore/main.cpp \
     MIPSEMcore/MemoryMap.cpp \
     MIPSEMcore/Parser.cpp \
     MIPSEMcore/StringResolver.cpp \
     MIPSEMcore/VirtualMemory.cpp
+
 
 
 HEADERS += \

@@ -1,1 +1,12 @@
 loc
+
+*.pro.user
+*.sln
+*.suo
+
+*.vcxproj
+*.vcxproj.filters
+*.obj
+*.obj.txt
+Debug/
+programs/
