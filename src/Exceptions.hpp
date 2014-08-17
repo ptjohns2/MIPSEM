@@ -7,6 +7,7 @@
 #include <exception>
 #include <string>
 
+#define ERROR_UNRECOGNIZED_TOKEN		("Unrecognized token")
 #define ERROR_UNRECOGNIZED_DIRECTIVE	("Unrecognized directive")
 #define ERROR_UNRECOGNIZED_LABEL		("Label not recognized")
 #define ERROR_INVALID_STRING_LITERAL	("Invalid string literal")

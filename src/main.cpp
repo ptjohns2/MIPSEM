@@ -48,7 +48,6 @@ int main(){
 	Assembler assembler = Assembler();
 
 
-	//string programName = "EXCEPTIONTEST.txt";
 	//string programName = "99bottles.txt";
 	string programName = "selfModifyingHelloWorld.txt";
 	//string programName = "includetest.txt";

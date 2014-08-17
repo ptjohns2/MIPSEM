@@ -144,6 +144,7 @@ void Assembler::reset(){
 }
 
 bool Assembler::assemble(string fileName){
+	Assembler* ptr = this;
 	bool invalidateAssembly = false;
 	try{
 		loadProgramFromFile(fileName);
@@ -259,6 +260,8 @@ void Assembler::replaceEqv(){
 			string eqvValue = parser.trim(programLine.text);
 			pair<string, string> eqvAtom = make_pair(eqvName, eqvValue);
 			eqvDB.push_back(eqvAtom);
+			program.erase(program.begin() + lineNum);
+			lineNum--;
 		}
 
 		for(int laterlineNum = lineNum + 1; laterlineNum<program.size(); laterlineNum++){
@@ -294,6 +297,7 @@ void Assembler::replaceEqv(){
 				}
 			}
 		}
+		
 	}
 }
 
@@ -516,7 +520,10 @@ void Assembler::alignRawProgram(){
 		switch(currentAction){
 			case ACTION_INIT:
 				{
-				//cout << "Error Assembler::converRawProgramToMemoryMappedProgram ACTION_INIT executed\n";
+					string error = ERROR_UNRECOGNIZED_TOKEN;
+					string offendingToken = programLine.text;
+					addException(AssemblerException(program[lineNum], error, offendingToken));
+					continue;
 				}
 				break;
 			case ACTION_DECLARE_SEGMENT:
