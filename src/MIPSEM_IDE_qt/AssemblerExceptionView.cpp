@@ -12,24 +12,49 @@ AssemblerExceptionView::AssemblerExceptionView(QWidget *parent)
 
 void AssemblerExceptionView::setAssemblerExceptionList(vector<AssemblerException> const &list){
     this->clear();
-    assemblerExceptions.clear();
+    lineItems.clear();
+    addTextLine("Errors found: " + QString(std::to_string(list.size()).c_str()));
     for(int i=0; i<list.size(); i++){
-        assemblerExceptions.push_back(list[i]);
-        std::string str = assemblerExceptions[i].toString();
-        QString lineString(str.c_str());
-        this->addItem(lineString);
+        addAssemblerExceptionLine(list[i]);
     }   
     this->show();
 }
 
+void AssemblerExceptionView::addAssemblerExceptionLine(AssemblerException assemblerException){
+    LineItem item;
+    item.assemblerException = assemblerException;
+    item.isAssemblerException = true;
+    item.text = QString(assemblerException.toString().c_str());
+    lineItems.push_back(item);
+    this->addItem(item.text);
+}
+
+void AssemblerExceptionView::addTextLine(QString const &text){
+    LineItem item;
+    item.isAssemblerException = false;
+    item.text = text;
+    lineItems.push_back(item);
+    this->addItem(item.text);
+}
+
+
+
 void AssemblerExceptionView::clearAssemblerExceptions(){
-    assemblerExceptions.clear();
+    lineItems.clear();
     this->clear();
     this->update();
 }
 
 void AssemblerExceptionView::slotListItemSelected(QListWidgetItem *item){
     int index = this->row(item);
-    ProgramLine const line = assemblerExceptions[index].programLine;
-    emit programLineSelected(line);
+    LineItem lineItem = lineItems[index];
+    if(lineItem.isAssemblerException){
+        emit programLineSelected(lineItem.assemblerException.programLine);
+    }
 }
+
+
+
+
+
+

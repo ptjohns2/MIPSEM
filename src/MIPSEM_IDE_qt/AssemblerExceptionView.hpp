@@ -15,9 +15,19 @@ class AssemblerExceptionView : public QListWidget{
     
     public:
         AssemblerExceptionView(QWidget *parent = NULL);
-        
-        vector<AssemblerException> assemblerExceptions;
+        class LineItem{
+            public:   
+                LineItem(){}
+                AssemblerException assemblerException;
+                bool isAssemblerException;
+                QString text;
+        };
+        vector<LineItem> lineItems;
         void setAssemblerExceptionList(vector<AssemblerException> const &list);
+        
+        void addAssemblerExceptionLine(AssemblerException assemblerException);
+        void addTextLine(QString const &text);
+        
         void clearAssemblerExceptions();
         
     signals:

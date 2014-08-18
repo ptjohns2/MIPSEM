@@ -90,6 +90,16 @@ bool TabbedFileEditor::requestCloseAllTabs(){
     }   
 }
 
+bool TabbedFileEditor::saveAllTabs(){
+    for(int i=0; i<this->count(); i++){
+        FileEditor* editor = (FileEditor*)this->widget(i);
+        if(!editor->saveFile()){
+            return false;   
+        }
+    }   
+    return true;
+}
+
 void TabbedFileEditor::selectFileLine(ProgramLine const &programLine){
     editFile(QString(programLine.fileName.c_str()));
     FileEditor* editor = (FileEditor*)(this->currentWidget());

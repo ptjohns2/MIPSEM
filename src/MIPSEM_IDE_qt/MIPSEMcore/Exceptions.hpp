@@ -24,13 +24,15 @@ using std::string;
 
 class AssemblerException : public exception{
 	public:
+        AssemblerException();
 		AssemblerException(ProgramLine, string error, string offendingToken);
 
 		string toString();
 		
-		const ProgramLine programLine;
-		const string info;
-		const string offendingToken;
+		ProgramLine programLine;
+		string info;
+		string offendingToken;
+        
 
 	protected:
 

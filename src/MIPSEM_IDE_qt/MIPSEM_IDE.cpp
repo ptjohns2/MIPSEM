@@ -77,6 +77,10 @@ void MIPSEM_IDE::deinit(){
 
 
 void MIPSEM_IDE::assembleOpenFile(){
+    if(!tabbedFileEditor->saveAllTabs()){
+        assemblerExceptionView->clearAssemblerExceptions();
+        return;
+    }
     FileEditor* editor = (FileEditor*)tabbedFileEditor->currentWidget(); 
     if(editor == NULL){return;}
     QString dir = editor->dir;
@@ -86,6 +90,7 @@ void MIPSEM_IDE::assembleOpenFile(){
         assemblerExceptionView->setAssemblerExceptionList(core.recoverableExceptions);   
     }else{
         assemblerExceptionView->clearAssemblerExceptions();
+        assemblerExceptionView->addTextLine("Assembly of \"" + dir + "\" successful.");
     }
 }
 

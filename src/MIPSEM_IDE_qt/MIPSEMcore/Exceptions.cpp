@@ -2,7 +2,7 @@
 
 
 
-
+AssemblerException::AssemblerException(){}
 AssemblerException::AssemblerException(ProgramLine programLine, string info, string offendingToken)
 	:	programLine(programLine), info(info), offendingToken(offendingToken)
 {
@@ -21,8 +21,6 @@ string AssemblerException::toString(){
 	message += ": \"" + this->offendingToken + "\"";
 	return message;
 }
-
-
 
 
 InvalidTokenException::InvalidTokenException(){

@@ -21,6 +21,7 @@ class TabbedFileEditor : public QTabWidget{
         FileEditor* getDirectoryFileEditor(QString const &dir);
         bool requestCloseTab(int index);
         bool requestCloseAllTabs();
+        bool saveAllTabs();
         
         vector<FileEditor*> editors;
         
