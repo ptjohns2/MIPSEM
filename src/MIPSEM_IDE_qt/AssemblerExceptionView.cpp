@@ -22,6 +22,11 @@ void AssemblerExceptionView::setAssemblerExceptionList(vector<AssemblerException
     this->show();
 }
 
+void AssemblerExceptionView::clearAssemblerExceptions(){
+    assemblerExceptions.clear();
+    this->clear();
+    this->update();
+}
 
 void AssemblerExceptionView::slotListItemSelected(QListWidgetItem *item){
     int index = this->row(item);

@@ -18,6 +18,7 @@ class AssemblerExceptionView : public QListWidget{
         
         vector<AssemblerException> assemblerExceptions;
         void setAssemblerExceptionList(vector<AssemblerException> const &list);
+        void clearAssemblerExceptions();
         
     signals:
         void programLineSelected(ProgramLine const &exception);

@@ -77,23 +77,16 @@ void MIPSEM_IDE::deinit(){
 
 
 void MIPSEM_IDE::assembleOpenFile(){
-    FileEditor* editor = (FileEditor*)tabbedFileEditor->currentWidget();   
+    FileEditor* editor = (FileEditor*)tabbedFileEditor->currentWidget(); 
+    if(editor == NULL){return;}
     QString dir = editor->dir;
     core.reset();
-    core.setRootDirectory(fileSelector->rootDir.toStdString());
-
-    int i=dir.length();
-    for(; i--; i>0){
-        if(dir[i] == '/' || dir[i] == '\\'){
-            i++;
-            break;
-        }   
-    }
-    QString name = dir.mid(i);
-    if(!core.assemble(name.toStdString())){
+    bool validAssembly = core.assemble(dir.toStdString());
+    if(!validAssembly){
         assemblerExceptionView->setAssemblerExceptionList(core.recoverableExceptions);   
+    }else{
+        assemblerExceptionView->clearAssemblerExceptions();
     }
-    int sadf = 5;
 }
 
 

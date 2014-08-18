@@ -36,7 +36,7 @@ void FileEditor::deinit(){
 
 void FileEditor::selectLine(unsigned int lineNum){
     QTextCursor cursor(this->textCursor());
-    QTextBlock textBlock = this->document()->findBlockByLineNumber(lineNum);
+    QTextBlock textBlock = this->document()->findBlockByNumber(lineNum);
     cursor.setPosition(textBlock.position());
     //cursor.setPosition(QTextCursor::atBlockStart());
     this->setTextCursor(cursor);

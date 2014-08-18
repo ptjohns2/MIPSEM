@@ -130,9 +130,11 @@ void Assembler::init(){
 	currentAction = ACTION_INIT;
 	currentByteAlignment = SIZE_BYTES_WORD;
 	
+    rootDirectory = "";
 	objectNamePostfix = DEFAULT_OBJECTNAMEPOSTFIX; 
 	alignedProgramNamePostfix = DEFAULT_ALIGNEDPROGRAMNAMEPOSTFIX; 
 	programName = DEFAULT_PROGRAMNAME;
+    builtObjectFileName = "";
 
 }
 void Assembler::deinit(){
@@ -140,7 +142,16 @@ void Assembler::deinit(){
 }
 void Assembler::reset(){
 	virtualMemory.reset();
-
+    program.clear();
+    alignedProgram.clear();
+    eqvDB.clear();
+    macroDB.clear();
+    labelsToAssign.clear();
+    labelNames.clear();
+    labelMap.clear();
+    recoverableExceptions.clear();
+    currentProgramLine = NULL;
+    
 	init();
 }
 
