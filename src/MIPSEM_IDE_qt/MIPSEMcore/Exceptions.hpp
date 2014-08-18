@@ -18,6 +18,7 @@
 #define ERROR_INVALID_IMMEDIATE_LI		("Invalid immediate on \"li\" pseudoinstruction")
 #define ERROR_INVALID_INSTRUCTION		("Unable to encode instruction")
 #define ERROR_INVALID_PSEUDOINSTRUCTION	("Unable to translate pseudoinstruction")
+#define ERROR_EXPECTED_END_MACRO        ("Expected .end_macro directive before EOF")
 
 using std::exception;
 using std::string;

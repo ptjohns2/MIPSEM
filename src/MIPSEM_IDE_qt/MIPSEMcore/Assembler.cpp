@@ -330,17 +330,20 @@ void Assembler::extractMacroDefinitions(){
 		if(token == ".macro"){
 			macroLines.push_back(programLine);
 			program.erase(program.begin() + lineNum);
-			while(parser.extractFirstToken(program[lineNum].text) != ".end_macro" && lineNum < program.size()){
+			while(lineNum < program.size()){
+                if(parser.extractFirstToken(program[lineNum].text) == ".end_macro"){
+					break;
+				}
 				macroLines.push_back(program[lineNum]);
 				program.erase(program.begin() + lineNum);
 			}
-			if(program[lineNum].text != ".end_macro"){
-				//EXCEPTION
+            if(program.size() == 0){
+                //EXCEPTION
 				string error = "Macro not matched with .end_macro directive before EOF";
 				string offendingToken = programLine.text;
-				throw AssemblerException(program[lineNum], error, offendingToken);
-				return;
-			}
+				addException(AssemblerException(programLine, error, offendingToken));
+                return;
+            }
 			macroLines.push_back(program[lineNum]);
 			program.erase(program.begin() + lineNum);
 			MacroAtom atom = MacroAtom(macroLines);
@@ -496,10 +499,10 @@ void Assembler::applyDirective(string directive, ProgramLine* programLine){
 
 			break;
 		case DIRECTIVE_MACRO:
-
+            currentAction = ACTION_INSTRUCTION_ENCODE;
 			break;
 		case DIRECTIVE_END_MACRO:
-
+            currentAction = ACTION_INIT;
 			break;
 		case DIRECTIVE_EQV:
 
