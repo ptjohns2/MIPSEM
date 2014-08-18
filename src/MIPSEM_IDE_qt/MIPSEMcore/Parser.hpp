@@ -16,6 +16,14 @@ class Parser{
 		Parser();
 		~Parser();
 		
+		static string filePathToFileName(string);
+		static string filePathToParentDirectory(string);
+		static string sanitizePath(string);
+		static string sanitizeDirectoryPath(string);
+		static string sanitizeFilePath(string);
+		static string combineToFilePath(vector<string> const&);
+		static string combineToDirectoryPath(vector<string> const&);
+
 
 		//Methods
 		static string toLower(string);

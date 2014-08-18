@@ -41,6 +41,86 @@ Parser::~Parser(){
 }
 
 
+string Parser::filePathToFileName(string path){
+	path = sanitizeFilePath(path);
+	int i=path.length();
+	for(;i>0;i--){
+		if(path[i] == '/'){
+			i++;
+			break;
+		}
+	}
+	return path.substr(i);
+}
+string Parser::filePathToParentDirectory(string path){
+	path = sanitizeFilePath(path);
+	int i=path.length();
+	for(;i>0;i--){
+		if(path[i] == '/'){
+			i++;
+			break;
+		}
+	}
+	return path.substr(0, i);
+}
+string Parser::sanitizePath(string path){	
+	for(int i=0; i<path.length(); i++){
+		if(path[i] == '\\'){
+			path[i] = '/';
+		}
+	}
+	bool lastCharWasSlash = false;
+	string newPath;
+	for(int i=0; i<path.length(); i++){
+		if(path[i] == '/' && lastCharWasSlash){
+			//skip adding this slash
+		}else{
+			newPath += path[i];
+		}
+		if(path[i] == '/'){
+			lastCharWasSlash = true;
+		}else{
+			lastCharWasSlash = false;
+		}
+	}
+	return newPath;
+}
+string Parser::sanitizeDirectoryPath(string path){
+	path = sanitizePath(path);
+	if(path[path.length()-1] != '/'){
+		path += "/";
+	}
+	return path;
+}
+string Parser::sanitizeFilePath(string path){
+	path = sanitizePath(path);
+	if(path[path.length()-1] == '/'){
+		path = path.substr(0, path.length()-1);
+	}
+	return path;
+}
+string Parser::combineToFilePath(vector<string> const &list){
+	string path = list[0];
+	for(int i=1; i<list.size(); i++){
+		path += "/" + list[i] + "/";
+	}
+	return sanitizeFilePath(path);
+}
+string Parser::combineToDirectoryPath(vector<string> const &list){
+	string path = list[0];
+	for(int i=1; i<list.size(); i++){
+		path += "/" + list[i] + "/";
+	}
+	return sanitizeDirectoryPath(path);
+}
+
+
+
+
+
+
+
+
 //	public Methods
 
 string Parser::toLower(string str){
