@@ -17,8 +17,6 @@ Release/
 *.sln
 *.suo
 
-Debug
-Release
 programs
 *.vcxproj
 *.vcxproj.filters

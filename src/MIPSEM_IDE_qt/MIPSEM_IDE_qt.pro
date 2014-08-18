@@ -12,6 +12,7 @@ SOURCES += \
     MIPSEMcore/BitManip.cpp \
     MIPSEMcore/BitResolver.cpp \
     MIPSEMcore/CPU.cpp \
+    MIPSEMcore/Core.cpp \
     MIPSEMcore/Decoder.cpp \
     MIPSEMcore/Encoder.cpp \
     MIPSEMcore/Exceptions.cpp \
@@ -22,7 +23,7 @@ SOURCES += \
     MIPSEMcore/MemoryMap.cpp \
     MIPSEMcore/Parser.cpp \
     MIPSEMcore/StringResolver.cpp \
-    MIPSEMcore/VirtualMemory.cpp  
+    MIPSEMcore/VirtualMemory.cpp \  
 
 
 
@@ -36,6 +37,7 @@ HEADERS += \
     MIPSEMcore/Assembler.hpp \
     MIPSEMcore/BitManip.hpp \
     MIPSEMcore/BitResolver.hpp \
+    MIPSEMcore/Core.hpp \
     MIPSEMcore/CPU.hpp \
     MIPSEMcore/Decoder.hpp \
     MIPSEMcore/Encoder.hpp \

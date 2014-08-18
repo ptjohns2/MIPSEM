@@ -8,7 +8,10 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     init_pointers();
     init();
     
-  
+    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+e"), this);
+    connect(shortcut, SIGNAL(activated()),
+            this, SLOT(assembleOpenFile()));
+    /*
     ProgramLine line1;
     line1.fileName = "D:\\tmp\\test1.txt";
     line1.lineNumber = 2;
@@ -25,7 +28,7 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     vect.push_back(e2);
     
     assemblerExceptionView->setAssemblerExceptionList(vect);
-    
+    */
     
 }
 void MIPSEM_IDE::init(){
@@ -73,7 +76,25 @@ void MIPSEM_IDE::deinit(){
 
 
 
+void MIPSEM_IDE::assembleOpenFile(){
+    FileEditor* editor = (FileEditor*)tabbedFileEditor->currentWidget();   
+    QString dir = editor->dir;
+    core.reset();
+    core.setRootDirectory(fileSelector->rootDir.toStdString());
 
+    int i=dir.length();
+    for(; i--; i>0){
+        if(dir[i] == '/' || dir[i] == '\\'){
+            i++;
+            break;
+        }   
+    }
+    QString name = dir.mid(i);
+    if(!core.assemble(name.toStdString())){
+        assemblerExceptionView->setAssemblerExceptionList(core.recoverableExceptions);   
+    }
+    int sadf = 5;
+}
 
 
 

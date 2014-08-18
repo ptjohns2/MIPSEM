@@ -1,6 +1,8 @@
 #ifndef FILEBROWSER_HPP
 #define FILEBROWSER_HPP
 
+#include "MIPSEMcore/Core.hpp"
+
 #include "AssemblerExceptionView.hpp"
 #include "FileSelector.hpp"
 #include "TabbedFileEditor.hpp"
@@ -27,8 +29,13 @@ class MIPSEM_IDE : public QWidget{
            FileSelector *fileSelector;
         QSplitter *bottom;
            AssemblerExceptionView *assemblerExceptionView;
-    
-    
+          
+           Core core;
+           
+           
+    public slots:
+        void assembleOpenFile();
+           
 };
 
 
