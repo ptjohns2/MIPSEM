@@ -3,26 +3,30 @@
 
 #include "MIPS32SyntaxHighlighter.hpp"
 
+
 #include <QPlainTextEdit>
 #include <QPaintEvent>
 #include <QShortcut>
+#include <QTabWidget>
 
 class FileEditor : public QPlainTextEdit{
     Q_OBJECT   
     
     public:
-        FileEditor(QString const &dir, QWidget *parent = NULL);
+        FileEditor(QString const &dir, QTabWidget *tabbedFileEditor = NULL, QWidget *parent = NULL);
         void init();
         void init_pointers(); 
         ~FileEditor();
         void deinit();
         
+        QTabWidget* tabbedFileEditor;
+        
         QString dir;
+        QString name;
         bool saveFile();
-        QString lastSavedContents;
         bool requestSave();
         bool readFile(QString const &dir);
-        bool modifiedSinceLastSave();
+        bool modifiedSinceLastSave;
         QShortcut *shortcutSave;
         
         void selectLine(unsigned int lineNum);
@@ -31,6 +35,8 @@ class FileEditor : public QPlainTextEdit{
         void signalRefreshSyntaxHighlighter();
         
     public slots:
+        void setTitle(QString string);
+        void modified();
         void refreshSyntaxHighlighter();
         void slotSaveFile();
         void highlightCurrentLine();

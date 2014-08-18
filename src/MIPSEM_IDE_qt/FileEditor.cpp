@@ -1,11 +1,17 @@
 #include "FileEditor.hpp"
 
+#include "MIPSEMcore/Parser.hpp"
+
+#include <string>
+
 #include <QApplication>
 #include <QMessageBox>
 #include <QTextStream>
 
-FileEditor::FileEditor(QString const &dir, QWidget *parent)
-    :   QPlainTextEdit(parent), dir(dir)
+using std::string;
+
+FileEditor::FileEditor(QString const &dir, QTabWidget *tabbedFileEditor, QWidget *parent)
+    :   QPlainTextEdit(parent), dir(dir), tabbedFileEditor(tabbedFileEditor)
 {
     init_pointers();
     init();
@@ -17,8 +23,12 @@ void FileEditor::init(){
             this, SLOT(slotSaveFile()));
     connect(this, SIGNAL(cursorPositionChanged()), 
             this, SLOT(highlightCurrentLine()));
-    
+    name = QString(Parser::filePathToFileName(dir.toStdString()).c_str());
     readFile(dir);
+    modifiedSinceLastSave = false;
+    //setTitle(name);
+    connect(this, SIGNAL(textChanged()),
+            this, SLOT(modified()));
 }
 void FileEditor::init_pointers(){
     highlighter = new MIPS32SyntaxHighlighter(this);
@@ -44,32 +54,34 @@ void FileEditor::selectLine(unsigned int lineNum){
 
 
 bool FileEditor::saveFile(){
-    if(!modifiedSinceLastSave()){return true;}
-    
-    //FIX MAKE MINE
-    //TODO:
-    QFile file(dir);
-    if(!file.open(QFile::WriteOnly | QFile::Text)){
-        QMessageBox::warning(this, tr("Application"),
-                             tr("Cannot write file %1:\n%2.")
-                             .arg(dir)
-                             .arg(file.errorString()));
-        return false;
+    if(!modifiedSinceLastSave){
+        //do nothing
+    }else{
+        //FIX MAKE MINE
+        //TODO:
+        QFile file(dir);
+        if(!file.open(QFile::WriteOnly | QFile::Text)){
+            QMessageBox::warning(this, tr("Application"),
+                                 tr("Cannot write file %1:\n%2.")
+                                 .arg(dir)
+                                 .arg(file.errorString()));
+            return false;
+        }
+        
+        QTextStream out(&file);
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        QString plainText = this->toPlainText();
+        out << plainText;
+        file.flush();
+        file.close();
+        QApplication::restoreOverrideCursor();
     }
-
-    QTextStream out(&file);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    QString plainText = this->toPlainText();
-    out << plainText;
-    file.flush();
-    file.close();
-    lastSavedContents = plainText;
-    QApplication::restoreOverrideCursor();
-    
+    modifiedSinceLastSave = false;
+    setTitle(name);
 }
 
 bool FileEditor::requestSave(){
-    if(!modifiedSinceLastSave()){return true;}
+    if(!modifiedSinceLastSave){return true;}
     QMessageBox msg;
     msg.setText("This document has been modified.");
     msg.setInformativeText("Do you want to save your changes?");
@@ -110,15 +122,24 @@ bool FileEditor::readFile(QString const &dir){
     this->setPlainText(plainText);
     file.flush();
     file.close();
-    lastSavedContents = plainText;
     QApplication::restoreOverrideCursor();
 }
 
 
-bool FileEditor::modifiedSinceLastSave(){
-    return this->toPlainText() != lastSavedContents;   
+void FileEditor::setTitle(QString string){
+    setDocumentTitle(string);
+    if(tabbedFileEditor != NULL){
+        int index = tabbedFileEditor->indexOf(this);
+        tabbedFileEditor->setTabText(index, string);
+    }
 }
 
+void FileEditor::modified(){
+    if(!modifiedSinceLastSave){
+        setTitle("*" + name);
+    }
+    modifiedSinceLastSave = true;   
+}
 
 void FileEditor::refreshSyntaxHighlighter(){
     highlighter->refreshEditor();

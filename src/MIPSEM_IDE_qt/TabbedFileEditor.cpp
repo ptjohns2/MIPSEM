@@ -1,7 +1,11 @@
 #include "TabbedFileEditor.hpp"
 
-#include <QMessageBox>
+#include "MIPSEMcore/Parser.hpp"
 
+#include <QMessageBox>
+#include <string>
+
+using std::string;
 
 TabbedFileEditor::TabbedFileEditor(QWidget *parent)
     :QTabWidget(parent)
@@ -33,18 +37,8 @@ void TabbedFileEditor::editFile(QString const &dir){
     }
     file.close();
     
-    //get filename without earlier directory names
-    QString tmpDir = dir;
-    int i = tmpDir.length();
-    for(; i>0; i--){
-        if(tmpDir[i] == '\\' || tmpDir[i] == '/'){
-            i++;
-            break;   
-        }   
-    }
-    QString fileName = tmpDir.mid(i);
-    
-    FileEditor *editor = new FileEditor(dir);
+    QString fileName = QString(Parser::filePathToFileName(dir.toStdString()).c_str());    
+    FileEditor *editor = new FileEditor(dir, this);
     editors.push_back(editor);
     int index = this->addTab(editor, fileName);
     this->setCurrentIndex(index);
