@@ -205,14 +205,6 @@ void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
 	while(getline(file, tmpProgramLine)){
 		tmpProgramLine = parser.sanitizeProgramLine(tmpProgramLine);
 		
-		if(tmpProgramLine != ""){
-			ProgramLine programLine;
-			programLine.fileName = fileName;
-			programLine.lineNumber = lineNumber;
-			programLine.text = tmpProgramLine;
-			program.push_back(programLine);
-		}
-
 		string token = parser.toLower(parser.extractFirstToken(tmpProgramLine));
 		if(token == ".include"){
 			parser.extractAndRemoveFirstToken(tmpProgramLine, token);
@@ -221,6 +213,15 @@ void Assembler::loadProgramFromFile(string fileName, ProgramLine* programLine){
 			nestedFileName = parser.trim(nestedFileName);
 			ProgramLine* programLinePtr = (program.size() == 0)? NULL : &program[program.size() - 1];
 			loadProgramFromFile(nestedFileName, programLinePtr);
+			continue;
+		}
+
+		if(tmpProgramLine != ""){
+			ProgramLine programLine;
+			programLine.fileName = rootDirectory + fileName;
+			programLine.lineNumber = lineNumber;
+			programLine.text = tmpProgramLine;
+			program.push_back(programLine);
 		}
 		
 		lineNumber++;
