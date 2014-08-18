@@ -145,22 +145,18 @@ void Assembler::reset(){
 }
 
 void Assembler::setRootDirectory(string dir){
-	for(int i=0; i<dir.length(); i++){
-		if(dir[i] == '\\'){dir[i] = '/';}
-	}
-	if(dir[dir.length()-1] != '/'){
-		dir += "/";
-	}
 	rootDirectory = dir;
 }
 void Assembler::setProgramName(string name){
 	programName = name;
 }
-bool Assembler::assemble(string fileName){
+bool Assembler::assemble(string path){
 	Assembler* ptr = this;
+	setRootDirectory(parser.filePathToParentDirectory(path));
+	setProgramName(parser.filePathToFileName(path));
 	bool invalidateAssembly = false;
 	try{
-		loadProgramFromFile(fileName);
+		loadProgramFromFile(programName);
 		
 		splitLabels();
 		replaceEqv();
@@ -172,12 +168,10 @@ bool Assembler::assemble(string fileName){
 		pseudoInstructionReplace();
 		replaceLabels();
 
-		string name = (programName == "")? fileName : programName;
-
-		writeAlignedRawProgramToDisk(rootDirectory + name + alignedProgramNamePostfix);
+		writeAlignedRawProgramToDisk(rootDirectory + programName + alignedProgramNamePostfix);
 		mapAlignedProgramToVirtualMemory();
 
-		builtObjectFileName = rootDirectory + name + objectNamePostfix;
+		builtObjectFileName = rootDirectory + programName + objectNamePostfix;
 		virtualMemory.serialize(builtObjectFileName);
 	}catch(AssemblerException &e){
 		string message = e.toString();

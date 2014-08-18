@@ -41,7 +41,6 @@ int main(){
 	assert(sizeof(uint64_t) == 8);
 	assert(sizeof(int64_t) == 8);
 	srand((unsigned int)time(NULL));
-	
 
 	//string programName = "99bottles.txt";
 	//string programName = "fact.s";
@@ -49,24 +48,11 @@ int main(){
 	//string programName = "prime-2.s";
 	string programName = "selfModifyingHelloWorld.txt";
 
-	/*
-	CPU cpu = CPU();
-	Assembler assembler = Assembler();
-	assembler.setRootDirectory("D:\\Programming\\WORKSPACES\\WS_GitHub\\MIPSEM\\MIPSEM\\src\\MIPSEM_IDE_qt\\MIPSEMcore");
 
-
-	if(!assembler.assemble("programs/" + programName)){
-		cout << "COULD NOT ASSEMBLE.  Hit enter\n";
-		getchar();
-		return 0;
-	}
-	cpu.MEM.deserialize(assembler.builtObjectFileName);
-	cpu.run();
-	*/
 	Core core = Core();
-	core.setRootDirectory("D:\\Programming\\WORKSPACES\\WS_GitHub\\MIPSEM\\MIPSEM\\src\\MIPSEM_IDE_qt\\MIPSEMcore");
 
-	if(!core.assemble("programs/" + programName)){
+	string programBaseDir = "D:/Programming/WORKSPACES/WS_GitHub/MIPSEM/MIPSEM/src/MIPSEM_IDE_qt/MIPSEMcore/programs/";
+	if(!core.assemble(programBaseDir + programName)){
 		cout << "COULD NOT ASSEMBLE. HIT ENTER\n";
 		getchar();
 		return 1;
