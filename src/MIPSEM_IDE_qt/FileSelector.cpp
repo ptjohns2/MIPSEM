@@ -37,6 +37,7 @@ void FileSelector::init(){
     //treeView
     rootDir = QDir::currentPath();
     fileSystemModel->setRootPath(rootDir);
+    fileSystemModel->setReadOnly(false);
     
     treeView->setModel(fileSystemModel);
     //remove the 3 columns after "Name" in file viewer
@@ -47,9 +48,10 @@ void FileSelector::init(){
     // Demonstrating look and feel features
     treeView->setAnimated(false);
     treeView->setIndentation(10);
+    treeView->sortByColumn(0, Qt::AscendingOrder);
     treeView->setSortingEnabled(true);
     
-    connect(treeView, SIGNAL(doubleClicked(QModelIndex const &)), 
+    connect(treeView, SIGNAL(clicked(QModelIndex const &)), 
             this, SLOT(slotTreeViewIndexSelected(QModelIndex const &)));
     
     layout->addWidget(treeView, 1, 0, 1, 4);

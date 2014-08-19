@@ -8,7 +8,7 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     init_pointers();
     init();
     
-    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+e"), this);
+    QShortcut *shortcut = new QShortcut(QKeySequence("F5"), this);
     connect(shortcut, SIGNAL(activated()),
             this, SLOT(assembleOpenFile()));
     /*
