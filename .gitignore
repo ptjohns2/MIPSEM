@@ -4,11 +4,8 @@ undo
 *.lnk
 
 
-build-MIPSEM_DBG-Desktop_Qt_5_3_MSVC2012_OpenGL_32bit-Debug/
-build-MIPSEM_DBG-Desktop_Qt_5_3_MSVC2012_OpenGL_32bit-Release/
-
-build-MIPSEM_IDE-Desktop_Qt_5_3_MSVC2012_OpenGL_32bit-Debug/
-build-MIPSEM_IDE-Desktop_Qt_5_3_MSVC2012_OpenGL_32bit-Release/
+build-MIPSEM_Qt-Desktop_Qt_5_3_MSVC2012_OpenGL_32bit-Debug/
+build-MIPSEM_Qt-Desktop_Qt_5_3_MSVC2012_OpenGL_32bit-Release/
 
 Debug/
 Release/
