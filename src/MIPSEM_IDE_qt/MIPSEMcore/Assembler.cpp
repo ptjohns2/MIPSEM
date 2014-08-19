@@ -124,7 +124,13 @@ void Assembler::init(){
 	memorySegmentTopArray[DIRECTIVE_TEXT] = MEMSEG_BASE_TEXT;
 	memorySegmentTopArray[DIRECTIVE_KDATA] = MEMSEG_BASE_KDATA;
 	memorySegmentTopArray[DIRECTIVE_KTEXT] = MEMSEG_BASE_KTEXT;
-
+    
+    valueTypeSpecifierSizes[DIRECTIVE_BYTE] = SIZE_BYTES_BYTE;
+    valueTypeSpecifierSizes[DIRECTIVE_HALF] = SIZE_BYTES_HWORD;
+    valueTypeSpecifierSizes[DIRECTIVE_WORD] = SIZE_BYTES_WORD;
+    valueTypeSpecifierSizes[DIRECTIVE_FLOAT] = SIZE_BYTES_FLOAT;
+    valueTypeSpecifierSizes[DIRECTIVE_DOUBLE] = SIZE_BYTES_DOUBLE;
+    
 	currentMemorySegment = DIRECTIVE_DATA;
 	currentValueTypeSpecifier = DIRECTIVE_WORD;
 	currentAction = ACTION_INIT;
@@ -527,15 +533,13 @@ void Assembler::alignRawProgram(){
 			programLine.text = labelName;
 			labelsToAssign.push_back(&program[lineNum]);
 			continue;
-		}
-		while(parser.tokenIsDirective(token)){
+		}else if(parser.tokenIsDirective(token)){
 			parser.extractAndRemoveFirstToken(programLine.text, token);
 			applyDirective(token, &programLine);
 			token = parser.extractFirstToken(programLine.text);
-			if(token == ""){break;}
 		}
 		
-		if(programLine.text == "" && currentAction != ACTION_DECLARE_SEGMENT){
+		if(programLine.text == "" && currentAction != ACTION_DECLARE_SEGMENT && currentAction != ACTION_MEMWRITE_INTEGRAL){
 			continue; //if programLine is all consumed, skip to next line unless you need to declare segment in following actions
 		}
 		//consume literal token
@@ -725,80 +729,42 @@ virtualAddr Assembler::getCurrentMemoryLocation(){
 
 
 void Assembler::alignLiteralTokenList(vector<string> const &literalTokens, string currentLine, ProgramLine* programLine){
-	virtualAddr memorySegmentTopIncrementationSize = 0;
-
-	for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
-		//init string to ".datatype	|[insert literals here]"
-		string mappedProgramString;
-		string currentLiteralToken = literalTokens[tokenNum];
-
-		bool terminateLine = false;
-		try{
-			switch(currentValueTypeSpecifier){
-				//TODO: semi-redundant case switch, fix with array to index into to find SIZE of token
-				case DIRECTIVE_BYTE:
-					{
-						memorySegmentTopIncrementationSize = SIZE_BYTES_BYTE;
-						char val = parser.literals.getLiteralValue(currentLiteralToken);
-						mappedProgramString = parser.literals.getCharLiteralString(val);
-					}
-					break;
-				case DIRECTIVE_HALF:
-					{
-						memorySegmentTopIncrementationSize = SIZE_BYTES_HWORD;
-						uint16_t val = parser.literals.getLiteralValue(currentLiteralToken);
-						mappedProgramString = parser.literals.getDecimalLiteralString(val);
-					}
-					break;
-				case DIRECTIVE_WORD:
-					{
-						//Standard literal value + instructions addon
-						memorySegmentTopIncrementationSize = SIZE_BYTES_WORD;
-						if(parser.tokenIsInstructionName(currentLiteralToken)){
-							//Add instruction
-							mappedProgramString = currentLine;
-							terminateLine = true;
-							break;
-						}
-						uint32_t val = parser.literals.getLiteralValue(currentLiteralToken);
-						mappedProgramString = parser.literals.getDecimalLiteralString(val);
-					}
-					break;
-				case DIRECTIVE_FLOAT:
-					{
-						memorySegmentTopIncrementationSize = SIZE_BYTES_FLOAT;
-						float val = parser.literals.getFloatLiteralValue(currentLiteralToken);
-						mappedProgramString = parser.literals.getFloatLiteralString(val);
-					}
-					break;
-				case DIRECTIVE_DOUBLE:
-					{
-						memorySegmentTopIncrementationSize = SIZE_BYTES_DOUBLE;
-						double val = parser.literals.getDoubleLiteralValue(currentLiteralToken);
-						mappedProgramString = parser.literals.getFloatLiteralString(val);
-					}
-					break;
-				default:
-
-					break;
-			}
-		}catch(InvalidTokenException &e){
-			//EXCEPTION
-			string error = ERROR_INVALID_LITERAL;
-			string offendingToken = currentLiteralToken;
-			addException(AssemblerException(*programLine, error, offendingToken));
-			continue;
-		}
-		virtualAddr addr = getCurrentMemoryLocation();
+	virtualAddr memorySegmentTopIncrementationSize = valueTypeSpecifierSizes[currentValueTypeSpecifier];
+    //special case for empty directives like .word\n etc
+    if(literalTokens.size() == 0){
 		ProgramAtom atom;
-		atom.addr = addr;
-		atom.token = mappedProgramString;
+		atom.addr = getCurrentMemoryLocation();
+		atom.token = "0";
 		atom.type = currentValueTypeSpecifier;
 		atom.programLine = programLine;
 
 		alignedProgram.push_back(atom);
 		incrementSegmentTop(memorySegmentTopIncrementationSize);
-		if(terminateLine){break;} //exit for loop
+        return;
+    }else if(parser.tokenIsInstructionName(parser.extractFirstToken(literalTokens[0]))){
+        ProgramAtom atom;
+		atom.addr = getCurrentMemoryLocation();
+		atom.token = currentLine;
+		atom.type = currentValueTypeSpecifier;
+		atom.programLine = programLine;
+
+		alignedProgram.push_back(atom);
+		incrementSegmentTop(memorySegmentTopIncrementationSize);
+        return;
+    }else{
+        for(int tokenNum=0; tokenNum<literalTokens.size(); tokenNum++){
+            //init string to ".datatype	|[insert literals here]"
+            string currentLiteralToken = literalTokens[tokenNum];
+            
+            ProgramAtom atom;
+            atom.addr = getCurrentMemoryLocation();
+            atom.token = currentLiteralToken;
+            atom.type = currentValueTypeSpecifier;
+            atom.programLine = programLine;
+    
+            alignedProgram.push_back(atom);
+            incrementSegmentTop(memorySegmentTopIncrementationSize);
+        }
 	}
 
 
@@ -1144,6 +1110,71 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 	for(int i=0; i<alignedProgram.size(); i++){
 		ProgramAtom atom = alignedProgram[i];
 		virtualAddr tokenAddr = atom.addr;
+        
+        /// NUMERICAL VALUE TYPES ONLY!
+        try{
+            switch(alignedProgram[i].type){
+                case DIRECTIVE_BYTE:
+                    {
+                        char val = parser.literals.getLiteralValue(atom.token);
+                        size_t size = sizeof(val);
+                        virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+                    }
+                    break;
+                case DIRECTIVE_HALF:
+                    {
+                        int16_t val = parser.literals.getLiteralValue(atom.token);
+                        size_t size = sizeof(val);
+                        virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+                    }
+                    break;
+                case DIRECTIVE_WORD:
+                    {
+                        int32_t val;
+                        if(parser.tokenIsInstructionName(parser.extractFirstToken(atom.token))){
+                            instr bin;
+                            try{
+                                bin = encoder.buildInstruction(atom.token).getBin();
+                            }catch(InvalidTokenException &e){
+                                //EXCEPTION
+                                string error = ERROR_INVALID_INSTRUCTION;
+                                string offendingToken = atom.token;
+                                addException(AssemblerException(*atom.programLine, error, offendingToken));
+                            }
+                            val = readMemAs<int32_t>(&bin);
+                        }else{
+                            val = parser.literals.getLiteralValue(atom.token);
+                        }
+                        size_t size = sizeof(val);
+                        virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+                    }
+                    break;
+                case DIRECTIVE_FLOAT:
+                    {
+                        float val = parser.literals.getLiteralValue(atom.token);
+                        size_t size = sizeof(val);
+                        virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+                    }
+                    break;
+                case DIRECTIVE_DOUBLE:
+                    {
+                        double val = parser.literals.getLiteralValue(atom.token);
+                        size_t size = sizeof(val);
+                        virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
+                    }
+                    break;
+            }
+        }catch(InvalidTokenException &e){
+            //EXCEPTION
+			string error = ERROR_INVALID_LITERAL;
+			string offendingToken = atom.token;
+			addException(AssemblerException(*atom.programLine, error, offendingToken));
+			continue;
+		}
+        //// v---=> NUMERICAL VALUE TYPES moved up here =>--^
+        
+        
+        //REST OF DIRECTIVES
 		switch(alignedProgram[i].type){
 			case DIRECTIVE_DATA:
 				{
@@ -1165,55 +1196,11 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 					//do nothing
 				}
 				break;
-			case DIRECTIVE_BYTE:
-				{
-					char val = parser.literals.getLiteralValue(atom.token);
-					size_t size = sizeof(val);
-					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
-				}
-				break;
-			case DIRECTIVE_HALF:
-				{
-					int16_t val = parser.literals.getLiteralValue(atom.token);
-					size_t size = sizeof(val);
-					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
-				}
-				break;
-			case DIRECTIVE_WORD:
-				{
-					int32_t val;
-					if(parser.tokenIsInstructionName(parser.extractFirstToken(atom.token))){
-						instr bin;
-						try{
-							bin = encoder.buildInstruction(atom.token).getBin();
-						}catch(InvalidTokenException &e){
-							//EXCEPTION
-							string error = ERROR_INVALID_INSTRUCTION;
-							string offendingToken = atom.token;
-							addException(AssemblerException(*atom.programLine, error, offendingToken));
-						}
-						val = readMemAs<int32_t>(&bin);
-					}else{
-						val = parser.literals.getLiteralValue(atom.token);
-					}
-					size_t size = sizeof(val);
-					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
-				}
-				break;
-			case DIRECTIVE_FLOAT:
-				{
-					float val = parser.literals.getLiteralValue(atom.token);
-					size_t size = sizeof(val);
-					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
-				}
-				break;
-			case DIRECTIVE_DOUBLE:
-				{
-					double val = parser.literals.getLiteralValue(atom.token);
-					size_t size = sizeof(val);
-					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &val);
-				}
-				break;
+            //////
+            /////====>
+            // NUMERICAL VALUE TYPES MOVED ABOVE =>--^
+            ////=====>
+            /////
 			case DIRECTIVE_ASCII:
 				{
 					string val = parser.literals.getRawStringLiteralValue(atom.token);
@@ -1258,12 +1245,6 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 					size_t size = sizeof(bin);
 
 					virtualMemory.writeToVirtualMemorySpace(tokenAddr, size, &bin);
-				}
-				break;
-			default:
-				{
-					cout << "Error [void mapAlignedProgramToVirtualMemory()] invalid DIRECTIVE_%TYPE%";
-					getchar();
 				}
 				break;
 		}
