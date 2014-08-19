@@ -37,7 +37,7 @@ void FileSelector::init(){
     //treeView
     rootDir = QDir::currentPath();
     fileSystemModel->setRootPath(rootDir);
-    fileSystemModel->setReadOnly(false);
+    //fileSystemModel->setReadOnly(false);
     
     treeView->setModel(fileSystemModel);
     //remove the 3 columns after "Name" in file viewer
