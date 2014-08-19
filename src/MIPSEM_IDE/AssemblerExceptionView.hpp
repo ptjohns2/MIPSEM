@@ -1,7 +1,7 @@
 #ifndef ASSEMBLEREXCEPTIONVIEW_HPP
 #define ASSEMBLEREXCEPTIONVIEW_HPP
 
-#include "MIPSEMcore/Exceptions.hpp"
+#include "MIPSEM_CORE/Exceptions.hpp"
 
 #include <vector>
 

@@ -1,6 +1,6 @@
 #include "TabbedFileEditor.hpp"
 
-#include "MIPSEMcore/Parser.hpp"
+#include "MIPSEM_CORE/Parser.hpp"
 
 #include <QMessageBox>
 #include <string>

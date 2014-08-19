@@ -1,7 +1,7 @@
 #ifndef FILEBROWSER_HPP
 #define FILEBROWSER_HPP
 
-#include "MIPSEMcore/Core.hpp"
+#include "MIPSEM_CORE/Core.hpp"
 
 #include "AssemblerExceptionView.hpp"
 #include "FileSelector.hpp"

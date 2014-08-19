@@ -51,7 +51,7 @@ int main(){
 
 	Core core = Core();
 
-	string programBaseDir = "D:/Programming/WORKSPACES/WS_GitHub/MIPSEM/MIPSEM/src/MIPSEM_IDE_qt/MIPSEMcore/programs/";
+	string programBaseDir = "D:/Programming/WORKSPACES/WS_GitHub/MIPSEM/MIPSEM/src/MIPSEM_CORE/MIPSEM_CORE/programs/";
 	if(!core.assemble(programBaseDir + programName)){
 		cout << "COULD NOT ASSEMBLE. HIT ENTER\n";
 		getchar();

@@ -1,6 +1,6 @@
 #include "FileEditor.hpp"
 
-#include "MIPSEMcore/Parser.hpp"
+#include "MIPSEM_CORE/Parser.hpp"
 
 #include <string>
 

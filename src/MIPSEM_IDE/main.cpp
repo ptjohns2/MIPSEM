@@ -9,19 +9,14 @@
 
 
 int main(int argv, char **args){
-    QApplication app(argv, args);
-    QString programDir = app.applicationDirPath() + QString("/");
+    QApplication app(argv, args); 
     
-
     MIPSEM_IDE browser = MIPSEM_IDE();
     browser.resize(800, 500);
     browser.show();
     
-    
     return app.exec();
 }
-
-
 
 
 
