@@ -598,7 +598,7 @@ void Assembler::alignRawProgram(){
 					}catch(InvalidTokenException &e){
 						//EXCEPTION
 						string error = ERROR_INVALID_STRING_LITERAL;
-						string offendingToken = rawString;
+						string offendingToken = programLine.text;
 						addException(AssemblerException(program[lineNum], error, offendingToken));
 						continue;
 					}

@@ -90,7 +90,7 @@ void MIPSEM_IDE::assembleOpenFile(){
         assemblerExceptionView->setAssemblerExceptionList(core.recoverableExceptions);   
     }else{
         assemblerExceptionView->clearAssemblerExceptions();
-        assemblerExceptionView->addTextLine("Assembly of \"" + dir + "\" successful.");
+        assemblerExceptionView->addTextLine("=>\tAssembly of \"" + dir + "\" successful.");
     }
 }
 
