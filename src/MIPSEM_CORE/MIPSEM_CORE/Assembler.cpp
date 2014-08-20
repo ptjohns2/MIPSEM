@@ -96,14 +96,21 @@ vector<ProgramLine> MacroAtom::getUniquelyLabelledMacroBody(){
 
 bool MacroAtom::lineIsMacroCall(string programLine){
 	stringstream ss(programLine);
+    
 	string potentialName;
 	getline(ss, potentialName, '(');
+    if(potentialName != name){return false;}
+    
 	string argumentList;
 	getline(ss, argumentList, ')');
 	if(Parser::commaSeparatedLiteralListExplode(argumentList).size() != parameters.size()){
 		return false;
 	}
-	return potentialName == name;
+    string restOfLine;
+    getline(ss, restOfLine);
+    if(restOfLine != ""){
+        return false;
+    }//extra random shit after parameter list end paren) - invalidtokens
 }
 
 

@@ -24,6 +24,7 @@ SOURCES += \
     MIPSEM_CORE/Parser.cpp \
     MIPSEM_CORE/StringResolver.cpp \
     MIPSEM_CORE/VirtualMemory.cpp \  
+    MIPSEM_DBG.cpp
 
 
 
@@ -50,4 +51,5 @@ HEADERS += \
     MIPSEM_CORE/Parser.hpp \
     MIPSEM_CORE/StringResolver.hpp \
     MIPSEM_CORE/types.hpp \
-    MIPSEM_CORE/VirtualMemory.hpp   
+    MIPSEM_CORE/VirtualMemory.hpp \   
+    MIPSEM_DBG.hpp
