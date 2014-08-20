@@ -51,7 +51,7 @@ void FileSelector::init(){
     treeView->sortByColumn(0, Qt::AscendingOrder);
     treeView->setSortingEnabled(true);
     
-    connect(treeView, SIGNAL(clicked(QModelIndex const &)), 
+    connect(treeView, SIGNAL(doubleClicked(QModelIndex const &)), 
             this, SLOT(slotTreeViewIndexSelected(QModelIndex const &)));
     
     layout->addWidget(treeView, 1, 0, 1, 4);

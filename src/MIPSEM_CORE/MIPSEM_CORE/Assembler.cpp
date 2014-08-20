@@ -1069,6 +1069,7 @@ void Assembler::replaceLabels(){
 					string error = ERROR_UNRECOGNIZED_LABEL;
 					string offendingToken = lastToken;
 					addException(AssemblerException(*atom.programLine, error, offendingToken));
+					continue;
 				}
 				virtualAddr labelAddr = getLabelAddress(lastToken);
 				virtualAddr instructionAddr = atom.addr;
@@ -1265,9 +1266,9 @@ void Assembler::mapAlignedProgramToVirtualMemory(){
 void Assembler::addException(AssemblerException const &e){
 	//CONDITIONS TO REJECT ADDING
 	//line is pseudo instruction pad line
-	if(e.programLine.text == ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD){
-		return;
-	}
+	//if(e.programLine.text == ASSEMBLER_REPLACEMENT_PSEUDOINSTRUCTION_PAD){
+	//	return;
+	//}
 	//Add
 	recoverableExceptions.push_back(e);
 }

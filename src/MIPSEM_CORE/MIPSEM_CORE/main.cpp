@@ -38,7 +38,7 @@ int main(int argc, char** args){
 	assert(sizeof(uint64_t) == 8);
 	assert(sizeof(int64_t) == 8);
 	srand((unsigned int)time(NULL));
-
+	/*
 	Core core;
 	std::string fileName(args[1]);
 	if(Parser::isNestedByQuotes(fileName)){
@@ -54,12 +54,16 @@ int main(int argc, char** args){
 
 	core.MEM.deserialize(fileName);
 	core.run();
-	/*
+	*/
+
+	/////////////////////////////////////////////////////////==================================
+
 	//string programName = "99bottles.txt";
 	//string programName = "fact.s";
 	//string programName = "prime-1.txt";
 	//string programName = "prime-2.s";
-	string programName = "selfModifyingHelloWorld.txt";
+	//string programName = "selfModifyingHelloWorld.txt";
+	string programName = "stringPalindrome.txt";
 
 
 	Core core = Core();
@@ -76,7 +80,7 @@ int main(int argc, char** args){
 
 //	} _CrtDumpMemoryLeaks();
 
-	*/
+	
 	return 0;
 }
 

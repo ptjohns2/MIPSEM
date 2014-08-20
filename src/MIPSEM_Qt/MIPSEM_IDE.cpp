@@ -99,7 +99,7 @@ void MIPSEM_IDE::assembleOpenFile(){
         QString MIPSEM_CORE_filePath = MIPSEM_IDE_parentDirPath + "MIPSEM_CORE.exe";
         QStringList MIPSEM_CORE_arguments;
         MIPSEM_CORE_arguments << QString(core.builtObjectFileName.c_str());
-        QProcess *process = new QProcess();
+        //QProcess *process = new QProcess();
         QString systemCall = "start " + MIPSEM_CORE_filePath + " " + MIPSEM_CORE_arguments[0];
         system(systemCall.toStdString().c_str());
     }
