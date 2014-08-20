@@ -109,8 +109,10 @@ bool MacroAtom::lineIsMacroCall(string programLine){
     string restOfLine;
     getline(ss, restOfLine);
     if(restOfLine != ""){
+        //extra random shit after parameter list end paren)
+        //= invalidtokens return false
         return false;
-    }//extra random shit after parameter list end paren) - invalidtokens
+    }
 }
 
 
