@@ -91,7 +91,7 @@ void MIPSEM_IDE::assembleOpenFile(){
         assemblerExceptionView->setAssemblerExceptionList(core.recoverableExceptions);   
     }else{
         assemblerExceptionView->clearAssemblerExceptions();
-        assemblerExceptionView->addTextLine("=>\tAssembly of \"" + dir + "\" successful.");
+        assemblerExceptionView->addTextLine("> Assembly of \"" + dir + "\" successful.");
         assemblerExceptionView->addTextLine("Running object file \"" + QString(core.builtObjectFileName.c_str()) + "\"...");
         //QProcess *process = new QProcess(this);
         QString MIPSEM_IDE_filePath = QFileInfo(QCoreApplication::applicationFilePath()).filePath();
