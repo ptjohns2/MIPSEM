@@ -17,7 +17,7 @@
 9. MIPS32 asm source error detection	-	*stable*  
 10. MIPS32 asm file editing GUI	-	*stable*  
         
-###Current GUI layout:        
+###Example of MIPSEM assembling then running a MIPS32 asm program:        
 ![Screenshot](/demos/GUI.png?raw=true)   
    
    
@@ -61,12 +61,6 @@ main:
 	printString(stringAddr)   
 	exit	# syscall #10   
 ```    
-      
-
-###MIPSEM output:      
-![Screenshot](/demos/selfModifyingHelloWorld_output.png?raw=true)
-
-
 
 
 
