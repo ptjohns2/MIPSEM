@@ -27,12 +27,9 @@
 
 using namespace std;
 
-int main(){
-	/*
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-    _CrtSetBreakAlloc(NUM);	//allocation number ex {123} etc shown in objdump as NUM
-	{
-	*/
+int main(int argc, char** args){
+//	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); _CrtSetBreakAlloc(NUM);{	//allocation number ex {123} etc shown in objdump as NUM
+	
 	assert(sizeof(float) == 4);
 	assert(sizeof(int) == 4);
 	assert(sizeof(unsigned int) == 4);
@@ -42,6 +39,22 @@ int main(){
 	assert(sizeof(int64_t) == 8);
 	srand((unsigned int)time(NULL));
 
+	Core core;
+	std::string fileName(args[1]);
+	if(Parser::isNestedByQuotes(fileName)){
+		fileName = Parser::removeNestedQuotes(fileName);
+	}
+	ifstream file(fileName.c_str());
+	if(!file.good()){
+		cout << "Unable to open object file \"" << fileName << "\".";
+		getchar();
+		return 0;
+	}
+
+
+	core.MEM.deserialize(fileName);
+	core.run();
+	/*
 	//string programName = "99bottles.txt";
 	//string programName = "fact.s";
 	//string programName = "prime-1.txt";
@@ -60,9 +73,9 @@ int main(){
 	core.MEM.deserialize(core.builtObjectFileName);
 	core.run();
 
-	/*
-	}
-	_CrtDumpMemoryLeaks();
+
+//	} _CrtDumpMemoryLeaks();
+
 	*/
 	return 0;
 }

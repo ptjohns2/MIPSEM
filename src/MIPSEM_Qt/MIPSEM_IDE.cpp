@@ -1,6 +1,7 @@
 #include "MIPSEM_IDE.hpp"
 
-
+#include <QCoreApplication>
+#include <QProcess>
 
 MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     :   QWidget(parent)
@@ -91,6 +92,17 @@ void MIPSEM_IDE::assembleOpenFile(){
     }else{
         assemblerExceptionView->clearAssemblerExceptions();
         assemblerExceptionView->addTextLine("=>\tAssembly of \"" + dir + "\" successful.");
+        
+        //QProcess *process = new QProcess(this);
+        QString MIPSEM_IDE_filePath = QFileInfo(QCoreApplication::applicationFilePath()).filePath();
+        QString MIPSEM_IDE_parentDirPath = QString(Parser::filePathToParentDirectory(MIPSEM_IDE_filePath.toStdString()).c_str());
+        QString MIPSEM_CORE_filePath = MIPSEM_IDE_parentDirPath + "MIPSEM_CORE.exe";
+        QStringList MIPSEM_CORE_arguments;
+        MIPSEM_CORE_arguments << QString(core.builtObjectFileName.c_str());
+        QProcess *process = new QProcess();
+        QString systemCall = MIPSEM_CORE_filePath + " " + MIPSEM_CORE_arguments[0];
+        system(systemCall.toStdString().c_str());
+
     }
 }
 
