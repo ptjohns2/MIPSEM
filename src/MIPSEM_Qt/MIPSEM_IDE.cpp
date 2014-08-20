@@ -92,7 +92,7 @@ void MIPSEM_IDE::assembleOpenFile(){
     }else{
         assemblerExceptionView->clearAssemblerExceptions();
         assemblerExceptionView->addTextLine("=>\tAssembly of \"" + dir + "\" successful.");
-        
+        assemblerExceptionView->addTextLine("Running object file \"" + QString(core.builtObjectFileName.c_str()) + "\"...");
         //QProcess *process = new QProcess(this);
         QString MIPSEM_IDE_filePath = QFileInfo(QCoreApplication::applicationFilePath()).filePath();
         QString MIPSEM_IDE_parentDirPath = QString(Parser::filePathToParentDirectory(MIPSEM_IDE_filePath.toStdString()).c_str());
@@ -100,9 +100,8 @@ void MIPSEM_IDE::assembleOpenFile(){
         QStringList MIPSEM_CORE_arguments;
         MIPSEM_CORE_arguments << QString(core.builtObjectFileName.c_str());
         QProcess *process = new QProcess();
-        QString systemCall = MIPSEM_CORE_filePath + " " + MIPSEM_CORE_arguments[0];
+        QString systemCall = "start " + MIPSEM_CORE_filePath + " " + MIPSEM_CORE_arguments[0];
         system(systemCall.toStdString().c_str());
-
     }
 }
 
