@@ -2165,7 +2165,7 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 		case 10:
 			//exit (terminate execution)	10		=======>	terminates execution of program
 			exitProgram = true;
-			cout << "\nMIPSEM ending execution.\tReturn value 0.\n";
+			cout << "\n\n\nMIPSEM ending execution.\nReturn value: 0.\n";
 			getchar();
 			break;
 		case 11:
@@ -2210,7 +2210,7 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 		case 17:
 			//exit2 (terminate with value)	17	$a0 = termination result	=======>	See note below table
 			exitProgram = true;
-			cout << "\nMIPSEM ending execution.\tReturn value " << GPR[$a0] << ".\n";
+			cout << "\n\n\nMIPSEM ending execution.\nReturn value: " << GPR[$a0] << ".\n";
 			getchar();
 			break;
 		default:
