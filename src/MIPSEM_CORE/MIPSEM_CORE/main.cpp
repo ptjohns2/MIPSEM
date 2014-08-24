@@ -38,7 +38,7 @@ int main(int argc, char** args){
 	assert(sizeof(uint64_t) == 8);
 	assert(sizeof(int64_t) == 8);
 	srand((unsigned int)time(NULL));
-	/*
+
 	Core core;
 	std::string fileName(args[1]);
 	if(Parser::isNestedByQuotes(fileName)){
@@ -54,28 +54,7 @@ int main(int argc, char** args){
 
 	core.MEM.deserialize(fileName);
 	core.run();
-	*/
 
-	/////////////////////////////////////////////////////////==================================
-
-	//string programName = "99bottles.txt";
-	//string programName = "fact.s";
-	//string programName = "prime-1.txt";
-	//string programName = "prime-2.s";
-	//string programName = "selfModifyingHelloWorld.txt";
-	string programName = "stringPalindrome.txt";
-
-
-	Core core = Core();
-
-	string programBaseDir = "D:/Programming/WORKSPACES/WS_GitHub/MIPSEM/MIPSEM/src/MIPSEM_CORE/MIPSEM_CORE/programs/";
-	if(!core.assemble(programBaseDir + programName)){
-		cout << "COULD NOT ASSEMBLE. HIT ENTER\n";
-		getchar();
-		return 1;
-	}
-	core.MEM.deserialize(core.builtObjectFileName);
-	core.run();
 
 
 //	} _CrtDumpMemoryLeaks();

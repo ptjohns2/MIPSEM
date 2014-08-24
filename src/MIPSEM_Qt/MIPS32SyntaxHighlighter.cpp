@@ -73,7 +73,7 @@ void MIPS32SyntaxHighlighter::refreshEditor(){
     editor->setFont(font);
     
     QFontMetrics metrics = QFontMetrics(font);
-    editor->setTabStopWidth(6 * metrics.width(' '));
+    editor->setTabStopWidth(DEFAULT_TAB_WIDTH * metrics.width(' '));
     
     //Background color
     QPalette palette = editor->palette();

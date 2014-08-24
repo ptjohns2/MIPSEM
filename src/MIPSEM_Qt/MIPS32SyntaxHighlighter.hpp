@@ -7,6 +7,7 @@
 #define DEFAULT_SIZE_FONT_MINIMUM               (4)
 #define DEFAULT_SIZE_FONT_MAXIMUM               (100)
 #define DEFAULT_SIZE_FONT                       (10)
+#define DEFAULT_TAB_WIDTH                       (4)
 #define DEFAULT_COLOR_TEXT                      (QColor(255, 255, 255))
 #define DEFAULT_COLOR_BACKGROUND                (QColor(0, 0, 0))
 #define DEFAULT_COLOR_BACKGROUND_HIGHLIGHT_RATIO   (0.20)
