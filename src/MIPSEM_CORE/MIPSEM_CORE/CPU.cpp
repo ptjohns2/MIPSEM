@@ -2135,7 +2135,6 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 			break;
 		case 5:
 			//read integer	5		=======>	$v0 contains integer read
-			cin.clear();
 			cin >> tmpInt;
 			GPR[$v0] = tmpInt;
 			break;
@@ -2166,20 +2165,19 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 			//exit (terminate execution)	10		=======>	terminates execution of program
 			exitProgram = true;
 			cout << "\n\n\nMIPSEM ending execution.\nReturn value: 0.\n";
+			fseek(stdin,0,SEEK_END);
 			getchar();
 			break;
 		case 11:
 			//print character	11	$a0 = character to print	=======>	See note below table
-
-
 			putchar((char)GPR[4]);
+
 			break;
 		case 12:
 			//read character	12		=======>	$v0 contains character read
-
-
 			tmpChar = getchar();
 			GPR[4] = (int32_t)tmpChar;
+
 			break;
 		case 13:
 			//open file	13	$a0 = address of null-terminated string containing filename	=======>	$v0 contains file descriptor (negative if error). See note below table
@@ -2211,6 +2209,7 @@ inline void CPU::executeInstructionID_349(uint32_t a0, uint32_t a1, uint32_t a2,
 			//exit2 (terminate with value)	17	$a0 = termination result	=======>	See note below table
 			exitProgram = true;
 			cout << "\n\n\nMIPSEM ending execution.\nReturn value: " << GPR[$a0] << ".\n";
+			fseek(stdin,0,SEEK_END);
 			getchar();
 			break;
 		default:
