@@ -2,9 +2,10 @@
 #define TOOLBAR_HPP
 
 #include <QMenu>
-#include <QToolBar>
+#include <QMenuBar>
+#include <QToolButton>
 
-class Toolbar : public QToolBar{
+class Toolbar : public QMenuBar{
     Q_OBJECT   
     
     public:
@@ -13,18 +14,18 @@ class Toolbar : public QToolBar{
         void init_pointers();
         ~Toolbar();
         void deinit();
-        
+    
         QMenu *fileMenu;
             QAction *newFile, *openFile, *closeFile, *saveFile, *saveAllFiles, *exit;
         QMenu *editMenu;
             QAction *undo, *redo, *cut, *copy, *paste, *selectAll, *find, *replace;
         QMenu *viewMenu;
-            QAction *zoomIn, *zoomOut, *editSyntaxHighlighter;
+            QAction *zoomIn, *zoomOut, *editSyntaxHighlighter;    
         QMenu *emulateMenu;
             QAction *build, *run, *buildAndRun;
         QMenu *helpMenu;
             QAction *MIPSEMHelp, *QtHelp;
-        
+    
         
         
         
