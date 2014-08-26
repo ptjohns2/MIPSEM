@@ -20,7 +20,7 @@ class Toolbar : public QMenuBar{
         QMenu *editMenu;
             QAction *undo, *redo, *cut, *copy, *paste, *selectAll, *find, *replace;
         QMenu *viewMenu;
-            QAction *zoomIn, *zoomOut, *editSyntaxHighlighter;    
+            QAction *zoomIn, *zoomOut, *editSyntaxHighlighting;    
         QMenu *emulateMenu;
             QAction *build, *run, *buildAndRun;
         QMenu *helpMenu;

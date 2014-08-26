@@ -35,6 +35,7 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
 void MIPSEM_IDE::init(){
     layout->setHorizontalSpacing(0);
     layout->setVerticalSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(toolbar);
    
     middle->addWidget(fileSelector);
