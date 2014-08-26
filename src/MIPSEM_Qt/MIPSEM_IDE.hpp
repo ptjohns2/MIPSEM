@@ -6,6 +6,7 @@
 #include "AssemblerExceptionView.hpp"
 #include "FileSelector.hpp"
 #include "TabbedFileEditor.hpp"
+#include "Toolbar.hpp"
 
 #include <QToolBar>
 
@@ -23,7 +24,7 @@ class MIPSEM_IDE : public QWidget{
         
         QGridLayout *layout;
         
-        QToolBar *toolbar;
+        Toolbar *toolbar;
         QSplitter *middle;
            TabbedFileEditor *tabbedFileEditor;
            FileSelector *fileSelector;

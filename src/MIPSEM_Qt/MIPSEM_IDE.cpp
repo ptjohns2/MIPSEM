@@ -33,9 +33,8 @@ MIPSEM_IDE::MIPSEM_IDE(QWidget *parent)
     
 }
 void MIPSEM_IDE::init(){
-    toolbar->addAction("test");
     layout->addWidget(toolbar);
-    
+   
     middle->addWidget(fileSelector);
     middle->addWidget(tabbedFileEditor);
     
@@ -52,12 +51,12 @@ void MIPSEM_IDE::init(){
             tabbedFileEditor, SLOT(selectFileLine(const ProgramLine)));
     
     layout->addWidget(bottom);
+
 }
 
 void MIPSEM_IDE::init_pointers(){
-    toolbar = new QToolBar();
     layout = new QGridLayout(this);
-        toolbar = new QToolBar();
+        toolbar = new Toolbar();
         middle = new QSplitter(Qt::Horizontal);
             tabbedFileEditor = new TabbedFileEditor();
             fileSelector = new FileSelector();

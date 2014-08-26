@@ -8,7 +8,7 @@ class Toolbar : public QToolBar{
     Q_OBJECT   
     
     public:
-        Toolbar();
+        Toolbar(QWidget *parent = NULL);
         void init();
         void init_pointers();
         ~Toolbar();
@@ -23,7 +23,7 @@ class Toolbar : public QToolBar{
         QMenu *emulateMenu;
             QAction *build, *run, *buildAndRun;
         QMenu *helpMenu;
-            QAction *MIPSEHelp, *QtHelp;
+            QAction *MIPSEMHelp, *QtHelp;
         
         
         
