@@ -23,8 +23,8 @@ SOURCES += \
     MIPSEM_CORE/MemoryMap.cpp \
     MIPSEM_CORE/Parser.cpp \
     MIPSEM_CORE/StringResolver.cpp \
-    MIPSEM_CORE/VirtualMemory.cpp \  
-    MIPSEM_DBG.cpp
+    MIPSEM_CORE/VirtualMemory.cpp \   
+    Toolbar.cpp
 
 
 
@@ -51,5 +51,5 @@ HEADERS += \
     MIPSEM_CORE/Parser.hpp \
     MIPSEM_CORE/StringResolver.hpp \
     MIPSEM_CORE/types.hpp \
-    MIPSEM_CORE/VirtualMemory.hpp \   
-    MIPSEM_DBG.hpp
+    MIPSEM_CORE/VirtualMemory.hpp \    
+    Toolbar.hpp
