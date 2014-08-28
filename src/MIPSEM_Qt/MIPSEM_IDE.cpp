@@ -95,6 +95,7 @@ void MIPSEM_IDE::assembleOpenFile(){
     if(!validAssembly){
         assemblerExceptionView->setAssemblerExceptionList(core.recoverableExceptions);   
     }else{
+        /*
         assemblerExceptionView->clearAssemblerExceptions();
         assemblerExceptionView->addTextLine("> Assembly of \"" + dir + "\" successful.");
         assemblerExceptionView->addTextLine("Running object file \"" + QString(core.builtObjectFileName.c_str()) + "\"...");
@@ -107,6 +108,24 @@ void MIPSEM_IDE::assembleOpenFile(){
         //QProcess *process = new QProcess();
         QString systemCall = "start " + MIPSEM_CORE_filePath + " " + MIPSEM_CORE_arguments[0];
         system(systemCall.toStdString().c_str());
+        */    
+        
+        
+        assemblerExceptionView->clearAssemblerExceptions();
+        assemblerExceptionView->addTextLine("> Assembly of \"" + dir + "\" successful.");
+        assemblerExceptionView->addTextLine("Running object file \"" + QString(core.builtObjectFileName.c_str()) + "\"...");
+        //QProcess *process = new QProcess(this);
+        QString MIPSEM_IDE_filePath = QFileInfo(QCoreApplication::applicationFilePath()).filePath();
+        QString MIPSEM_IDE_parentDirPath = QString(Parser::filePathToParentDirectory(MIPSEM_IDE_filePath.toStdString()).c_str());
+        QString MIPSEM_CORE_filePath = MIPSEM_IDE_parentDirPath + "MIPSEM_CORE.exe";
+        QStringList MIPSEM_CORE_arguments;
+        MIPSEM_CORE_arguments << QString(core.builtObjectFileName.c_str());
+        //QProcess *process = new QProcess();
+        //process->execute(MIPSEM_CORE_filePath, MIPSEM_CORE_arguments);
+        QString systemCall = "start " + MIPSEM_CORE_filePath + " " + MIPSEM_CORE_arguments[0];
+        system(systemCall.toStdString().c_str());
+        
+        
     }
 }
 

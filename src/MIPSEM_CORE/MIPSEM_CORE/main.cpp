@@ -39,10 +39,16 @@ int main(int argc, char** args){
 	assert(sizeof(int64_t) == 8);
 	srand((unsigned int)time(NULL));
 
-	Core core;
-	std::string fileName(args[1]);
+	if(!argc == 2){
+		cout << "Error: invalid number of arguments.  Only one can be used, *.MIPSEMobj file to run";
+		return 0;
+	}
+	string fileName(args[1]);
 	if(Parser::isNestedByQuotes(fileName)){
 		fileName = Parser::removeNestedQuotes(fileName);
+	}
+	if(Parser::filePathToParentDirectory(fileName).empty()){
+		//add later
 	}
 	ifstream file(fileName.c_str());
 	if(!file.good()){
@@ -51,7 +57,8 @@ int main(int argc, char** args){
 		return 0;
 	}
 
-
+	
+	Core core;
 	core.MEM.deserialize(fileName);
 	core.run();
 
