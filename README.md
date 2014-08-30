@@ -46,15 +46,15 @@ Uses only Qt and the C++ standard library.  Distributed under the MIT license.
 	
 .data	####### .DATA SECTION
 
-stringAddr:		.asciiz	"Hello, World!"
+stringAddr:		.asciiz	"Self modifying Hello, World! program in MIPS32"
 
 #encode "syscall" instruction to this word in .data section
 instructionAddr:	.word	syscall	
 
-.text	####### .TEXT SECTION  
+.text	####### .TEXT SECTION
 main:
-	printString(stringAddr)   
-	exit	# syscall #10   
+	printString(stringAddr)
+	exit	# syscall #10
 ```    
 
 
